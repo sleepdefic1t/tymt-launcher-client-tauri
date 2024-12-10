@@ -353,11 +353,12 @@ export default class TransactionProviderAPI {
         transaction: res?.transactionId,
       };
       const body1 = JSON.stringify(bodyContent1);
+      //@ts-ignore
       const res1: any = await tauriFetch(apiURL, {
         method: "PUT",
         connectTimeout: 30,
         headers: headers,
-        body: JSON.parse(body1)
+        body: JSON.parse(body1),
       });
       // console.log("done", await res1.json());
     } else if (res?.status === "failed") {
@@ -371,11 +372,12 @@ export default class TransactionProviderAPI {
         transaction: res?.message,
       };
       const body1 = JSON.stringify(bodyContent1);
+      //@ts-ignore
       const res1: any = await tauriFetch(apiURL, {
         method: "PUT",
         connectTimeout: 30,
         headers: headers,
-        body: JSON.parse(body1)
+        body: JSON.parse(body1),
       });
       // console.log("error", await res1.json());
     }
@@ -406,7 +408,7 @@ export default class TransactionProviderAPI {
         method: "PUT",
         connectTimeout: 30,
         headers: headers,
-        body: JSON.parse(body1)
+        body: JSON.parse(body1),
       });
     } catch (err) {
       // console.error("Failed to update tx status: ", err);

@@ -264,7 +264,7 @@ export const SocketProvider = () => {
             }
 
             if (!socket.current.hasListeners("alert-updated")) {
-              socket.current.on("alert-udpated", async (alert: IAlert) => {
+              socket.current.on("alert-udpated", async (_alert: IAlert) => {
                 // console.log("socket.current.on > alert-udpated", alert);
                 // if (alert.alertType === "friend-request") {
                 //   // Update the friend lists of both him and me
@@ -284,7 +284,7 @@ export const SocketProvider = () => {
             }
 
             if (!socket.current.hasListeners("friend-request-accepted")) {
-              socket.current.on("friend-request-accepted", async (alert: IAlert) => {
+              socket.current.on("friend-request-accepted", async (_alert: IAlert) => {
                 // console.log("socket.current.on > friend-request-accepted", alert);
                 dispatch(fetchAlertListAsync(myInfoStoreRef.current._id));
                 dispatch(fetchFriendListAsync());
@@ -292,7 +292,7 @@ export const SocketProvider = () => {
             }
 
             if (!socket.current.hasListeners("friend-request-rejected")) {
-              socket.current.on("friend-request-rejected", async (alert: IAlert) => {
+              socket.current.on("friend-request-rejected", async (_alert: IAlert) => {
                 // console.log("socket.current.on > friend-request-rejected", alert);
                 dispatch(fetchAlertListAsync(myInfoStoreRef.current._id));
                 dispatch(fetchFriendListAsync());

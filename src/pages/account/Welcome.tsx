@@ -155,7 +155,7 @@ const Welcome = () => {
           })
         );
       })
-      .catch((err) => {
+      .catch((_err) => {
         // console.log("Error getting Machine ID:", err);
       });
   }, []);

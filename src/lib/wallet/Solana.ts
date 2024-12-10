@@ -166,6 +166,7 @@ class Solana implements IWallet {
           params: [rawTxString],
         };
         const body2 = JSON.stringify(bodyContent2);
+        //@ts-ignore
         const response2: any = await tauriFetch(apiURL, {
           method: "POST",
           connectTimeout: 30,

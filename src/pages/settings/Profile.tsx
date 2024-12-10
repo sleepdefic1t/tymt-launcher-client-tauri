@@ -56,6 +56,7 @@ const Profile = ({ view, setView }: propsType) => {
 
       dispatch(setAccount({ ...accountStore, nickName: nickname }));
 
+      //@ts-ignore
       const res = await updateUserNickname(myInfoStore?._id, nickname);
       // console.log(res.data, "updateUserNickName");
 
@@ -115,7 +116,7 @@ const Profile = ({ view, setView }: propsType) => {
         setNotificationOpen(true);
         setNotificationLink(null);
       })
-      .catch((err) => {
+      .catch((_err) => {
         // console.log(err);
         setNotificationStatus("failed");
         setNotificationTitle(t("alt-34_avatar-notsaved"));

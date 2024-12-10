@@ -184,6 +184,7 @@ class Bitcoin implements IWallet_2 {
 
         const rawHexTransaction = psbt.extractTransaction().toHex();
 
+        //@ts-ignore
         const response = await Bitcoin.broadcastTransaction(rawHexTransaction);
         // console.log("response", response);
 

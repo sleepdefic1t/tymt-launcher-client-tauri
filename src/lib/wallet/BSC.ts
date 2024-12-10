@@ -98,11 +98,12 @@ class BSC implements IWallet {
     try {
       tx.recipients.map(async (recipient) => {
         const tx = await tokenContract.transfer(recipient.address, ethers.parseUnits("0.001", 18));
+        //@ts-ignore
         const receipt = await tx.wait(1); // wait for 1 confirmation
-        const hash = receipt.transactionHash;
-        const block = receipt.blockNumber;
-        const status = receipt.status ? "Success" : "Failure";
-        const gas = receipt.gasUsed.toString();
+        // const hash = receipt.transactionHash;
+        // const block = receipt.blockNumber;
+        // const status = receipt.status ? "Success" : "Failure";
+        // const gas = receipt.gasUsed.toString();
         // console.log(`Transaction: [${hash}](^5^${hash})`);
         // console.log(`Block: ${block}`);
         // console.log(`Status: ${status}`);
@@ -125,11 +126,12 @@ class BSC implements IWallet {
             to: recipient.address,
             value: ethers.parseEther(recipient.amount),
           });
+          //@ts-ignore
           const receipt = await response.wait(1);
-          const hash = receipt.transactionHash;
-          const block = receipt.blockNumber;
-          const status = receipt.status ? "Success" : "Failure";
-          const gas = receipt.gasUsed.toString();
+          // const hash = receipt.transactionHash;
+          // const block = receipt.blockNumber;
+          // const status = receipt.status ? "Success" : "Failure";
+          // const gas = receipt.gasUsed.toString();
           // console.log(`Transaction: [${hash}](^5^${hash})`);
           // console.log(`Block: ${block}`);
           // console.log(`Status: ${status}`);

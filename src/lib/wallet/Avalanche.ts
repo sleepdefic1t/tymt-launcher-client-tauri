@@ -110,11 +110,12 @@ class Avalanche implements IWallet {
             to: recipient.address,
             value: ethers.parseEther(recipient.amount),
           });
+          //@ts-ignore
           const receipt = await response.wait(1);
-          const hash = receipt.transactionHash;
-          const block = receipt.blockNumber;
-          const status = receipt.status ? "Success" : "Failure";
-          const gas = receipt.gasUsed.toString();
+          // const hash = receipt.transactionHash;
+          // const block = receipt.blockNumber;
+          // const status = receipt.status ? "Success" : "Failure";
+          // const gas = receipt.gasUsed.toString();
           // console.log(`Transaction: [${hash}](^5^${hash})`);
           // console.log(`Block: ${block}`);
           // console.log(`Status: ${status}`);

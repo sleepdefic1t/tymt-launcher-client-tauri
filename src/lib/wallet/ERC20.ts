@@ -154,6 +154,7 @@ class ERC20 {
     }
     try {
       const privateKey = await ERC20.getPrivateKeyFromMnemonic(passphrase);
+      //@ts-ignore
       const response = await Promise.all(
         tx.recipients.map((recipient) => {
           return multichainWallet.transfer({

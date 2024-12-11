@@ -61,63 +61,80 @@ import "./locale/i18n";
 
 import { Buffer } from "buffer";
 
+import { MetaMaskProvider } from "@metamask/sdk-react";
+
+import { MetamaskProvider } from "./providers/MetamaskProvider";
+
 window.Buffer = Buffer;
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <StoreProvider store={store}>
-      <FullscreenProvider>
-        <BrowserRouter>
-          <TrayProvider>
-            <NotificationProvider>
-              <Routes>
-                <Route path="/" element={<UpdateProvider />}>
-                  <Route path="/" element={<TransactionProvider />}>
-                    <Route path="/" element={<Splash />} />
-                    <Route path="/start" element={<Start />} />
-                    <Route path="/welcome" element={<Welcome />} />
-                    <Route path="/non-custodial/signup/2" element={<NonCustodialSignUp2 />} />
-                    <Route path="/non-custodial/signup/3" element={<NonCustodialSignUp3 />} />
-                    <Route path="/non-custodial/signup/4" element={<NonCustodialSignUp4 />} />
-                    <Route path="/non-custodial/login/2" element={<NonCustodialLogIn2 />} />
-                    <Route path="/non-custodial/import/1" element={<NonCustodialImport1 />} />
-                    <Route path="/guest/complete/password" element={<GuestCompletePassword />} />
-                    <Route path="/guest/complete/passphrase" element={<GuestCompletePassphrase />} />
-                    <Route path="/guest/complete/nickname" element={<GuestCompleteNickname />} />
-                    <Route path="/confirm-information/:mode" element={<ConfirmInformation />} />
-                    <Route path="/" element={<SocketProvider />}>
-                      <Route path="/" element={<ChatProvider />}>
-                        <Route path="/" element={<AlertProvider />}>
-                          <Route element={<AuthProvider />}>
-                            <Route path="/" element={<Layout />}>
-                              <Route path="/wallet" element={<Wallet />} />
-                              <Route path="/wallet/send-sxp" element={<WalletSendSXP />} />
-                              <Route path="/wallet/vote" element={<WalletVote />} />
-                              <Route path="/wallet/buy-crypto" element={<WalletBuyCrypto />} />
-                              <Route path="/wallet/payment-method" element={<WalletPaymentMethod />} />
-                              <Route path="/wallet/payment-card" element={<WalletPaymentCard />} />
-                              <Route path="/wallet/buy-game" element={<WalletBuyGame />} />
-                              <Route path="/home" element={<Homepage />} />
-                              <Route path="/store" element={<Store />} />
-                              <Route path="/coming/:gameid" element={<ComingGameOverview />} />
-                              <Route path="/library" element={<Library />} />
-                            </Route>
-                            <Route path="/" element={<Layoutchat />}>
-                              <Route path="/chat" element={<Chatroom />} />
-                              <Route path="/chat/:chatroomId" element={<Chatroom />} />
+    <MetaMaskProvider
+      sdkOptions={{
+        dappMetadata: {
+          name: "Example React Dapp",
+          url: window.location.href,
+        },
+        infuraAPIKey: import.meta.env.VITE_APP_INFURA_API_KEY,
+        // Other options.
+      }}
+    >
+      <MetamaskProvider>
+        <StoreProvider store={store}>
+          <FullscreenProvider>
+            <BrowserRouter>
+              <TrayProvider>
+                <NotificationProvider>
+                  <Routes>
+                    <Route path="/" element={<UpdateProvider />}>
+                      <Route path="/" element={<TransactionProvider />}>
+                        <Route path="/" element={<Splash />} />
+                        <Route path="/start" element={<Start />} />
+                        <Route path="/welcome" element={<Welcome />} />
+                        <Route path="/non-custodial/signup/2" element={<NonCustodialSignUp2 />} />
+                        <Route path="/non-custodial/signup/3" element={<NonCustodialSignUp3 />} />
+                        <Route path="/non-custodial/signup/4" element={<NonCustodialSignUp4 />} />
+                        <Route path="/non-custodial/login/2" element={<NonCustodialLogIn2 />} />
+                        <Route path="/non-custodial/import/1" element={<NonCustodialImport1 />} />
+                        <Route path="/guest/complete/password" element={<GuestCompletePassword />} />
+                        <Route path="/guest/complete/passphrase" element={<GuestCompletePassphrase />} />
+                        <Route path="/guest/complete/nickname" element={<GuestCompleteNickname />} />
+                        <Route path="/confirm-information/:mode" element={<ConfirmInformation />} />
+                        <Route path="/" element={<SocketProvider />}>
+                          <Route path="/" element={<ChatProvider />}>
+                            <Route path="/" element={<AlertProvider />}>
+                              <Route element={<AuthProvider />}>
+                                <Route path="/" element={<Layout />}>
+                                  <Route path="/wallet" element={<Wallet />} />
+                                  <Route path="/wallet/send-sxp" element={<WalletSendSXP />} />
+                                  <Route path="/wallet/vote" element={<WalletVote />} />
+                                  <Route path="/wallet/buy-crypto" element={<WalletBuyCrypto />} />
+                                  <Route path="/wallet/payment-method" element={<WalletPaymentMethod />} />
+                                  <Route path="/wallet/payment-card" element={<WalletPaymentCard />} />
+                                  <Route path="/wallet/buy-game" element={<WalletBuyGame />} />
+                                  <Route path="/home" element={<Homepage />} />
+                                  <Route path="/store" element={<Store />} />
+                                  <Route path="/coming/:gameid" element={<ComingGameOverview />} />
+                                  <Route path="/library" element={<Library />} />
+                                </Route>
+                                <Route path="/" element={<Layoutchat />}>
+                                  <Route path="/chat" element={<Chatroom />} />
+                                  <Route path="/chat/:chatroomId" element={<Chatroom />} />
+                                </Route>
+                              </Route>
                             </Route>
                           </Route>
                         </Route>
+                        <Route path="/d53-transaction" element={<WalletD53Transaction />} />
                       </Route>
                     </Route>
-                    <Route path="/d53-transaction" element={<WalletD53Transaction />} />
-                  </Route>
-                </Route>
-              </Routes>
-            </NotificationProvider>
-          </TrayProvider>
-        </BrowserRouter>
-      </FullscreenProvider>
-    </StoreProvider>
+                  </Routes>
+                </NotificationProvider>
+              </TrayProvider>
+            </BrowserRouter>
+          </FullscreenProvider>
+        </StoreProvider>
+      </MetamaskProvider>
+    </MetaMaskProvider>
   </React.StrictMode>
 );

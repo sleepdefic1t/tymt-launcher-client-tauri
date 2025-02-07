@@ -64,8 +64,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           logging: {
             developerMode: false,
           },
-          communicationServerUrl: process.env.REACT_APP_COMM_SERVER_URL,
-          checkInstallationImmediately: false, // This will automatically connect to MetaMask on page load
+          // communicationServerUrl: process.env.REACT_APP_COMM_SERVER_URL,
+          checkInstallationImmediately: true, // This will automatically connect to MetaMask on page load
           dappMetadata: {
             name: "tymt-launcher",
             url: window.location.host,

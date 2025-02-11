@@ -18,15 +18,12 @@ import {
 } from "../const/ChainConsts";
 
 interface MetamaskContextType {
-  account: string;
-
   connect: () => Promise<void>;
 }
 
 const MetamaskContext = createContext<MetamaskContextType | undefined>(undefined);
 
 export const MetamaskCustomProvider = ({ children }: { children: ReactNode }) => {
-  const [account, setAccount] = useState<string>();
   const [openMetamaskImportModal, setOpenMetamaskImportModal] = useState<boolean>(false);
   // const [openMetamaskWarningModal, setOpenMetamaskWarningModal] = useState<boolean>(false);
 
@@ -43,8 +40,6 @@ export const MetamaskCustomProvider = ({ children }: { children: ReactNode }) =>
       if (ethWalletAddress.toLocaleLowerCase() !== accounts?.[0]?.toLocaleLowerCase()) {
         sdk?.disconnect();
         setOpenMetamaskImportModal(true);
-      } else {
-        setAccount(accounts?.[0]);
       }
     } catch (err) {
       console.error("Failed to connect: ", err);
@@ -115,7 +110,6 @@ export const MetamaskCustomProvider = ({ children }: { children: ReactNode }) =>
   return (
     <MetamaskContext.Provider
       value={{
-        account,
         connect,
       }}
     >

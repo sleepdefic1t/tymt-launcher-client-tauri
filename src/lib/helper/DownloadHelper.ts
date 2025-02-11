@@ -580,6 +580,19 @@ export const deleteDownloadFile = async (game: IGame) => {
   }
 };
 
+export const deleteGameDirectory = async (game: IGame) => {
+  try {
+    const directoryLocation = await getInstallDir(game);
+    await invoke("delete_directory", {
+      dirLocation: directoryLocation,
+    });
+    return true;
+  } catch (err) {
+    console.error("Failed to deleteGameDirectory: ", err);
+    return false;
+  }
+};
+
 export const getOsCpu = async () => {
   try {
     const platform = await type();

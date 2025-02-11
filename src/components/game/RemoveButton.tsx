@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 
-import { /*deleteGame*/ isInstalled } from "../../lib/helper/DownloadHelper";
+import { deleteGameDirectory, isInstalled } from "../../lib/helper/DownloadHelper";
 
 import { IGame } from "../../types/GameTypes";
 
@@ -17,7 +17,7 @@ const RemoveButton = ({ game }: IPropsRemoveButton) => {
 
   const handleClick = async () => {
     setIsRemoving(true);
-    // await deleteGame(game);
+    await deleteGameDirectory(game);
     setIsRemoving(false);
   };
 

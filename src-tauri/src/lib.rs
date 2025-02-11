@@ -143,6 +143,7 @@ pub fn main() -> std::io::Result<()> {
             unzip_linux,
             move_appimage_linux,
             delete_file,
+            delete_directory,
             run_url_args,
             // set_permission,
             open_directory,
@@ -752,6 +753,16 @@ async fn delete_file(app_handle: tauri::AppHandle, file_location: String) -> Res
     let path = PathBuf::from(file_location);
 
     fs::remove_file(&path).map_err(|e| format!("Failed to delete file: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn delete_directory(app_handle: tauri::AppHandle, dir_location: String) -> Result<(), String> {
+    let path = PathBuf::from(dir_location);
+
+    // Attempt to remove the directory and all its contents recursively
+    fs::remove_dir_all(&path).map_err(|e| format!("Failed to delete directory: {}", e))?;
 
     Ok(())
 }

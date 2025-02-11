@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import numeral from "numeral";
 
-import { Grid, Stack, Box, Tooltip, IconButton, Button } from "@mui/material";
+import { Grid, Stack, Box, IconButton, Button } from "@mui/material";
 
 import { CONST_SUPPORT_CHAINS } from "../../const/ChainConsts";
 
@@ -16,10 +16,11 @@ import TransCard from "../../components/wallet/TransCard";
 import Loading from "../../components/home/Loading";
 import ComingModal from "../../components/modal/ComingModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
+import TooltipComponent from "../../components/home/TooltipComponent";
 
 import { AppDispatch } from "../../store";
-import { getCurrentToken, setCurrentToken } from "../../store/CurrentTokenSlice";
 import { getBalanceList } from "../../store/BalanceListSlice";
+import { getCurrentToken, setCurrentToken } from "../../store/CurrentTokenSlice";
 import { getWalletSetting, setWalletSetting } from "../../store/WalletSettingSlice";
 
 import { getNativeTokenBalanceByChainName } from "../../lib/helper/WalletHelper";
@@ -33,14 +34,11 @@ import percentIcon from "../../assets/wallet/PercentIcon.svg";
 import refreshIcon from "../../assets/wallet/RefreshIcon.svg";
 
 import WalletStyle from "../../styles/WalletStyles";
-import SettingStyle from "../../styles/SettingStyle";
-import TooltipComponent from "../../components/home/TooltipComponent";
 
 // const order = ["Solar", "Binance", "Ethereum", "Bitcoin", "Solana", "Polygon", "Avalanche", "Arbitrum", "Optimism"];
 
 const Wallet = () => {
   const classname = WalletStyle();
-  const tooltip = SettingStyle();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -101,7 +99,6 @@ const Wallet = () => {
 
                         <Box>
                           {CONST_SUPPORT_CHAINS?.map((supportChain, index) => (
-                            // <Tooltip title={supportChain?.native?.name} placement="top" key={index} classes={{ tooltip: tooltip.tooltip }}>
                             <TooltipComponent placement="top" text={supportChain?.native?.name}>
                               <img
                                 src={supportChain?.native?.logo}
@@ -112,8 +109,6 @@ const Wallet = () => {
                                 }}
                               />
                             </TooltipComponent>
-
-                            // </Tooltip>
                           ))}
                         </Box>
                       </Stack>

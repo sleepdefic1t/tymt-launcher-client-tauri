@@ -5,8 +5,6 @@ import { ThreeDots } from "react-loader-spinner";
 
 import { Button, Stack, Box } from "@mui/material";
 
-import useNotification from "../../providers/NotificationProvider";
-
 import D53Modal from "../home/D53Modal";
 import WarningModalNewGame from "../home/WarningModalNewGame";
 
@@ -30,8 +28,6 @@ const InstallButton = ({ game }: IPropsInstallButton) => {
 
   const downloadStatusStore: IDownloadStatus = useSelector(getDownloadStatus);
 
-  const { showNotification } = useNotification();
-
   const [modalView, setModalView] = useState<boolean>(false);
   const [d53ModalView, setD53ModalView] = useState<boolean>(false);
   const [isSupporting, setIsSupporting] = useState<boolean>(false);
@@ -54,7 +50,7 @@ const InstallButton = ({ game }: IPropsInstallButton) => {
       if (!id) return;
       const online = await checkOnline();
       if (!online) {
-        showNotification(t("alt-26_internet-error"), t("alt-27_you-not-connected"));
+        // showNotification(t("alt-26_internet-error"), t("alt-27_you-not-connected"));
         return;
       }
       await downloadAndInstallNewGame(game);

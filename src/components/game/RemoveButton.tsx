@@ -25,9 +25,7 @@ const RemoveButton = ({ game }: IPropsRemoveButton) => {
     const checkInstalled = async (game: IGame) => {
       setInstalled(await isInstalled(game));
     };
-
     const intervalId = setInterval(() => checkInstalled(game), 1 * 1e3);
-
     return () => {
       if (intervalId) clearInterval(intervalId);
     };

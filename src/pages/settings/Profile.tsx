@@ -5,7 +5,6 @@ import * as Yup from "yup";
 
 import { Box, Button, Divider, Stack, Tooltip } from "@mui/material";
 
-import useNotification from "../../providers/NotificationProvider";
 import Avatar from "../../components/home/Avatar";
 import InputText from "../../components/account/InputText";
 
@@ -30,7 +29,6 @@ interface IPropsProfile {
 const Profile: FC<IPropsProfile> = ({ view, setView }) => {
   const classname = SettingStyle();
   const { t } = useTranslation();
-  const { showNotification } = useNotification();
   const dispatch = useDispatch<AppDispatch>();
 
   const accountStore: IAccount = useSelector(getAccount);
@@ -58,12 +56,12 @@ const Profile: FC<IPropsProfile> = ({ view, setView }) => {
       dispatch(setAccount(updatedAccount));
       dispatch(addAccountList(updatedAccount));
 
-      showNotification(t("alt-1_nickname-saved"), t("alt-2_nickname-saved-intro"));
+      // showNotification(t("alt-1_nickname-saved"), t("alt-2_nickname-saved-intro"));
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
         setError(err.message);
       }
-      showNotification(t("alt-3_nickname-notsaved"), t("alt-4_nickname-notsaved-intro"));
+      // showNotification(t("alt-3_nickname-notsaved"), t("alt-4_nickname-notsaved-intro"));
     }
   }, [nickname, accountStore]);
 

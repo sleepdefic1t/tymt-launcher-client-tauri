@@ -580,10 +580,9 @@ export const deleteGameDirectory = async (game: IGame) => {
     await invoke("delete_directory", {
       dirLocation: directoryLocation,
     });
-    return true;
   } catch (err) {
     console.error("Failed to deleteGameDirectory: ", err);
-    return false;
+    throw new Error(err.toString());
   }
 };
 

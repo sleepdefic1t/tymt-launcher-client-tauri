@@ -108,4 +108,18 @@ export const CONST_NOTIFICATION_CONTENTS = {
     duration: CONST_NOTIFICATION_DURATION.DEFAULT,
     link: "",
   },
+  REMOVE_SUCCESS: {
+    title: "set-85_success",
+    text: "alt-30_game-removed",
+    status: CONST_NOTIFICATION_STATUS.SUCCESS,
+    duration: CONST_NOTIFICATION_DURATION.DEFAULT,
+    link: "",
+  },
+  REMOVE_FAIL: {
+    title: "wal-56_failed",
+    text: "alt-40_game-remove-failed",
+    status: CONST_NOTIFICATION_STATUS.FAILED,
+    duration: CONST_NOTIFICATION_DURATION.DEFAULT,
+    link: "",
+  },
 };

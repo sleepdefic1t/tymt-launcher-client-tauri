@@ -36,7 +36,7 @@ import { ICurrentChain, ISupportChain, ISupportNative, ISupportToken } from "../
 import { ICurrentCurrency, IReserveList } from "../types/CurrencyTypes";
 import { IBalanceList, ICurrentToken, IVotingData, IWalletAddresses } from "../types/WalletTypes";
 import { IPriceList } from "../types/PriceTypes";
-import { IAccount, IMnemonic } from "../types/AccountTypes";
+import { IMnemonic } from "../types/AccountTypes";
 import { IWalletSetting } from "../types/SettingTypes";
 import { IRecipient } from "../types/TransactionTypes";
 

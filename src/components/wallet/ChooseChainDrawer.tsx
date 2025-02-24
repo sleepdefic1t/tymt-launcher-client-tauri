@@ -12,8 +12,6 @@ import { setCurrentChain } from "../../store/CurrentChainSlice";
 
 import { ISupportChain } from "../../types/ChainTypes";
 
-import SettingStyle from "../../styles/SettingStyle";
-
 import closeImg from "../../assets/setting/CollapsCloseBtn.svg";
 import backIcon from "../../assets/setting/BackIcon.svg";
 
@@ -25,7 +23,7 @@ export interface IPropsChooseChainDrawer {
 }
 
 const ChooseChainDrawer = ({ view, setView }: IPropsChooseChainDrawer) => {
-  const classname = SettingStyle();
+  // const classname = SettingStyle();
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -50,13 +48,24 @@ const ChooseChainDrawer = ({ view, setView }: IPropsChooseChainDrawer) => {
       open={view}
       onClose={() => setView(false)}
       onOpen={toggleDrawer("right", true)}
-      classes={{ paper: classname.setting_container }}
       slotProps={{
         backdrop: {
           onClick: toggleDrawer("right", false),
         },
       }}
       sx={{
+        "& .MuiPaper-root": {
+          height: "98% !important",
+          minWidth: "550px",
+          display: "flex",
+          borderRadius: "32px",
+          backgroundColor: "#8080804D !important",
+          backgroundBlendMode: "luminosity",
+          backdropFilter: "blur(4px)",
+          margin: "10px",
+          position: "fixed",
+          flexDirection: "row", // No need for "&.MuiPaper-root" here
+        },
         "& .MuiBox-root": {
           overflow: "auto", // Enable scrolling
           scrollbarWidth: "none", // Firefox
@@ -66,10 +75,23 @@ const ChooseChainDrawer = ({ view, setView }: IPropsChooseChainDrawer) => {
         },
       }}
     >
-      <Box className={classname.collaps_pan}>
-        <img src={closeImg} className={classname.close_icon} onClick={() => setView(false)} />
+      <Box sx={{ width: "45px", height: "100%", position: "relative" }}>
+        <img src={closeImg} style={{ cursor: "pointer", position: "absolute", bottom: "40px" }} onClick={() => setView(false)} />
       </Box>
-      <Box className={classname.setting_pan}>
+      <Box
+        sx={{
+          maxWidth: "505px",
+          width: "100%",
+          height: "100%",
+          overflow: "scroll",
+          borderRadius: "24px",
+          backgroundColor: "#071516",
+          whiteSpace: "nowrap",
+          overFlowX: "auth",
+          scrollbarWidth: "none",
+          position: "relative",
+        }}
+      >
         <Stack direction={"column"}>
           <Stack flexDirection={"row"} justifyContent={"flex-start"} gap={"10px"} alignItems={"center"} textAlign={"center"} sx={{ padding: "20px" }}>
             <Button className={"setting-back-button"} onClick={() => setView(false)}>

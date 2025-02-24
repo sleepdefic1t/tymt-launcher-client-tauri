@@ -15,8 +15,6 @@ import { ISupportChain } from "../../types/ChainTypes";
 import closeIcon from "../../assets/setting/XIcon.svg";
 import copyIcon from "../../assets/setting/CopyIcon.svg";
 
-import SettingStyle from "../../styles/SettingStyle";
-
 export interface IPropsQrModal {
   supportChain: ISupportChain;
   open: boolean;
@@ -25,7 +23,6 @@ export interface IPropsQrModal {
 
 const QrModal = ({ supportChain, open, setOpen }: IPropsQrModal) => {
   const { t } = useTranslation();
-  const classnames = SettingStyle();
 
   const walletStore: IWalletAddresses = useSelector(getWallet);
 
@@ -85,7 +82,10 @@ const QrModal = ({ supportChain, open, setOpen }: IPropsQrModal) => {
                 sx={{ cursor: "pointer", display: "flex" }}
                 onClick={() => navigator.clipboard.writeText(currentWallet)}
               >
-                <Tooltip title={t("set-79_copy-address")} classes={{ tooltip: classnames.tooltip }}>
+                <Tooltip
+                  title={t("set-79_copy-address")}
+                  sx={{ padding: "6px 8px 6px 8px", borderRadius: "32px", border: "1px", borderColor: "#FFFFFF1A", backgroundColor: "#8080804D" }}
+                >
                   <img src={copyIcon} />
                 </Tooltip>
               </Button>

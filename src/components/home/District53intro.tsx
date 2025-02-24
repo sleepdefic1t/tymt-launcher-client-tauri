@@ -12,7 +12,6 @@ import { CONST_GAME_DISTRICT53 } from "../../const/games/district53/District53";
 import D53Modal from "./D53Modal";
 import InstallButton from "../game/InstallButton";
 
-import homeStyles from "../../styles/homeStyles";
 import districteffect from "../../assets/main/DistrictEffect.svg";
 import districteffect1 from "../../assets/main/DistrictEffect1.svg";
 import districteffect2 from "../../assets/main/DistrictEffect2.svg";
@@ -24,13 +23,24 @@ interface IPropsDistrict53Intro {
 const District53Intro = ({ setImage }: IPropsDistrict53Intro) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const homeclasses = homeStyles();
   const [selected, setSelected] = useState(0);
   const [d53Open, setD53Open] = useState<boolean>(false);
 
   return (
     <div style={{ width: "320px" }}>
-      <Grid className={homeclasses.district_content} item xs={12}>
+      <Grid
+        sx={{
+          borderRadius: "var(--Angle-Number, 16px)",
+          flexShrink: "initial",
+          backgroundColor: "var(--bg-stroke-side-menu-bg, rgba(29, 29, 29, 0.30))",
+          padding: "20px",
+          WebkitFlexShrink: "initial",
+          position: "relative",
+          overflow: "hidden",
+        }}
+        item
+        xs={12}
+      >
         <img
           src={districteffect}
           style={{

@@ -18,8 +18,6 @@ import { ISupportChain } from "../../types/ChainTypes";
 import { IBalanceList } from "../../types/WalletTypes";
 import { IPriceList } from "../../types/PriceTypes";
 
-import CommonStyles from "../../styles/commonStyles";
-
 import walletImg1 from "../../assets/wallet/WalletCard1.png";
 import walletImg2 from "../../assets/wallet/WalletCard2.png";
 import walletImg3 from "../../assets/wallet/WalletCard3.png";
@@ -44,7 +42,6 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
   const { currentCurrencyReserve, currentCurrencySymbol } = useWallet();
 
   const background = backgrounds[index];
-  const common = CommonStyles();
 
   const balanceListStore: IBalanceList = useSelector(getBalanceList);
   const priceListStore: IPriceList = useSelector(getPriceList);
@@ -91,7 +88,13 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
             </Stack>
           </Stack>
           <Box
-            className={`${common.center_align} qr-btn`}
+            className={`qr-btn`}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              textAlign: "center",
+              alignItems: "center",
+            }}
             onClick={(e: React.MouseEvent<HTMLElement>) => {
               e.preventDefault();
               e.stopPropagation();

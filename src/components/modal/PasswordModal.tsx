@@ -20,8 +20,6 @@ import { IAccount } from "../../types/AccountTypes";
 import { IVotingData, IWalletAddresses } from "../../types/WalletTypes";
 import { IWalletSetting } from "../../types/SettingTypes";
 
-import SettingStyle from "../../styles/SettingStyle";
-
 import closeIcon from "../../assets/setting/XIcon.svg";
 import logo from "../../assets/main/FoxHeadComingSoon.png";
 import solarBlockchainIcon from "../../assets/main/SolarBlockchain.png";
@@ -33,7 +31,6 @@ export interface IPropsPasswordModal {
 }
 
 const PasswordModal = ({ open, setOpen, voteAsset }: IPropsPasswordModal) => {
-  const classname = SettingStyle();
   const { t } = useTranslation();
   const { currentCurrencySymbol, currentCurrencyReserve, sxpFee, sxpVote } = useWallet();
 
@@ -107,13 +104,10 @@ const PasswordModal = ({ open, setOpen, voteAsset }: IPropsPasswordModal) => {
                   InputProps={{
                     inputMode: "numeric",
                     endAdornment: (
-                      <InputAdornment position="end" classes={{ root: classname.adornment }}>
+                      <InputAdornment position="end" sx={{ "& .MuiBox-root": { color: "white" }, "& .MuiTypography-root": { color: "white" } }}>
                         {currentCurrencySymbol}
                       </InputAdornment>
                     ),
-                    classes: {
-                      input: classname.input,
-                    },
                   }}
                   value={numeral(Number(sxpFee) * Number(currentCurrencyReserve)).format("0,0.0000")}
                   // onBlur={(e) => {
@@ -134,7 +128,49 @@ const PasswordModal = ({ open, setOpen, voteAsset }: IPropsPasswordModal) => {
                     //   })
                     // );
                   }}
-                  className={classname.input}
+                  sx={{
+                    width: "100%",
+                    textAlign: "right",
+
+                    height: "58px",
+                    borderRadius: "16px",
+                    border: "1px solid #FFFFFF1A",
+                    background: "#8080801A",
+                    backgroundBlendMode: "luminosity",
+                    color: "white",
+                    boxShadow: "none",
+                    "& .MuiInputBase-input": {
+                      font: "unset",
+                      color: "white",
+                      fontFamily: "Cobe",
+                      fontSize: "18px",
+                      fontStyle: "normal",
+                      fontWeight: "400",
+                      lineHeight: "24px",
+                      letterSpacing: "-0.36px",
+                      padding: "0px 3px 5px  5px",
+                      border: "none",
+                      background: "none",
+                    },
+                    "& .MuiInputBase-root": {
+                      font: "unset",
+                      height: "58px",
+                      borderRadius: "16px",
+                      border: "1px solid #FFFFFF1A",
+                      background: "#8080801A",
+                      backgroundBlendMode: "luminosity",
+                      fontFamily: "Cobe",
+                      color: "var(--Basic-Light, #AFAFAF)",
+                    },
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#FFFFFF33",
+                      borderWidth: "3px",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#FFFFFF33",
+                      borderWidth: "3px",
+                    },
+                  }}
                 />
               </Box>
               <Box

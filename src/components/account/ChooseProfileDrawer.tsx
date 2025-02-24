@@ -14,8 +14,6 @@ import { IAccountList } from "../../types/AccountTypes";
 
 import closeImg from "../../assets/setting/CollapsCloseBtn.svg";
 
-import SettingStyle from "../../styles/SettingStyle";
-
 type Anchor = "right";
 
 interface props {
@@ -24,7 +22,6 @@ interface props {
 }
 
 const ChooseProfileDrawer = ({ view, setView }: props) => {
-  const classname = SettingStyle();
   const navigate = useNavigate();
 
   const accountListStore: IAccountList = useSelector(getAccountList);
@@ -49,13 +46,24 @@ const ChooseProfileDrawer = ({ view, setView }: props) => {
       open={view}
       onClose={() => setView(false)}
       onOpen={toggleDrawer("right", true)}
-      classes={{ paper: classname.setting_container }}
       slotProps={{
         backdrop: {
           onClick: toggleDrawer("right", false),
         },
       }}
       sx={{
+        "& .MuiPaper-root": {
+          height: "98% !important",
+          minWidth: "550px",
+          display: "flex",
+          borderRadius: "32px",
+          backgroundColor: "#8080804D !important",
+          backgroundBlendMode: "luminosity",
+          backdropFilter: "blur(4px)",
+          margin: "10px",
+          position: "fixed",
+          flexDirection: "row", // No need for "&.MuiPaper-root" here
+        },
         "& .MuiBox-root": {
           overflow: "auto", // Enable scrolling
           scrollbarWidth: "none", // Firefox
@@ -65,10 +73,23 @@ const ChooseProfileDrawer = ({ view, setView }: props) => {
         },
       }}
     >
-      <Box className={classname.collaps_pan}>
-        <img src={closeImg} className={classname.close_icon} onClick={() => setView(false)} />
+      <Box sx={{ width: "45px", height: "100%", position: "relative" }}>
+        <img src={closeImg} style={{ cursor: "pointer", position: "absolute", bottom: "40px" }} onClick={() => setView(false)} />
       </Box>
-      <Box className={classname.setting_pan}>
+      <Box
+        sx={{
+          maxWidth: "505px",
+          width: "100%",
+          height: "100%",
+          overflow: "scroll",
+          borderRadius: "24px",
+          backgroundColor: "#071516",
+          whiteSpace: "nowrap",
+          overFlowX: "auth",
+          scrollbarWidth: "none",
+          position: "relative",
+        }}
+      >
         <Stack direction={"row"} alignItems={"center"} spacing={"16px"} padding={"18px 16px"}>
           <IconButton
             className="icon-button"

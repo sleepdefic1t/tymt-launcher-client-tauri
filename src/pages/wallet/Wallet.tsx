@@ -34,13 +34,11 @@ import receiveIcon from "../../assets/wallet/ReceiveIcon.svg";
 import percentIcon from "../../assets/wallet/PercentIcon.svg";
 import refreshIcon from "../../assets/wallet/RefreshIcon.svg";
 
-import WalletStyle from "../../styles/WalletStyles";
 // import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 
 // const order = ["Solar", "Binance", "Ethereum", "Bitcoin", "Solana", "Polygon", "Avalanche", "Arbitrum", "Optimism"];
 
 const Wallet = () => {
-  const classname = WalletStyle();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -76,9 +74,9 @@ const Wallet = () => {
                               <img
                                 src={supportChain?.native?.logo}
                                 key={index}
-                                className={classname.wrap_imgs}
                                 style={{
                                   cursor: "pointer",
+                                  marginLeft: "-5px",
                                 }}
                               />
                             </TooltipComponent>

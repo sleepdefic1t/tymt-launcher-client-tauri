@@ -25,8 +25,6 @@ import tymtCore from "../../lib/core/tymtCore";
 import { getKeccak256Hash } from "../../lib/helper/EncryptHelper";
 import { formatBalance } from "../../lib/helper/NumberHelper";
 
-import SettingStyle from "../../styles/SettingStyle";
-
 import walletIcon from "../../assets/wallet/Wallet.svg";
 
 import { ICurrentChain } from "../../types/ChainTypes";
@@ -34,7 +32,6 @@ import { IRecipient } from "../../types/TransactionTypes";
 
 const WalletSend = () => {
   const { t } = useTranslation();
-  const classname = SettingStyle();
   const dispatch = useDispatch<AppDispatch>();
 
   const accountStore = useSelector(getAccount);
@@ -263,7 +260,38 @@ const WalletSend = () => {
                 {Number(amount) > 0 && address !== "" && (Number(sxpFee) > 0 || currentSupportChain?.native?.symbol !== "SXP") && (
                   <Button
                     fullWidth
-                    className={classname.action_button}
+                    sx={{
+                      "&.MuiButtonBase-root": {
+                        textTransform: "none",
+                        fontSize: "18px",
+                        fontStyle: "normal",
+                        fontWeight: "400",
+                        lineHeight: "24px" /* 133.333% */,
+                        letterSpacing: "-0.36px",
+                        height: "46px",
+                        borderRadius: "16px",
+                        backgroundColor: "transparent",
+                        color: "#52E1F2",
+                        borderColor: "#EF4444",
+                        fontFamily: "Cobe",
+                        boxShadow: "none",
+                        border: "1px solid",
+                        paddingTop: "5px",
+                        "&:hover": {
+                          borderColor: "#EF4444",
+                          backgroundColor: "#EF4444",
+                        },
+                        "&:active": {
+                          backgroundColor: "#EF4444",
+                          boxShadow: "1px 1px #EF44445F",
+                        },
+                        "&:disabled": {
+                          backgroundColor: "#222222", // Example: light gray background
+                          color: "#A0A0A0", // Example: gray text color
+                          borderColor: "#222222", // Example: gray border color
+                        },
+                      },
+                    }}
                     onClick={() => {
                       updateDraft();
                     }}

@@ -23,8 +23,6 @@ import GameOverViewJumbo from "../../components/game/GameOverViewJumbo";
 import GameOverViewDescription from "../../components/game/GameOverViewDescription";
 import GameReview from "../../components/game/GameReview";
 
-import storeStyles from "../../styles/StoreStyles";
-
 import gradient1 from "../../assets/main/GradientGameOverview.svg";
 import { IGameList } from "../../types/GameTypes";
 import { getGameList } from "../../store/GameListSlice";
@@ -54,12 +52,27 @@ const GameOverview = () => {
     [comingGameListStore, gameListStore]
   );
 
-  const classes = storeStyles();
   const textList: string[] = [t("ga-10_overview"), t("ga-11_review")];
 
   return (
     <>
-      <Grid item xs={12} container className={classes.gameoverview_container} mb={"32px"}>
+      <Grid
+        item
+        xs={12}
+        container
+        sx={{
+          marginBottom: "32px",
+          borderRadius: "var(--Angle-Number, 32px)",
+          background: "rgba(29, 29, 29, 0.50)",
+          backgroundBlendMode: "luminosity",
+          backdropFilter: "blur(50px)",
+          padding: "24px",
+          flexShrink: 0.3,
+          position: "relative",
+          overflow: "hidden",
+        }}
+        mb={"32px"}
+      >
         <AnimatedComponent threshold={0}>
           <img src={gradient1} style={{ position: "absolute", right: 0, top: 0 }} />
           <Grid item xs={12} display={"flex"} justifyContent={"space-between"} alignItems={"center"}>

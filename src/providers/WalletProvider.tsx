@@ -11,8 +11,8 @@ import { getCurrentChain } from "../store/CurrentChainSlice";
 import { getCurrentCurrency } from "../store/CurrentCurrencySlice";
 import { getCurrentToken, setCurrentToken } from "../store/CurrentTokenSlice";
 import { getWallet } from "../store/WalletSlice";
-import { /*appendPriceList,*/ getPriceList } from "../store/PriceListSlice";
-import { /*appendBalanceList,*/ getBalanceList } from "../store/BalanceListSlice";
+import { /*appendPriceList,*/ getPriceList, setPriceList } from "../store/PriceListSlice";
+import { /*appendBalanceList,*/ getBalanceList, setBalanceList } from "../store/BalanceListSlice";
 import { getReserveList } from "../store/ReserveListSlice";
 import { getWalletSetting, setWalletSetting } from "../store/WalletSettingSlice";
 import { getMnemonic } from "../store/MnemonicSlice";
@@ -28,7 +28,7 @@ import {
   getSupportChainByName,
   getSupportNativeOrTokenBySymbol,
   getTokenBalanceBySymbol,
-  getTokenPriceByCmc,
+  getTokenPriceBySymbol,
   getPublicKey,
 } from "../lib/helper/WalletHelper";
 
@@ -106,17 +106,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     () => getTokenBalanceBySymbol(balanceListStore, currentSupportChain?.native?.symbol),
     [balanceListStore, currentSupportChain]
   );
-  const currentChainNativePrice = useMemo(() => getTokenPriceByCmc(priceListStore, currentSupportChain?.native?.cmc), [priceListStore, currentSupportChain]);
+  const currentChainNativePrice = useMemo(
+    () => getTokenPriceBySymbol(priceListStore, currentSupportChain?.native?.symbol),
+    [priceListStore, currentSupportChain]
+  );
 
   const totalBalance = useMemo(() => {
     let total = 0;
     CONST_SUPPORT_CHAINS.forEach((supportChain) => {
       const nativeBalance = balanceListStore.list.find((one) => one.symbol === supportChain.native.symbol)?.balance || 0;
-      const nativePrice = priceListStore.list.find((one) => one.symbol === supportChain.native.cmc)?.price || 0;
+      const nativePrice = priceListStore.list.find((one) => one.symbol === supportChain.native.symbol)?.price || 0;
       total += nativeBalance * nativePrice;
       supportChain.tokens.forEach((token) => {
         const tokenBalance = balanceListStore.list.find((one) => one.symbol === token.symbol)?.balance || 0;
-        const tokenPrice = priceListStore.list.find((one) => one.symbol === token.cmc)?.price || 0;
+        const tokenPrice = priceListStore.list.find((one) => one.symbol === token.symbol)?.price || 0;
         total += tokenBalance * tokenPrice;
       });
     });
@@ -171,7 +174,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     console.time("fetchBalanceList");
     const balanceList = await CryptoAPI.getAllBalance({ evmAddress: walletStore?.ethereum, solAddress: walletStore?.solana, btcAddress: walletStore?.bitcoin });
     console.log("balanceList", balanceList);
-    // dispatch(setBalanceList(balanceList));
+    dispatch(setBalanceList(balanceList));
     console.timeEnd("fetchBalanceList");
   }, [walletStore, dispatch]);
 
@@ -179,7 +182,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     try {
       const priceList = await CryptoAPI.getAllPrices();
       console.log("priceList", priceList);
-      // dispatch(setPriceList(priceList));
+      dispatch(setPriceList(priceList));
     } catch (err) {
       console.error("Failed to fetchPriceList: ", err);
     }

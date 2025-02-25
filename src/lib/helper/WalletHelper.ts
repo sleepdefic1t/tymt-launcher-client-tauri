@@ -146,9 +146,9 @@ export const getSupportTokensByChainName = (chainName: string) => {
   }
 };
 
-export const getTokenPriceByCmc = (priceListStore: IPriceList, cmc: string) => {
+export const getTokenPriceBySymbol = (priceListStore: IPriceList, symbol: string) => {
   try {
-    const res = priceListStore?.list?.find((one) => one?.symbol === cmc)?.price;
+    const res = priceListStore?.list?.find((one) => one?.symbol === symbol)?.price;
     return res;
   } catch (err) {
     console.error("Failed to getCurrentChainNativeTokenPrice: ", err);
@@ -167,8 +167,8 @@ export const getTokenBalanceBySymbol = (balanceListStore: IBalanceList, symbol: 
 export const getNativeTokenPriceByChainName = (priceListStore: IPriceList, chainName: string) => {
   try {
     const supportChain = getSupportChainByName(chainName);
-    const cmc = supportChain?.native?.cmc;
-    const res = getTokenPriceByCmc(priceListStore, cmc);
+    const symbol = supportChain?.native?.symbol;
+    const res = getTokenPriceBySymbol(priceListStore, symbol);
     return res;
   } catch (err) {
     console.error("Failed to getNativeSymbolByChainName: ", err);

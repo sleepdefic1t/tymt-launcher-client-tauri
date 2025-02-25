@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 
 import { Box, SwipeableDrawer, Stack, Button, Divider } from "@mui/material";
 
+import { useNotification } from "../../providers/NotificationProvider";
 import ChainBox from "../home/ChainBox";
 
 import { CONST_SUPPORT_CHAINS } from "../../const/ChainConsts";
@@ -14,6 +15,7 @@ import { ISupportChain } from "../../types/ChainTypes";
 
 import closeImg from "../../assets/setting/CollapsCloseBtn.svg";
 import backIcon from "../../assets/setting/BackIcon.svg";
+import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 
 type Anchor = "right";
 
@@ -26,6 +28,7 @@ const ChooseChainDrawer = ({ view, setView }: IPropsChooseChainDrawer) => {
   // const classname = SettingStyle();
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
 
   const [state, setState] = useState({ right: false });
 
@@ -38,8 +41,13 @@ const ChooseChainDrawer = ({ view, setView }: IPropsChooseChainDrawer) => {
   };
 
   const handleChainBoxClick = (one: ISupportChain) => {
-    dispatch(setCurrentChain(one?.native?.name));
-    setView(false);
+    try {
+      dispatch(setCurrentChain(one?.native?.name));
+      setView(false);
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.CHAIN_SELECT_SUCCESS, text: one?.native?.name });
+    } catch (err) {
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.CHAIN_SELECT_FAIL, text: one?.native?.name });
+    }
   };
 
   return (

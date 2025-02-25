@@ -11,7 +11,7 @@ import { setCurrentChain } from "../../store/CurrentChainSlice";
 import { getBalanceList } from "../../store/BalanceListSlice";
 import { getPriceList } from "../../store/PriceListSlice";
 
-import { getTokenBalanceBySymbol, getTokenPriceByCmc } from "../../lib/helper/WalletHelper";
+import { getTokenBalanceBySymbol, getTokenPriceBySymbol } from "../../lib/helper/WalletHelper";
 import { formatBalance } from "../../lib/helper/NumberHelper";
 
 import { ISupportChain } from "../../types/ChainTypes";
@@ -28,6 +28,8 @@ import walletImg7 from "../../assets/wallet/WalletCard7.png";
 import walletImg8 from "../../assets/wallet/WalletCard8.png";
 import walletImg9 from "../../assets/wallet/WalletCard9.png";
 import qrIcon from "../../assets/wallet/QrIcon.svg";
+import { useNotification } from "../../providers/NotificationProvider";
+import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 
 const backgrounds = [walletImg1, walletImg2, walletImg3, walletImg4, walletImg5, walletImg6, walletImg7, walletImg8, walletImg9];
 
@@ -40,6 +42,7 @@ export interface IPropsWalletCard {
 const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
   const dispatch = useDispatch();
   const { currentCurrencyReserve, currentCurrencySymbol } = useWallet();
+  const { showNotification } = useNotification();
 
   const background = backgrounds[index];
 
@@ -47,12 +50,17 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
   const priceListStore: IPriceList = useSelector(getPriceList);
 
   const balance = useMemo(() => getTokenBalanceBySymbol(balanceListStore, supportChain?.native?.symbol), [balanceListStore]);
-  const price = useMemo(() => getTokenPriceByCmc(priceListStore, supportChain?.native?.cmc), [priceListStore]);
+  const price = useMemo(() => getTokenPriceBySymbol(priceListStore, supportChain?.native?.cmc), [priceListStore]);
 
   const [open, setOpen] = useState(false);
 
   const handleWalletCardClick = () => {
-    dispatch(setCurrentChain(supportChain?.native?.name));
+    try {
+      dispatch(setCurrentChain(supportChain?.native?.name));
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.CHAIN_SELECT_SUCCESS, text: supportChain?.native?.name });
+    } catch (err) {
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.CHAIN_SELECT_FAIL, text: supportChain?.native?.name });
+    }
   };
 
   return (

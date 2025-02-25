@@ -319,7 +319,7 @@ const WalletVote = () => {
                     <CircularProgress
                       size="100px"
                       sx={{
-                        color: "#F5EBFF",
+                        color: "#afafaf",
                         width: "40px",
                         height: "40px",
                       }}

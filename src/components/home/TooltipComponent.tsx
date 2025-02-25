@@ -35,7 +35,7 @@ const TooltipComponent = ({ children, text, placement }: IPropsTooltipComponent)
             border: "1px solid rgb(71, 76, 76)",
           }}
         >
-          <Box className="fs-16-regular white">{text}</Box>
+          <Box className="fs-14-regular white">{text}</Box>
         </Stack>
       }
       PopperProps={{

@@ -136,4 +136,18 @@ export const CONST_NOTIFICATION_CONTENTS = {
     duration: CONST_NOTIFICATION_DURATION.DEFAULT,
     link: "",
   },
+  CHAIN_SELECT_SUCCESS: {
+    title: "wal-83_connection_success",
+    text: "wal-83_connection_success",
+    status: CONST_NOTIFICATION_STATUS.SUCCESS,
+    duration: CONST_NOTIFICATION_DURATION.DEFAULT,
+    link: "",
+  },
+  CHAIN_SELECT_FAIL: {
+    title: "wal-84_connection_failed",
+    text: "wal-84_connection_failed",
+    status: CONST_NOTIFICATION_STATUS.FAILED,
+    duration: CONST_NOTIFICATION_DURATION.DEFAULT,
+    link: "",
+  },
 };

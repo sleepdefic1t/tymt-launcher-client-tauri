@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Swiper, SwiperSlide } from "swiper/react";
+// import { Swiper, SwiperSlide } from "swiper/react";
 
 import { Box, Stack } from "@mui/material";
 
@@ -22,6 +22,7 @@ const StoreGameCard = ({ game, isComing }: IPropsStoreGameCard) => {
   useEffect(() => {
     if (containerRef.current && contentRef.current) {
       // Calculate the total width of all tags
+      // @ts-ignore
       const containerWidth = containerRef.current.offsetWidth;
       const contentWidth = contentRef.current.scrollWidth;
 
@@ -41,6 +42,7 @@ const StoreGameCard = ({ game, isComing }: IPropsStoreGameCard) => {
   useEffect(() => {
     if (containerRef.current && contentRef.current) {
       // Calculate the total width of the title
+      // @ts-ignore
       const titleContainerWidth = titleContainerRef.current.offsetWidth;
       const titleContentWidth = titleContentRef.current.scrollWidth;
 

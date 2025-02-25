@@ -88,7 +88,17 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
           <Stack direction={"row"} justifyContent={"flex-start"} gap={"16px"}>
             <Box component={"img"} src={supportChain?.native?.logo} width={"40px"} height={"40px"} />
             <Stack gap={1}>
-              <Box className={"fs-h3 white t-left"}>{supportChain?.native?.name}</Box>
+              <Box
+                className={"fs-h3 white t-left"}
+                sx={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "220px",
+                }}
+              >
+                {supportChain?.native?.name}
+              </Box>
               <Box className={"fs-18-regular white"}>{`${formatBalance(balance, 4)} ${supportChain?.native?.symbol}`}</Box>
               <Box className={"fs-16-regular light t-left"}>{`${currentCurrencySymbol} ${formatBalance(
                 Number(price ?? 0) * Number(balance ?? 0) * currentCurrencyReserve

@@ -143,7 +143,7 @@ const Wallet = () => {
                   <Grid container spacing={"32px"}>
                     {CONST_SUPPORT_CHAINS?.map((supportChain, index) => {
                       if (walletSettingStore?.hideZeroBalance) {
-                        if (getNativeTokenBalanceByChainName(balanceListStore, supportChain?.native?.name) !== 0) {
+                        if (getNativeTokenBalanceByChainName(balanceListStore, supportChain?.native?.name) > 0) {
                           return (
                             <Grid item xs={6} key={index}>
                               <WalletCard supportChain={supportChain} index={index} setLoading={setLoading} />

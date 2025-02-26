@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -9,12 +9,10 @@ import { Grid, Stack, Box, IconButton, Button } from "@mui/material";
 import { CONST_SUPPORT_CHAINS } from "../../const/ChainConsts";
 
 import { useWallet } from "../../providers/WalletProvider";
-// import { useNotification } from "../../providers/NotificationProvider";
 
 import SwitchComp from "../../components/home/SwitchComp";
 import WalletCard from "../../components/wallet/WalletCard";
 import TransCard from "../../components/wallet/TransCard";
-import Loading from "../../components/home/Loading";
 import ComingModal from "../../components/modal/ComingModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
 import TooltipComponent from "../../components/home/TooltipComponent";
@@ -26,15 +24,16 @@ import { getWalletSetting, setWalletSetting } from "../../store/WalletSettingSli
 
 import { getNativeTokenBalanceByChainName } from "../../lib/helper/WalletHelper";
 
-import { IBalanceList, ICurrentToken } from "../../types/WalletTypes";
+import { IBalanceList, ICurrentToken, IWalletAddresses } from "../../types/WalletTypes";
 import { IWalletSetting } from "../../types/SettingTypes";
 
 import sendIcon from "../../assets/wallet/SendIcon.svg";
 import receiveIcon from "../../assets/wallet/ReceiveIcon.svg";
 import percentIcon from "../../assets/wallet/PercentIcon.svg";
 import refreshIcon from "../../assets/wallet/RefreshIcon.svg";
-
-// import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
+import tymtCore from "../../lib/core/tymtCore";
+import { ITransactionPagination } from "../../types/TransactionTypes";
+import { getWallet } from "../../store/WalletSlice";
 
 // const order = ["Solar", "Binance", "Ethereum", "Bitcoin", "Solana", "Polygon", "Avalanche", "Arbitrum", "Optimism"];
 
@@ -43,14 +42,40 @@ const Wallet = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { currentSupportChain, currentCurrencySymbol, totalBalance, handleRefreshClick } = useWallet();
-  // const { showNotification } = useNotification();
 
   const currentTokenStore: ICurrentToken = useSelector(getCurrentToken);
   const balanceListStore: IBalanceList = useSelector(getBalanceList);
   const walletSettingStore: IWalletSetting = useSelector(getWalletSetting);
+  const walletStore: IWalletAddresses = useSelector(getWallet);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [comingSoon, setComingSoon] = useState<boolean>(false);
+  const [txList, setTxList] = useState<ITransactionPagination>();
+  const [currentTxPage, setCurrentTxPage] = useState<number>(1);
+
+  const fetchTransactionList = useCallback(
+    async (page: number) => {
+      try {
+        setLoading(true);
+        const res = await tymtCore.Blockchains.solar.wallet.getTransactions(walletStore?.solar, page, 20);
+        setTxList(res);
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
+    },
+    [walletStore]
+  );
+
+  const handleWalletRefreshClick = () => {
+    handleRefreshClick();
+    if (currentTxPage === 1) fetchTransactionList(1);
+    setCurrentTxPage(1);
+  };
+
+  useEffect(() => {
+    fetchTransactionList(currentTxPage);
+  }, [currentTxPage]);
 
   return (
     <>
@@ -113,7 +138,7 @@ const Wallet = () => {
                         <Box className="fs-14-regular t-center fw blue">{t("wal-3_vote")}</Box>
                       </Stack>
                       <Stack spacing={"8px"}>
-                        <IconButton className={"wallet-icon-button"} onClick={handleRefreshClick}>
+                        <IconButton className={"wallet-icon-button"} onClick={handleWalletRefreshClick}>
                           <img src={refreshIcon} className="wallet-icon-button-icon" />
                         </IconButton>
                         <Box className="fs-14-regular center fw blue">{t("sto-35_refresh")}</Box>
@@ -122,8 +147,6 @@ const Wallet = () => {
                   </Stack>
                 </Stack>
                 <Stack padding={"30px"} justifyContent={"center"}>
-                  {loading && <Loading />}
-
                   <Stack direction={"row"} justifyContent={"flex-end"} gap={3} padding={"20px"}>
                     <Box className={"fs-18-regular white"}>{t("wal-5_hide-0-balance")}</Box>
                     <Box>
@@ -205,7 +228,7 @@ const Wallet = () => {
                     scrollbarWidth: "none",
                   }}
                 >
-                  <TransCard />
+                  <TransCard loading={loading} txList={txList} currentTxPage={currentTxPage} setCurrentTxPage={setCurrentTxPage} />
                 </Box>
               </Grid>
             </Grid>

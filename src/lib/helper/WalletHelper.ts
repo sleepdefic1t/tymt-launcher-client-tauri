@@ -19,7 +19,7 @@ import tymtCore from "../core/tymtCore";
 import { IWalletAddresses, IBalanceList } from "../../types/WalletTypes";
 import { IPriceList } from "../../types/PriceTypes";
 import { ISupportChain } from "../../types/ChainTypes";
-import { ITransaction, txIconMap } from "../../types/TransactionTypes";
+import { ITransaction, ITransactionPagination, txIconMap } from "../../types/TransactionTypes";
 import { formatUnixTime } from "./DateHelper";
 
 export const checkMnemonic = (_mnemonic: string) => {
@@ -278,4 +278,25 @@ export const formatTx = (tx: ITransaction, currentChainWallet: string) => {
     displayTxTooltip,
     displayTimestamp,
   };
+};
+
+export const formatEvmResponseToTxPagination = (res: any) => {
+  const txList: ITransaction[] = res?.data?.data?.transactions?.map((one) => ({
+    txId: one?.txid,
+    type: "transfer",
+    asset: one?.vout?.map((two) => ({ amount: two?.value, recipient: two?.addresses[0] })),
+    amount: one?.value / 1e18,
+    sender: one?.vin[0]?.addresses[0],
+    fee: one?.fees / 1e18,
+    timestamp: one?.blockTime,
+  }));
+  const result: ITransactionPagination = {
+    meta: {
+      totalCount: res?.data?.data?.txs,
+      pageCount: res?.data?.data?.totalPages,
+      count: res?.data?.data?.itemsOnPage,
+    },
+    data: txList,
+  };
+  return result;
 };

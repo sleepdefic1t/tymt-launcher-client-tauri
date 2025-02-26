@@ -168,7 +168,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         balance: sxpBalance,
       },
     ];
-    console.log("balanceList", data);
+    // console.log("balanceList", data);
     dispatch(setBalanceList(data));
   }, [walletStore, dispatch]);
 
@@ -190,7 +190,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       console.time("fetchPriceList");
       const priceList = await CryptoAPI.getAllPrices();
       console.timeEnd("fetchPriceList");
-      console.log("priceList", priceList);
+      // console.log("priceList", priceList);
       dispatch(setPriceList(priceList));
     } catch (err) {
       console.error("Failed to fetchPriceList: ", err);

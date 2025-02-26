@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import numeral from "numeral";
 
-import { Stack, Box, Button, CircularProgress, Pagination } from "@mui/material";
+import { Stack, Box, Button, CircularProgress } from "@mui/material";
 
 import { useWallet } from "../../providers/WalletProvider";
 
@@ -12,20 +12,15 @@ import { formatTx } from "../../lib/helper/WalletHelper";
 import { ITransactionPagination } from "../../types/TransactionTypes";
 
 import timerIcon from "../../assets/wallet/TimerIcon.svg";
+import noreviews from "../../assets/main/NoReviews.png";
 
 export interface IPropsTransCard {
   loading: boolean;
   txList: ITransactionPagination;
-  currentTxPage: number;
-  setCurrentTxPage: (_: number) => void;
 }
 
-const TransCard = ({ loading, txList, currentTxPage, setCurrentTxPage }: IPropsTransCard) => {
+const TransCard = ({ loading, txList }: IPropsTransCard) => {
   const { currentChainWalletAddress, currentNativeOrToken, currentCurrencySymbol, currentCurrencyReserve, currentChainNativePrice } = useWallet();
-
-  const handlePageChange = async (_event: any, value: number) => {
-    setCurrentTxPage(value);
-  };
 
   return (
     <Suspense>
@@ -48,12 +43,29 @@ const TransCard = ({ loading, txList, currentTxPage, setCurrentTxPage }: IPropsT
         </Box>
       ) : (
         <Box>
+          {!txList?.data?.length && (
+            <Box
+              sx={{
+                justifyContent: "center",
+                marginTop: "24px",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Box sx={{ justifyContent: "center", display: "flex" }}>
+                <img src={noreviews} width={"300px"} height={"300px"} />
+              </Box>
+              <Box className={"fs-20-regular white"} textAlign={"center"} marginTop={"24px"}>
+                {"No transactions"}
+              </Box>
+            </Box>
+          )}
           {txList?.data?.map((tx, index) => {
             const { displayTxImage, displayTxAmount, displayTxAddress, displayTxTooltip, displayTimestamp } = formatTx(tx, currentChainWalletAddress);
             return (
-              <TooltipComponent placement="bottom" text={displayTxTooltip}>
+              <TooltipComponent placement="bottom" text={displayTxTooltip} key={`tooltip-${tx.txId}-${index}`}>
                 <Button
-                  key={`${index}-${new Date().toISOString()}`}
+                  key={`${tx.txId}-${index}`}
                   sx={{
                     textTransform: "none",
                     width: "100%",
@@ -77,7 +89,9 @@ const TransCard = ({ loading, txList, currentTxPage, setCurrentTxPage }: IPropsT
                     <Stack>
                       <Stack direction={"row"} spacing={"8px"} alignItems={"center"}>
                         <Box component={"img"} src={currentNativeOrToken.logo} width={"24px"} height={"24px"}></Box>
-                        <Box className={"fs-16-regular white center-align"}>{`${displayTxAmount} ${currentNativeOrToken.symbol}`}</Box>
+                        <Box className={"fs-16-regular white center-align"}>{`${numeral(displayTxAmount).format("0,0.[0000]")} ${
+                          currentNativeOrToken.symbol
+                        }`}</Box>
                       </Stack>
                       <Box className={"fs-12-light light t-right"}>{`${currentCurrencySymbol} ${numeral(
                         displayTxAmount * currentChainNativePrice * currentCurrencyReserve
@@ -88,33 +102,6 @@ const TransCard = ({ loading, txList, currentTxPage, setCurrentTxPage }: IPropsT
               </TooltipComponent>
             );
           })}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <Pagination
-              count={txList?.meta?.pageCount}
-              page={currentTxPage}
-              onChange={handlePageChange}
-              shape="rounded"
-              sx={{
-                marginTop: "20px",
-                "& .MuiPaginationItem-root": {
-                  borderRadius: "6px",
-                  fontFamily: "Cobe",
-                  color: "#AFAFAF",
-                },
-                "& .MuiPaginationItem-root.Mui-selected": {
-                  color: "white",
-                  backgroundColor: "#232B2C",
-                },
-              }}
-            />
-          </Box>
         </Box>
       )}
     </Suspense>

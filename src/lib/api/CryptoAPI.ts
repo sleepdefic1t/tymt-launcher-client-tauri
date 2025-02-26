@@ -1,7 +1,9 @@
+import axios from "axios";
 import axiosAuth from "../core/AxiosAuth";
 import { CONFIG_SOLAR_API_URL, CONFIG_TYMT_BACKEND_URL } from "../../config/MainConfig";
 import { CONST_CHAIN_SYMBOLS } from "../../const/ChainConsts";
-import axios from "axios";
+import { ITransactionPagination, ITransaction } from "../../types/TransactionTypes";
+import { formatEvmResponseToTxPagination } from "../helper/WalletHelper";
 
 export const CryptoAPI = {
   getAllPrices: async (): Promise<any> => {
@@ -53,15 +55,7 @@ export const CryptoAPI = {
     }
   },
 
-  // getSxpTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
-  //   try {
-  //     return (await (await fetch(`${CONFIG_SOLAR_API_URL}/wallets/${address}/transactions?page=${page}&limit=${pageSize}`)).json()).data;
-  //   } catch {
-  //     return [];
-  //   }
-  // },
-
-  getSxpTransactions: async (address: string, page: number, pageSize: number): Promise<any[]> => {
+  getSxpTransactions: async (address: string, page: number, pageSize: number): Promise<ITransactionPagination> => {
     try {
       const response = await axios.get(`${CONFIG_SOLAR_API_URL}/wallets/${address}/transactions`, {
         params: {
@@ -69,10 +63,27 @@ export const CryptoAPI = {
           limit: pageSize,
         },
       });
-      return response.data.data; // Return the transactions data
-    } catch (err) {
-      console.error("Failed to getSxpTransactions: ", err.response?.data ?? err);
-      throw new Error(err.response?.data?.error ?? "Failed to getSxpTransactions");
+      const txList: ITransaction[] = response.data.data.map((one) => ({
+        txId: one?.id,
+        type: one?.type === 6 ? "transfer" : one?.type === 2 ? "vote" : "",
+        asset: one?.type === 6 ? one?.asset?.transfers?.map((three) => ({ amount: three?.amount / 1e8, recipient: three?.recipientId })) : [],
+        amount: one?.type === 6 ? one?.asset?.transfers?.reduce((sum, two) => sum + two?.amount / 1e8, 0) : 0,
+        sender: one?.sender,
+        fee: one?.fee / 1e8,
+        timestamp: one?.timestamp?.unix,
+      }));
+      const result: ITransactionPagination = {
+        meta: {
+          totalCount: response.data.meta.totalCount,
+          pageCount: response.data.meta.pageCount,
+          count: response.data.meta.count,
+        },
+        data: txList,
+      };
+      return result;
+    } catch (error) {
+      console.error("Failed to fetch transactions:", error);
+      return null;
     }
   },
 
@@ -121,7 +132,7 @@ export const CryptoAPI = {
     }
   },
 
-  getEthTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
+  getEthTransactions: async (address: string, page: number, pageSize: number): Promise<ITransactionPagination> => {
     try {
       const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/eth/${address}`, {
         params: {
@@ -129,7 +140,8 @@ export const CryptoAPI = {
           pageSize,
         },
       });
-      return res?.data?.data;
+      const result = formatEvmResponseToTxPagination(res);
+      return result;
     } catch (err) {
       console.error("Failed to getEthTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getEthTransactions");
@@ -163,7 +175,7 @@ export const CryptoAPI = {
     }
   },
 
-  getBscTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
+  getBscTransactions: async (address: string, page: number, pageSize: number): Promise<ITransactionPagination> => {
     try {
       const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/bsc/${address}`, {
         params: {
@@ -171,7 +183,8 @@ export const CryptoAPI = {
           pageSize,
         },
       });
-      return res?.data?.data;
+      const result = formatEvmResponseToTxPagination(res);
+      return result;
     } catch (err) {
       console.error("Failed to getBscTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getBscTransactions");
@@ -213,7 +226,8 @@ export const CryptoAPI = {
           pageSize,
         },
       });
-      return res?.data?.data;
+      const result = formatEvmResponseToTxPagination(res);
+      return result;
     } catch (err) {
       console.error("Failed to getPolTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getPolTransactions");
@@ -255,7 +269,8 @@ export const CryptoAPI = {
           pageSize,
         },
       });
-      return res?.data?.data;
+      const result = formatEvmResponseToTxPagination(res);
+      return result;
     } catch (err) {
       console.error("Failed to getAvaxTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getAvaxTransactions");
@@ -297,7 +312,8 @@ export const CryptoAPI = {
           pageSize,
         },
       });
-      return res?.data?.data;
+      const result = formatEvmResponseToTxPagination(res);
+      return result;
     } catch (err) {
       console.error("Failed to getArbTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getArbTransactions");
@@ -339,7 +355,8 @@ export const CryptoAPI = {
           pageSize,
         },
       });
-      return res?.data?.data;
+      const result = formatEvmResponseToTxPagination(res);
+      return result;
     } catch (err) {
       console.error("Failed to getOpTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getOpTransactions");

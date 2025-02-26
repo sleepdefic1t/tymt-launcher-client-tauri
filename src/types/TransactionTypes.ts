@@ -25,6 +25,7 @@ export interface ISendCoin {
 }
 
 export interface ITransaction {
+  txId: string;
   type: string;
   amount: number;
   asset: Array<{ amount: number; recipient: string }>;

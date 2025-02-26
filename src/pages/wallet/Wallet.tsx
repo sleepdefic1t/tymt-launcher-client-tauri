@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import numeral from "numeral";
 
-import { Grid, Stack, Box, IconButton, Button } from "@mui/material";
+import { Grid, Stack, Box, IconButton, Button, Pagination } from "@mui/material";
 
-import { CONST_SUPPORT_CHAINS } from "../../const/ChainConsts";
+import { CONST_CHAIN_NAMES, CONST_SUPPORT_CHAINS } from "../../const/ChainConsts";
 
 import { useWallet } from "../../providers/WalletProvider";
 
@@ -21,19 +21,20 @@ import { AppDispatch } from "../../store";
 import { getBalanceList } from "../../store/BalanceListSlice";
 import { getCurrentToken, setCurrentToken } from "../../store/CurrentTokenSlice";
 import { getWalletSetting, setWalletSetting } from "../../store/WalletSettingSlice";
+import { getWallet } from "../../store/WalletSlice";
+
+import { CryptoAPI } from "../../lib/api/CryptoAPI";
 
 import { getNativeTokenBalanceByChainName } from "../../lib/helper/WalletHelper";
 
 import { IBalanceList, ICurrentToken, IWalletAddresses } from "../../types/WalletTypes";
+import { ITransactionPagination } from "../../types/TransactionTypes";
 import { IWalletSetting } from "../../types/SettingTypes";
 
 import sendIcon from "../../assets/wallet/SendIcon.svg";
 import receiveIcon from "../../assets/wallet/ReceiveIcon.svg";
 import percentIcon from "../../assets/wallet/PercentIcon.svg";
 import refreshIcon from "../../assets/wallet/RefreshIcon.svg";
-import tymtCore from "../../lib/core/tymtCore";
-import { ITransactionPagination } from "../../types/TransactionTypes";
-import { getWallet } from "../../store/WalletSlice";
 
 // const order = ["Solar", "Binance", "Ethereum", "Bitcoin", "Solana", "Polygon", "Avalanche", "Arbitrum", "Optimism"];
 
@@ -57,14 +58,37 @@ const Wallet = () => {
     async (page: number) => {
       try {
         setLoading(true);
-        const res = await tymtCore.Blockchains.solar.wallet.getTransactions(walletStore?.solar, page, 20);
+        let res;
+        switch (currentSupportChain?.native?.name) {
+          case CONST_CHAIN_NAMES.SOLAR:
+            res = await CryptoAPI.getSxpTransactions(walletStore?.solar, page, 20);
+            break;
+          case CONST_CHAIN_NAMES.ETHEREUM:
+            res = await CryptoAPI.getEthTransactions(walletStore?.ethereum, page, 20);
+            break;
+          case CONST_CHAIN_NAMES.BINANCE:
+            res = await CryptoAPI.getBscTransactions(walletStore?.binance, page, 20);
+            break;
+          case CONST_CHAIN_NAMES.POLYGON:
+            res = await CryptoAPI.getPolTransactions(walletStore?.polygon, page, 20);
+            break;
+          case CONST_CHAIN_NAMES.ARBITRUM:
+            res = await CryptoAPI.getArbTransactions(walletStore?.arbitrum, page, 20);
+            break;
+          case CONST_CHAIN_NAMES.AVALANCHE:
+            res = await CryptoAPI.getAvaxTransactions(walletStore?.avalanche, page, 20);
+            break;
+          case CONST_CHAIN_NAMES.OPTIMISM:
+            res = await CryptoAPI.getOpTransactions(walletStore?.optimism, page, 20);
+            break;
+        }
         setTxList(res);
       } catch (err) {
       } finally {
         setLoading(false);
       }
     },
-    [walletStore]
+    [walletStore, currentSupportChain]
   );
 
   const handleWalletRefreshClick = () => {
@@ -73,9 +97,13 @@ const Wallet = () => {
     setCurrentTxPage(1);
   };
 
+  const handlePageChange = async (_event: any, value: number) => {
+    setCurrentTxPage(value);
+  };
+
   useEffect(() => {
     fetchTransactionList(currentTxPage);
-  }, [currentTxPage]);
+  }, [currentTxPage, currentSupportChain]);
 
   return (
     <>
@@ -228,7 +256,35 @@ const Wallet = () => {
                     scrollbarWidth: "none",
                   }}
                 >
-                  <TransCard loading={loading} txList={txList} currentTxPage={currentTxPage} setCurrentTxPage={setCurrentTxPage} />
+                  <TransCard loading={loading} txList={txList} />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <Pagination
+                    count={txList?.meta?.pageCount}
+                    page={currentTxPage}
+                    onChange={handlePageChange}
+                    shape="rounded"
+                    sx={{
+                      marginTop: "20px",
+                      marginBottom: "30px",
+                      "& .MuiPaginationItem-root": {
+                        borderRadius: "6px",
+                        fontFamily: "Cobe",
+                        color: "#AFAFAF",
+                      },
+                      "& .MuiPaginationItem-root.Mui-selected": {
+                        color: "white",
+                        backgroundColor: "#232B2C",
+                      },
+                    }}
+                  />
                 </Box>
               </Grid>
             </Grid>

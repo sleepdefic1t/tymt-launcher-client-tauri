@@ -206,6 +206,7 @@ export class Solar {
         },
       });
       const txList: ITransaction[] = response.data.data.map((one) => ({
+        txId: one?.id,
         type: one?.type === 6 ? "transfer" : one?.type === 2 ? "vote" : "",
         asset: one?.type === 6 ? one?.asset?.transfers?.map((three) => ({ amount: three?.amount / 1e8, recipient: three?.recipientId })) : [],
         amount: one?.type === 6 ? one?.asset?.transfers?.reduce((sum, two) => sum + two?.amount / 1e8, 0) : 0,

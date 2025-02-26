@@ -123,7 +123,7 @@ const Wallet = () => {
 
                         <Box>
                           {CONST_SUPPORT_CHAINS?.map((supportChain, index) => (
-                            <TooltipComponent placement="top" text={supportChain?.native?.name}>
+                            <TooltipComponent placement="top" text={supportChain?.native?.name} key={`chain-icon-${index}`}>
                               <img
                                 src={supportChain?.native?.logo}
                                 key={index}
@@ -196,14 +196,14 @@ const Wallet = () => {
                       if (walletSettingStore?.hideZeroBalance) {
                         if (getNativeTokenBalanceByChainName(balanceListStore, supportChain?.native?.name) > 0) {
                           return (
-                            <Grid item xs={6} key={index}>
+                            <Grid item xs={6} key={`wallet-card-non-zero-${index}`}>
                               <WalletCard supportChain={supportChain} index={index} setLoading={setLoading} />
                             </Grid>
                           );
                         }
                       } else {
                         return (
-                          <Grid item xs={6} key={index}>
+                          <Grid item xs={6} key={`wallet-card-${index}`}>
                             <WalletCard supportChain={supportChain} index={index} setLoading={setLoading} />
                           </Grid>
                         );
@@ -233,7 +233,7 @@ const Wallet = () => {
                       {currentSupportChain?.tokens?.map((token, index) => (
                         <Button
                           className={`common-btn ${currentTokenStore?.token === token.symbol ? "active" : ""}`}
-                          key={index}
+                          key={`current-chain-tokens-${index}`}
                           onClick={() => {
                             dispatch(setCurrentToken(token?.symbol));
                           }}

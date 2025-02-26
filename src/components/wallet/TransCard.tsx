@@ -13,6 +13,7 @@ import { ITransactionPagination } from "../../types/TransactionTypes";
 
 import timerIcon from "../../assets/wallet/TimerIcon.svg";
 import noreviews from "../../assets/main/NoReviews.png";
+import { openLink } from "../../lib/helper/TauriHelper";
 
 export interface IPropsTransCard {
   loading: boolean;
@@ -20,7 +21,8 @@ export interface IPropsTransCard {
 }
 
 const TransCard = ({ loading, txList }: IPropsTransCard) => {
-  const { currentChainWalletAddress, currentNativeOrToken, currentCurrencySymbol, currentCurrencyReserve, currentChainNativePrice } = useWallet();
+  const { currentChainWalletAddress, currentNativeOrToken, currentCurrencySymbol, currentCurrencyReserve, currentChainNativePrice, currentSupportChain } =
+    useWallet();
 
   return (
     <Suspense>
@@ -61,16 +63,22 @@ const TransCard = ({ loading, txList }: IPropsTransCard) => {
             </Box>
           )}
           {txList?.data?.map((tx, index) => {
-            const { displayTxImage, displayTxAmount, displayTxAddress, displayTxTooltip, displayTimestamp } = formatTx(tx, currentChainWalletAddress);
+            const { displayTxImage, displayTxAmount, displayTxAddress, displayTxTooltip, displayTimestamp, txScanLink } = formatTx(
+              tx,
+              currentChainWalletAddress,
+              currentSupportChain?.native?.name
+            );
             return (
-              <TooltipComponent placement="bottom" text={displayTxTooltip} key={`tooltip-${tx.txId}-${index}`}>
+              <TooltipComponent placement="bottom" text={`${displayTxTooltip}: Double-click for detail`} key={`tooltip-${tx.txId}-${index}`}>
                 <Button
                   key={`${tx.txId}-${index}`}
                   sx={{
                     textTransform: "none",
                     width: "100%",
                   }}
-                  onDoubleClick={() => {}}
+                  onDoubleClick={() => {
+                    openLink(txScanLink);
+                  }}
                 >
                   <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} padding={"7px 25px"} width={"100%"}>
                     <Stack direction={"row"} spacing={"16px"} alignItems={"center"}>

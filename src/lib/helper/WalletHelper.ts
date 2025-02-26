@@ -265,18 +265,48 @@ export const getPublicKey = (passphrase: string) => {
   return tymtCore.Blockchains.solar.wallet.getPublicKey(passphrase);
 };
 
-export const formatTx = (tx: ITransaction, currentChainWallet: string) => {
+export const getTxScanLink = (txId: string, currentChainName: string) => {
+  let res: string;
+  switch (currentChainName) {
+    case CONST_CHAIN_NAMES.SOLAR:
+      res = CONFIG_SOLAR_SCAN + "transaction/" + txId;
+      break;
+    case CONST_CHAIN_NAMES.ETHEREUM:
+      res = CONFIG_ETH_SCAN + "tx/" + txId;
+      break;
+    case CONST_CHAIN_NAMES.BINANCE:
+      res = CONFIG_BSC_SCAN + "tx/" + txId;
+      break;
+    case CONST_CHAIN_NAMES.POLYGON:
+      res = CONFIG_POL_SCAN + "tx/" + txId;
+      break;
+    case CONST_CHAIN_NAMES.AVALANCHE:
+      res = CONFIG_AVAX_SCAN + "tx/" + txId;
+      break;
+    case CONST_CHAIN_NAMES.ARBITRUM:
+      res = CONFIG_ARB_SCAN + "tx/" + txId;
+      break;
+    case CONST_CHAIN_NAMES.OPTIMISM:
+      res = CONFIG_OPT_SCAN + "tx/" + txId;
+      break;
+  }
+  return res;
+};
+
+export const formatTx = (tx: ITransaction, currentChainWallet: string, currentChainName: string) => {
   const displayTxImage = tx.type === "vote" ? txIconMap.get("TX_VOTE") : tx.sender === currentChainWallet ? txIconMap.get("TX_OUT") : txIconMap.get("TX_IN");
   const displayTxAmount = tx.amount + tx.fee;
   const displayTxAddress = tx.type === "vote" ? tx.sender : tx.sender === currentChainWallet ? tx.asset[0].recipient : tx.sender;
   const displayTxTooltip = tx.type === "vote" ? "Vote" : tx.sender === currentChainWallet ? "Transfer Out" : "Transfer In";
   const displayTimestamp = formatUnixTime(tx.timestamp);
+  const txScanLink = getTxScanLink(tx.txId, currentChainName);
   return {
     displayTxAddress,
     displayTxAmount,
     displayTxImage,
     displayTxTooltip,
     displayTimestamp,
+    txScanLink,
   };
 };
 

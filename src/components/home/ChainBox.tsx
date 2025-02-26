@@ -16,6 +16,7 @@ import { getCurrentChainWalletAddress, getTokenBalanceBySymbol, getTokenPriceByS
 import { IPriceList } from "../../types/PriceTypes";
 import { ICurrentChain, ISupportChain } from "../../types/ChainTypes";
 import { IBalanceList, IWalletAddresses } from "../../types/WalletTypes";
+import { CONST_CHAIN_NAMES } from "../../const/ChainConsts";
 
 export interface IPropsChainBox {
   supportChain: ISupportChain;
@@ -41,7 +42,9 @@ const ChainBox = ({ supportChain, onClick }: IPropsChainBox) => {
       sx={{
         display: "block",
         textTransform: "none",
+        filter: supportChain?.native?.name === CONST_CHAIN_NAMES?.BITCOIN || supportChain?.native?.name === CONST_CHAIN_NAMES?.SOLANA ? "grayscale(1.0)" : "",
       }}
+      disabled={supportChain?.native?.name === CONST_CHAIN_NAMES?.BITCOIN || supportChain?.native?.name === CONST_CHAIN_NAMES?.SOLANA}
     >
       <Stack direction={"row"} justifyContent={"space-between"} sx={{ padding: "20px" }}>
         <Stack gap={2} direction={"row"} justifyContent={"flex-start"}>

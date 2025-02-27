@@ -60,7 +60,7 @@ interface WalletContextType {
   totalBalance: number;
 
   sxpVote: (__: IWalletAddresses, ___: number, _____: IVotingData) => Promise<{ success: boolean; error?: string }>;
-  transferCoin: (recipients: IRecipient[], fee: string) => Promise<{ success: boolean; message?: string; error?: string }>;
+  transferCoin: (recipients: IRecipient[], fee: string) => Promise<{ success: boolean; message?: string; error?: string; data?: any }>;
   setSxpFeeAsInput: (_: number) => void;
   fetchBalanceList: () => void;
   fetchSXPBalance: () => void;
@@ -140,15 +140,21 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
   const transferCoin = useCallback(
     async (
-      //@ts-ignore
       recipients: IRecipient[],
-      //@ts-ignore
       fee: string // fee in SXP
     ) => {
-      // return window.electronAPI.transferCoin(passphrase, { recipients, fee });
-      return null;
+      let res;
+      switch (recipients[0].chainSymbol) {
+        case CONST_CHAIN_SYMBOLS.SOLAR:
+          res = await tymtCore.Blockchains.solar.wallet.sendTransaction(passphrase, { recipients, fee });
+          break;
+        case CONST_CHAIN_SYMBOLS.BINANCE:
+          res = await tymtCore.Blockchains.bsc.wallet.sendTransaction(ethPrivateKey, walletStore?.ethereum, recipients);
+          break;
+      }
+      return res;
     },
-    [passphrase]
+    [passphrase, ethPrivateKey, walletStore]
   );
 
   const fetchBalanceList = useCallback(async () => {

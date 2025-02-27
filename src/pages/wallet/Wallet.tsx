@@ -105,6 +105,10 @@ const Wallet = () => {
     fetchTransactionList(currentTxPage);
   }, [currentTxPage, currentSupportChain]);
 
+  useEffect(() => {
+    handleRefreshClick();
+  }, []);
+
   return (
     <>
       <AnimatedComponent threshold={0}>

@@ -38,7 +38,7 @@ const ChooseProfile = ({ view, setView }: IPropsChooseProfile) => {
             borderRadius: "24px",
             backgroundColor: "#071516",
             whiteSpace: "nowrap",
-            overFlowX: "auth",
+            overFlowX: "auto",
             scrollbarWidth: "none",
             position: "relative",
           }}

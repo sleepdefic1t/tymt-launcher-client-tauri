@@ -27,6 +27,7 @@ import { IAccount, IAccountList } from "../../types/AccountTypes";
 
 import tymt2 from "../../assets/account/tymt2.png";
 import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
+import { useWallet } from "../../providers/WalletProvider";
 
 export interface ILocationStateConfirmInformation {
   passphrase: string;
@@ -42,6 +43,7 @@ const ConfirmInformation = () => {
   const { t } = useTranslation();
   const { mode } = useParams();
   const { showNotification } = useNotification();
+  const { handleRefreshClick } = useWallet();
 
   const { passphrase, password, nickname, walletAddresses } = (location.state as ILocationStateConfirmInformation) || {};
 
@@ -111,6 +113,8 @@ const ConfirmInformation = () => {
       dispatch(setMnemonic(passphrase));
       navigate("/home");
       showNotification({ content: CONST_NOTIFICATION_CONTENTS.LOGIN_SUCCESS });
+
+      handleRefreshClick();
     } catch (err) {
       console.error("Failed to handleLogin: ", err);
       showNotification({ content: CONST_NOTIFICATION_CONTENTS.LOGIN_FAIL, text: err.toString() });

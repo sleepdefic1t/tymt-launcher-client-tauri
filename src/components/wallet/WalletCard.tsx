@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Stack, Box, Button } from "@mui/material";
@@ -65,11 +65,31 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
     }
   };
 
+  const buttonRef = useRef(null);
+  const [buttonWidth, setButtonWidth] = useState(0);
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      const observer = new ResizeObserver((entries) => {
+        if (entries.length > 0) {
+          setButtonWidth(entries[0].contentRect.width);
+        }
+      });
+      observer.observe(buttonRef.current);
+      return () => observer.unobserve(buttonRef.current);
+    }
+  }, [buttonRef]);
+
+  useEffect(() => {
+    console.log(buttonWidth);
+  }, [buttonWidth]);
+
   return (
     <>
       <TooltipComponent placement="bottom" text={"Click to switch the network"}>
         <Button
           fullWidth
+          ref={buttonRef}
           sx={{
             textTransform: "none",
             borderRadius: "16px",
@@ -91,7 +111,7 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
           disabled={supportChain?.native?.name === CONST_CHAIN_NAMES?.BITCOIN || supportChain?.native?.name === CONST_CHAIN_NAMES?.SOLANA}
         >
           <Stack direction={"row"} gap={3} justifyContent={"space-between"} width={"100%"}>
-            <Stack direction={"row"} justifyContent={"flex-start"} gap={"16px"}>
+            <Stack direction={"row"} justifyContent={"flex-start"} gap={"16px"} width={"75%"}>
               <Box component={"img"} src={supportChain?.native?.logo} width={"40px"} height={"40px"} />
               <Stack gap={1}>
                 <Box
@@ -100,7 +120,7 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    maxWidth: "220px",
+                    width: `calc(${buttonWidth}px - 120px)`,
                   }}
                 >
                   {supportChain?.native?.name}
@@ -118,6 +138,7 @@ const WalletCard = ({ supportChain, index }: IPropsWalletCard) => {
                 justifyContent: "center",
                 textAlign: "center",
                 alignItems: "center",
+                width: "40px",
               }}
               onClick={(e: React.MouseEvent<HTMLElement>) => {
                 e.preventDefault();

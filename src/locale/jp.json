@@ -459,8 +459,10 @@
     "wal-80_stake-now": "今すぐステーク",
     "wal-81_unlock-earning-potential": "あなたの収益の可能性を解き放ちましょう！",
     "wal-82_you-not-staked": "まだ SXP をステークしていません — 今すぐステークして、今日から報酬を獲得しましょう!",
-    "wal-83_connection_success": "接続成功",
-    "wal-84_connection_failed": "接続失敗",
+    "wal-83_connection-success": "接続成功",
+    "wal-84_connection-failed": "接続失敗",
+    "wal-85_tx-success": "トランザクションが正常にブロードキャストされました。",
+    "wal-86_tx-fail": "トランザクションのブロードキャストに失敗しました。",
     "sto-1_release-date": "発売日",
     "sto-2_chains": "チェーン",
     "sto-3_genre": "ジャンル",
@@ -618,6 +620,7 @@
     "not-10_fr-intro": "楽しみを逃さないで - 今すぐ友達に追加してください！",
     "not-11_fr-accept": "友達リクエストが承認されました",
     "not-12_fr-reject": "友達リクエストが拒否されました",
-    "not-13_cannot-decrypt": "メッセージを復号化できません"
+    "not-13_cannot-decrypt": "メッセージを復号化できません",
+    "not-14_warning": "警告"
   }
 }

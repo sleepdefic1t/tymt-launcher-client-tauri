@@ -97,7 +97,7 @@ const TransCard = ({ loading, txList }: IPropsTransCard) => {
                     <Stack>
                       <Stack direction={"row"} spacing={"8px"} alignItems={"center"}>
                         <Box component={"img"} src={currentNativeOrToken.logo} width={"24px"} height={"24px"}></Box>
-                        <Box className={"fs-16-regular white center-align"}>{`${numeral(displayTxAmount).format("0,0.[0000]")} ${
+                        <Box className={"fs-16-regular white center-align"}>{`${numeral(displayTxAmount).format("0,0.00[0000]")} ${
                           currentNativeOrToken.symbol
                         }`}</Box>
                       </Stack>

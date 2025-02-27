@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
-import { Grid, Box, Stack, IconButton, Button } from "@mui/material";
+import { Grid, Box, Stack, IconButton, Button, CircularProgress } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
@@ -29,6 +29,8 @@ import walletIcon from "../../assets/wallet/Wallet.svg";
 
 import { ICurrentChain } from "../../types/ChainTypes";
 import { IRecipient } from "../../types/TransactionTypes";
+import { useNotification } from "../../providers/NotificationProvider";
+import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 
 const WalletSend = () => {
   const { t } = useTranslation();
@@ -44,6 +46,7 @@ const WalletSend = () => {
   const [address, setAddress] = useState("");
   const [draft, setDraft] = useState<IRecipient[]>([]);
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const {
     sxpFee,
@@ -57,15 +60,14 @@ const WalletSend = () => {
     transferCoin,
     // fetchBalanceList,
   } = useWallet();
-
-  // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {};
-
-  // const handleClose = () => {
-  //   setAnchorEl(null);
-  // };
+  const { showNotification } = useNotification();
 
   const updateDraft = useCallback(() => {
     if (address === "" || amount === "") return;
+    if (draft.some((one) => one.address === address)) {
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.ADDRESS_DUPLICATE });
+      return;
+    }
 
     const currentToken = {
       address: currentNativeOrToken?.address,
@@ -102,29 +104,44 @@ const WalletSend = () => {
   }, [draft, setDraft, address, amount, currentSupportChain, currentNativeOrToken]);
 
   const handleTransfer = useCallback(async () => {
-    let recipients: IRecipient[] = [];
-    if (draft?.length > 0) {
-      recipients = draft;
-    } else {
-      recipients = [
-        {
-          address: address,
-          amount: amount,
-          chainSymbol: currentSupportChain?.native?.symbol,
-          tokenSymbol: currentNativeOrToken?.symbol,
-          tokenAddr: currentNativeOrToken?.address,
-          tokenDecimals: currentNativeOrToken?.decimals,
-          icon: currentNativeOrToken?.logo,
-        },
-      ];
+    try {
+      setLoading(true);
+      let recipients: IRecipient[] = [];
+      if (draft?.length > 0) {
+        recipients = draft;
+      } else {
+        recipients = [
+          {
+            address: address,
+            amount: amount,
+            chainSymbol: currentSupportChain?.native?.symbol,
+            tokenSymbol: currentNativeOrToken?.symbol,
+            tokenAddr: currentNativeOrToken?.address,
+            tokenDecimals: currentNativeOrToken?.decimals,
+            icon: currentNativeOrToken?.logo,
+          },
+        ];
+      }
+
+      const res = await transferCoin(recipients, sxpFee.toString());
+      if (res.success) {
+        showNotification({ content: CONST_NOTIFICATION_CONTENTS.TX_SENT_SUCCESS });
+        setDraft([]);
+      } else {
+        showNotification({ content: CONST_NOTIFICATION_CONTENTS.TX_SENT_FAIL, text: res.error });
+        if (res?.data?.failedTransactions) {
+          const newDraft = draft.filter((one) => res?.data?.failedTransactions?.some((two) => two === one.address));
+          setDraft(newDraft);
+        }
+      }
+
+      console.log("handleTransfer", res);
+      return res;
+    } catch (err) {
+      console.error(`Failed to handleTransfer`, err);
+    } finally {
+      setLoading(false);
     }
-    const res = await transferCoin(recipients, sxpFee.toString());
-    // if (res.success) {
-    //   setTimeout(() => {
-    //     fetchBalanceList();
-    //   }, 3000);
-    // }
-    console.log("handleTransfer", res);
   }, [sxpFee, draft, address, amount, password, currentNativeOrToken, currentSupportChain, dispatch]);
 
   const removeDraft = useCallback(
@@ -318,7 +335,7 @@ const WalletSend = () => {
               </Box>
               <Button
                 disabled={
-                  false || // pending
+                  loading ||
                   Number(amount) === 0 ||
                   address === "" ||
                   (Number(sxpFee) === 0 && currentSupportChain?.native?.symbol === "SXP") ||
@@ -327,7 +344,15 @@ const WalletSend = () => {
                 className={"red-button fw"}
                 onClick={handleTransfer}
               >
-                {t("wal-14_transfer")}
+                {loading ? (
+                  <CircularProgress
+                    sx={{
+                      color: "#F5EBFF",
+                    }}
+                  />
+                ) : (
+                  t("wal-14_transfer")
+                )}
               </Button>
             </Box>
           </Grid>

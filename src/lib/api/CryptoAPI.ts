@@ -148,6 +148,18 @@ export const CryptoAPI = {
     }
   },
 
+  sendEthRawTransaction: async (rawTransactions: string[]): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/eth`, {
+        rawTransactions: rawTransactions,
+      });
+      console.log(res);
+    } catch (err) {
+      console.error("Failed to sendEthRawTransaction: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to sendEthRawTransaction");
+    }
+  },
+
   // BBBBBBBBBBBBBBBBB      SSSSSSSSSSSSSSS         CCCCCCCCCCCCC
   // B::::::::::::::::B   SS:::::::::::::::S     CCC::::::::::::C
   // B::::::BBBBBB:::::B S:::::SSSSSS::::::S   CC:::::::::::::::C
@@ -188,6 +200,52 @@ export const CryptoAPI = {
     } catch (err) {
       console.error("Failed to getBscTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getBscTransactions");
+    }
+  },
+
+  sendBscRawTransaction: async (rawTransactions: string[]): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/bsc`, {
+        rawTransactions: rawTransactions,
+      });
+      console.log(res.data);
+      if (res?.data?.data?.response?.error) {
+        return {
+          success: false,
+          error: res?.data?.data?.response?.error?.message,
+          data: res?.data?.data,
+        };
+      }
+      return {
+        success: true,
+        message: res?.data?.data?.txHash,
+        data: res?.data?.data,
+      };
+    } catch (err) {
+      console.error("Failed to sendBscRawTransaction: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to sendBscRawTransaction");
+    }
+  },
+
+  getBscTransactionCount: async (address: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/bsc`, { address });
+      console.log(res.data);
+      return parseInt(res?.data?.data?.count, 16);
+    } catch (err) {
+      console.error("Failed to getBscTransactionCount: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getBscTransactionCount");
+    }
+  },
+
+  getBscGasPrice: async (): Promise<any> => {
+    try {
+      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/bsc`);
+      console.log(res.data);
+      return parseInt(res?.data?.data?.gasPrice, 16);
+    } catch (err) {
+      console.error("Failed to getBscGasPrice: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getBscGasPrice");
     }
   },
 

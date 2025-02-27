@@ -82,7 +82,7 @@ const TransactionFeeDrawer = ({ view, setView }: props) => {
           borderRadius: "24px",
           backgroundColor: "#071516",
           whiteSpace: "nowrap",
-          overFlowX: "auth",
+          overFlowX: "auto",
           scrollbarWidth: "none",
           position: "relative",
         }}

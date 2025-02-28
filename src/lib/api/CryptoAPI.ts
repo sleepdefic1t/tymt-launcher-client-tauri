@@ -153,10 +153,44 @@ export const CryptoAPI = {
       const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/eth`, {
         rawTransactions: rawTransactions,
       });
-      console.log(res);
+      console.log(res.data);
+      if (res?.data?.data?.response?.error) {
+        return {
+          success: false,
+          error: res?.data?.data?.response?.error?.message,
+          data: res?.data?.data,
+        };
+      }
+      return {
+        success: true,
+        message: res?.data?.data?.txHash,
+        data: res?.data?.data,
+      };
     } catch (err) {
       console.error("Failed to sendEthRawTransaction: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to sendEthRawTransaction");
+    }
+  },
+
+  getEthTransactionCount: async (address: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/eth`, { address });
+      console.log(res.data);
+      return parseInt(res?.data?.data?.count, 16);
+    } catch (err) {
+      console.error("Failed to getEthTransactionCount: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getEthTransactionCount");
+    }
+  },
+
+  getEthGasPrice: async (): Promise<any> => {
+    try {
+      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/eth`);
+      console.log(res.data);
+      return parseInt(res?.data?.data?.gasPrice, 16);
+    } catch (err) {
+      console.error("Failed to getEthGasPrice: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getEthGasPrice");
     }
   },
 
@@ -292,6 +326,52 @@ export const CryptoAPI = {
     }
   },
 
+  sendPolRawTransaction: async (rawTransactions: string[]): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/pol`, {
+        rawTransactions: rawTransactions,
+      });
+      console.log(res.data);
+      if (res?.data?.data?.response?.error) {
+        return {
+          success: false,
+          error: res?.data?.data?.response?.error?.message,
+          data: res?.data?.data,
+        };
+      }
+      return {
+        success: true,
+        message: res?.data?.data?.txHash,
+        data: res?.data?.data,
+      };
+    } catch (err) {
+      console.error("Failed to sendPolRawTransaction: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to sendPolRawTransaction");
+    }
+  },
+
+  getPolTransactionCount: async (address: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/pol`, { address });
+      console.log(res.data);
+      return parseInt(res?.data?.data?.count, 16);
+    } catch (err) {
+      console.error("Failed to getPolTransactionCount: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getPolTransactionCount");
+    }
+  },
+
+  getPolGasPrice: async (): Promise<any> => {
+    try {
+      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/pol`);
+      console.log(res.data);
+      return parseInt(res?.data?.data?.gasPrice, 16);
+    } catch (err) {
+      console.error("Failed to getPolGasPrice: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getPolGasPrice");
+    }
+  },
+
   //                AAA   VVVVVVVV           VVVVVVVV   AAA               XXXXXXX       XXXXXXX
   //               A:::A  V::::::V           V::::::V  A:::A              X:::::X       X:::::X
   //              A:::::A V::::::V           V::::::V A:::::A             X:::::X       X:::::X
@@ -332,6 +412,52 @@ export const CryptoAPI = {
     } catch (err) {
       console.error("Failed to getAvaxTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getAvaxTransactions");
+    }
+  },
+
+  sendAvaxRawTransaction: async (rawTransactions: string[]): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/avax`, {
+        rawTransactions: rawTransactions,
+      });
+      console.log(res.data);
+      if (res?.data?.data?.response?.error) {
+        return {
+          success: false,
+          error: res?.data?.data?.response?.error?.message,
+          data: res?.data?.data,
+        };
+      }
+      return {
+        success: true,
+        message: res?.data?.data?.txHash,
+        data: res?.data?.data,
+      };
+    } catch (err) {
+      console.error("Failed to sendAvaxRawTransaction: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to sendAvaxRawTransaction");
+    }
+  },
+
+  getAvaxTransactionCount: async (address: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/avax`, { address });
+      console.log(res.data);
+      return parseInt(res?.data?.data?.count, 16);
+    } catch (err) {
+      console.error("Failed to getAvaxTransactionCount: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getAvaxTransactionCount");
+    }
+  },
+
+  getAvaxGasPrice: async (): Promise<any> => {
+    try {
+      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/avax`);
+      console.log(res.data);
+      return parseInt(res?.data?.data?.gasPrice, 16);
+    } catch (err) {
+      console.error("Failed to getAvaxGasPrice: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getAvaxGasPrice");
     }
   },
 
@@ -378,6 +504,52 @@ export const CryptoAPI = {
     }
   },
 
+  sendArbRawTransaction: async (rawTransactions: string[]): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/arb`, {
+        rawTransactions: rawTransactions,
+      });
+      console.log(res.data);
+      if (res?.data?.data?.response?.error) {
+        return {
+          success: false,
+          error: res?.data?.data?.response?.error?.message,
+          data: res?.data?.data,
+        };
+      }
+      return {
+        success: true,
+        message: res?.data?.data?.txHash,
+        data: res?.data?.data,
+      };
+    } catch (err) {
+      console.error("Failed to sendArbRawTransaction: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to sendArbRawTransaction");
+    }
+  },
+
+  getArbTransactionCount: async (address: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/arb`, { address });
+      console.log(res.data);
+      return parseInt(res?.data?.data?.count, 16);
+    } catch (err) {
+      console.error("Failed to getArbTransactionCount: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getArbTransactionCount");
+    }
+  },
+
+  getArbGasPrice: async (): Promise<any> => {
+    try {
+      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/arb`);
+      console.log(res.data);
+      return parseInt(res?.data?.data?.gasPrice, 16);
+    } catch (err) {
+      console.error("Failed to getArbGasPrice: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getArbGasPrice");
+    }
+  },
+
   //      OOOOOOOOO     PPPPPPPPPPPPPPPPP
   //    OO:::::::::OO   P::::::::::::::::P
   //  OO:::::::::::::OO P::::::PPPPPP:::::P
@@ -418,6 +590,52 @@ export const CryptoAPI = {
     } catch (err) {
       console.error("Failed to getOpTransactions: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getOpTransactions");
+    }
+  },
+
+  sendOpRawTransaction: async (rawTransactions: string[]): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/op`, {
+        rawTransactions: rawTransactions,
+      });
+      console.log(res.data);
+      if (res?.data?.data?.response?.error) {
+        return {
+          success: false,
+          error: res?.data?.data?.response?.error?.message,
+          data: res?.data?.data,
+        };
+      }
+      return {
+        success: true,
+        message: res?.data?.data?.txHash,
+        data: res?.data?.data,
+      };
+    } catch (err) {
+      console.error("Failed to sendOpRawTransaction: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to sendOpRawTransaction");
+    }
+  },
+
+  getOpTransactionCount: async (address: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/op`, { address });
+      console.log(res.data);
+      return parseInt(res?.data?.data?.count, 16);
+    } catch (err) {
+      console.error("Failed to getOpTransactionCount: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getOpTransactionCount");
+    }
+  },
+
+  getOpGasPrice: async (): Promise<any> => {
+    try {
+      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/op`);
+      console.log(res.data);
+      return parseInt(res?.data?.data?.gasPrice, 16);
+    } catch (err) {
+      console.error("Failed to getOpGasPrice: ", err.response?.data ?? err);
+      throw new Error(err.response?.data?.error ?? "Failed to getOpGasPrice");
     }
   },
 

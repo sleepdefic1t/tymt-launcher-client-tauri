@@ -9,6 +9,7 @@ import { ISupportToken } from "../../types/ChainTypes";
 import { IBalance } from "../../types/WalletTypes";
 import { IRecipient } from "../../types/TransactionTypes";
 import { CryptoAPI } from "../api/CryptoAPI";
+import { CONST_CHAIN_IDS } from "../../const/ChainConsts";
 
 export class BSC {
   static async getWalletFromMnemonic(mnemonic: string): Promise<any> {
@@ -89,7 +90,7 @@ export class BSC {
 
     try {
       const gasLimit = 22000;
-      const chainId = 56; // Binance Smart Chain
+      const chainId = CONST_CHAIN_IDS.BINANCE; // Binance Smart Chain
       const [gasPrice, initialNonce] = await Promise.all([CryptoAPI.getBscGasPrice(), CryptoAPI.getBscTransactionCount(sender)]);
 
       for (let i = 0; i < recipients.length; i++) {

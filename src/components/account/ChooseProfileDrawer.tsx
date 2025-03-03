@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { SwipeableDrawer, Box, Stack, IconButton, Divider } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
@@ -8,9 +8,10 @@ import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import RedStrokeButton from "./RedStrokeButton";
 import ProfileCard from "./ProfileCard";
 
-import { getAccountList } from "../../store/AccountListSlice";
+import { getAccountList, setAccountList } from "../../store/AccountListSlice";
+import { getAccount, setAccount } from "../../store/AccountSlice";
 
-import { IAccountList } from "../../types/AccountTypes";
+import { IAccount, IAccountList } from "../../types/AccountTypes";
 
 import closeImg from "../../assets/setting/CollapsCloseBtn.svg";
 
@@ -23,8 +24,10 @@ interface props {
 
 const ChooseProfileDrawer = ({ view, setView }: props) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const accountListStore: IAccountList = useSelector(getAccountList);
+  const accountStore: IAccount = useSelector(getAccount);
 
   const [state, setState] = useState({ right: false });
 
@@ -39,6 +42,24 @@ const ChooseProfileDrawer = ({ view, setView }: props) => {
   const handleAddNewProfileButtonClick = () => {
     navigate("/welcome");
   };
+
+  const handleRemoveAccount = useCallback(
+    (account: IAccount) => {
+      try {
+        const newAccountList = accountListStore?.list?.filter((one) => one?.sxpAddress !== account?.sxpAddress);
+        dispatch(setAccountList(newAccountList));
+        if (accountStore?.sxpAddress === account?.sxpAddress) {
+          if (newAccountList?.length === 0) navigate("/");
+          else {
+            dispatch(setAccount(newAccountList[0]));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [accountStore, accountListStore]
+  );
 
   return (
     <SwipeableDrawer
@@ -113,7 +134,7 @@ const ChooseProfileDrawer = ({ view, setView }: props) => {
         <Stack direction={"column"} justifyContent={"space-between"} padding={"0px 16px"} minHeight={"calc(100% - 110px)"}>
           <Stack direction={"column"} gap={"16px"}>
             {accountListStore?.list?.map((one, index) => (
-              <ProfileCard account={one} key={index} />
+              <ProfileCard account={one} key={index} removeAccount={() => handleRemoveAccount(one)} />
             ))}
           </Stack>
           <Stack mt={"16px"} mb={"16px"}>

@@ -82,6 +82,7 @@ const InstallButton = ({ game }: IPropsInstallButton) => {
       setInstalled(await isInstalled(game));
     };
 
+    checkInstalled(game);
     const intervalId = setInterval(() => checkInstalled(game), 1 * 1e3);
 
     return () => {
@@ -116,14 +117,19 @@ const InstallButton = ({ game }: IPropsInstallButton) => {
           },
         }}
       >
-        {!isSupporting && `Not supported`}
-        {isSupporting && !installed && !downloadStatusStore?.game && t("hom-20_install-game")}
-        {isSupporting && installed && !downloadStatusStore?.game && t("hom-7_play-game")}
-        {downloadStatusStore?.game && (
-          <Stack direction={"row"} alignItems={"center"} gap={"4px"}>
-            <Box className={"fs-14-regular white t-center"}>{`${t("hom-21_downloading")}`}</Box>
-            <ThreeDots height="12px" width={"24px"} radius={4} color={`white`} />
-          </Stack>
+        {game?.projectMeta?.type === "browser" && t("hom-7_play-game")}
+        {game?.projectMeta?.type === "native" && (
+          <>
+            {!isSupporting && `Not supported`}
+            {isSupporting && !installed && !downloadStatusStore?.game && t("hom-20_install-game")}
+            {isSupporting && installed && !downloadStatusStore?.game && t("hom-7_play-game")}
+            {downloadStatusStore?.game && (
+              <Stack direction={"row"} alignItems={"center"} gap={"4px"}>
+                <Box className={"fs-14-regular white t-center"}>{`${t("hom-21_downloading")}`}</Box>
+                <ThreeDots height="12px" width={"24px"} radius={4} color={`white`} />
+              </Stack>
+            )}
+          </>
         )}
       </Button>
       <WarningModalNewGame open={modalView} setOpen={setModalView} game={game} />

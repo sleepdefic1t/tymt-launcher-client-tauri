@@ -178,9 +178,9 @@ pub fn main() -> std::io::Result<()> {
             let about = MenuItemBuilder::with_id("about", "About tymt").build(app)?;
             let signout = MenuItemBuilder::with_id("signout", "Sign Out").build(app)?;
             let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
-            let disable_notifications =
-                MenuItemBuilder::with_id("disable_notifications", "Disable Notifications")
-                    .build(app)?;
+            // let disable_notifications =
+            //     MenuItemBuilder::with_id("disable_notifications", "Disable Notifications")
+            //         .build(app)?;
 
             let menu = MenuBuilder::new(app)
                 .items(&[
@@ -189,7 +189,7 @@ pub fn main() -> std::io::Result<()> {
                     &games,
                     &wallet,
                     &about,
-                    &disable_notifications,
+                    // &disable_notifications,
                     &signout,
                     &quit,
                 ])
@@ -241,6 +241,7 @@ pub fn main() -> std::io::Result<()> {
                         window.set_focus().unwrap();
                     }
                     "about" => {
+                        println!("about-tymt");
                         app.emit("about-tymt", "about")
                             .expect("failed to emit event about-tymt");
                     }
@@ -251,10 +252,10 @@ pub fn main() -> std::io::Result<()> {
                         window.show().unwrap();
                         window.set_focus().unwrap();
                     }
-                    "disable_notifications" => {
-                        app.emit("disable_notifications", "disable_notifications")
-                            .expect("failed to emit event disable_notifications");
-                    }
+                    // "disable_notifications" => {
+                    //     app.emit("disable_notifications", "disable_notifications")
+                    //         .expect("failed to emit event disable_notifications");
+                    // }
                     _ => (),
                 })
                 .on_tray_icon_event(|tray, event| {

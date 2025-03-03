@@ -46,6 +46,7 @@ import WalletSend from "./pages/wallet/WalletSend";
 //~Wallet
 
 // Providers
+import { FullscreenProvider } from "./providers/FullscreenProvider";
 import { WalletProvider } from "./providers/WalletProvider";
 import { AuthProvider } from "./providers/AuthProvider";
 import { MetamaskCustomProvider } from "./providers/MetamaskCustomProvider";
@@ -53,6 +54,7 @@ import { NotificationProvider } from "./providers/NotificationProvider";
 // ~Providers
 
 import { Buffer } from "buffer";
+import EventListenerProvider from "./providers/EventListenerProvider";
 
 window.Buffer = Buffer;
 
@@ -73,36 +75,40 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           },
         }}
       >
-        <WalletProvider>
-          <MetamaskCustomProvider>
-            <HashRouter>
-              <Routes>
-                <Route element={<NotificationProvider />}>
-                  <Route path="/" element={<Splash />} />
-                  <Route path="/welcome" element={<Welcome />} />
-                  <Route path="/non-custodial-login-1" element={<NonCustodialLogin1 />} />
-                  <Route path="/non-custodial-login-2" element={<NonCustodialLogIn2 />} />
-                  <Route path="/non-custodial-signup-2" element={<NonCustodialSignUp2 />} />
-                  <Route path="/non-custodial-signup-3" element={<NonCustodialSignUp3 />} />
-                  <Route path="/non-custodial-signup-4/:mode" element={<NonCustodialSignUp4 />} />
-                  <Route path="/non-custodial-import-1/:mode" element={<NonCustodialImport1 />} />
-                  <Route path="/confirm-information/:mode" element={<ConfirmInformation />} />
-                  <Route element={<AuthProvider />}>
-                    <Route path="/" element={<HomeLayout />}>
-                      <Route path="/home" element={<Homepage />} />
-                      <Route path="/game/:gameId" element={<GameOverview />} />
-                      <Route path="/wallet" element={<Wallet />} />
-                      <Route path="/wallet-vote" element={<WalletVote />} />
-                      <Route path="/wallet-send" element={<WalletSend />} />
-                      <Route path="/store" element={<Store />} />
-                      <Route path="/library" element={<Library />} />
+        <FullscreenProvider>
+          <WalletProvider>
+            <MetamaskCustomProvider>
+              <HashRouter>
+                <Routes>
+                  <Route element={<NotificationProvider />}>
+                    <Route element={<EventListenerProvider />}>
+                      <Route path="/" element={<Splash />} />
+                      <Route path="/welcome" element={<Welcome />} />
+                      <Route path="/non-custodial-login-1" element={<NonCustodialLogin1 />} />
+                      <Route path="/non-custodial-login-2" element={<NonCustodialLogIn2 />} />
+                      <Route path="/non-custodial-signup-2" element={<NonCustodialSignUp2 />} />
+                      <Route path="/non-custodial-signup-3" element={<NonCustodialSignUp3 />} />
+                      <Route path="/non-custodial-signup-4/:mode" element={<NonCustodialSignUp4 />} />
+                      <Route path="/non-custodial-import-1/:mode" element={<NonCustodialImport1 />} />
+                      <Route path="/confirm-information/:mode" element={<ConfirmInformation />} />
+                      <Route element={<AuthProvider />}>
+                        <Route path="/" element={<HomeLayout />}>
+                          <Route path="/home" element={<Homepage />} />
+                          <Route path="/game/:gameId" element={<GameOverview />} />
+                          <Route path="/wallet" element={<Wallet />} />
+                          <Route path="/wallet-vote" element={<WalletVote />} />
+                          <Route path="/wallet-send" element={<WalletSend />} />
+                          <Route path="/store" element={<Store />} />
+                          <Route path="/library" element={<Library />} />
+                        </Route>
+                      </Route>
                     </Route>
                   </Route>
-                </Route>
-              </Routes>
-            </HashRouter>
-          </MetamaskCustomProvider>
-        </WalletProvider>
+                </Routes>
+              </HashRouter>
+            </MetamaskCustomProvider>
+          </WalletProvider>
+        </FullscreenProvider>
       </MetaMaskProvider>
     </StoreProvider>
   </React.StrictMode>

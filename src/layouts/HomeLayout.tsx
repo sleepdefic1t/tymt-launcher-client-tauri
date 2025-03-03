@@ -113,6 +113,7 @@ const HomeLayout = () => {
                 position: "sticky",
                 top: "0",
                 zIndex: 0,
+                marginBottom: "40px",
               }}
             >
               <Outlet />

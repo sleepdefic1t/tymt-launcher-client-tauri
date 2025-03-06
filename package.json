@@ -51,6 +51,7 @@
     "@tauri-apps/plugin-process": "^2.0.0-rc.1",
     "@tauri-apps/plugin-shell": "^2.0.0-rc.1",
     "@tauri-apps/plugin-updater": "^2.0.0-rc.2",
+    "@textea/json-viewer": "^4.0.1",
     "@types/big.js": "^6.2.2",
     "@types/bip38": "^3.1.2",
     "@types/keccak": "^3.0.4",

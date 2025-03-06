@@ -16,14 +16,19 @@ import numeral from "numeral";
 import { listen } from "@tauri-apps/api/event";
 import { IGame, IGameList } from "../../types/GameTypes";
 import { getGameList } from "../../store/GameListSlice";
+import { getDeveloperGameList } from "../../store/DeveloperGameListSlice";
 
 const InstallingProcess = () => {
   const dispatch = useDispatch();
   const drawer: tymtLogoType = useSelector(getCurrentLogo);
   const downloadStatusStore: IDownloadStatus = useSelector(getDownloadStatus);
   const gameListStore: IGameList = useSelector(getGameList);
+  const developerGameListStore: IGameList = useSelector(getDeveloperGameList);
 
-  const game: IGame = useMemo(() => gameListStore?.games?.find((one) => one?._id === downloadStatusStore?.game), [gameListStore, downloadStatusStore?.game]);
+  const game: IGame = useMemo(
+    () => [...gameListStore?.games, ...developerGameListStore?.games]?.find((one) => one?._id === downloadStatusStore?.game),
+    [gameListStore, developerGameListStore, downloadStatusStore?.game]
+  );
 
   const [showContextMenu, setShowContextMenu] = useState<boolean>(false);
   const [contextMenuPosition, setContextMenuPosition] = useState<IPoint>({

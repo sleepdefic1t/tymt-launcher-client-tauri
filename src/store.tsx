@@ -33,6 +33,7 @@ import downloadStatusReducer from "./store/DownloadStatusSlice";
 // Game
 import gameListReducer from "./store/GameListSlice";
 import libraryListReducer from "./store/LibraryListSlice";
+import developerGameListReducer from "./store/DeveloperGameListSlice";
 // ~Game
 
 import tymtLogoReducer from "./store/tymtLogoSlice";
@@ -79,6 +80,7 @@ const store = configureStore({
     // Game
     gameList: gameListReducer,
     libraryList: libraryListReducer,
+    developerGameList: developerGameListReducer,
     // ~Game
 
     tymtLogo: tymtLogoReducer,

@@ -33,11 +33,10 @@ import GameOverview from "./pages/main/GameOverview";
 
 //Store
 import Store from "./pages/main/Store";
-//~Store
-
-//Library
 import Library from "./pages/main/Library";
-//~Library
+import DeveloperStore from "./pages/main/DeveloperStore";
+import DeveloperGameOverview from "./pages/main/DeveloperGameOverview";
+//~Store
 
 //Wallet
 import Wallet from "./pages/wallet/Wallet";
@@ -100,6 +99,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                           <Route path="/wallet-send" element={<WalletSend />} />
                           <Route path="/store" element={<Store />} />
                           <Route path="/library" element={<Library />} />
+                          <Route path="/developer-store" element={<DeveloperStore />} />
+                          <Route path="/developer-store/:gameId" element={<DeveloperGameOverview />} />
                         </Route>
                       </Route>
                     </Route>

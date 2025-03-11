@@ -1,6 +1,6 @@
-import windows from "../assets/main/windows.png";
-import mac from "../assets/main/mac.svg";
-import linux from "../assets/main/linux.svg";
+import windows from "../assets/main/Windows.png";
+import mac from "../assets/main/Mac.svg";
+import linux from "../assets/main/Linux.svg";
 
 export enum platformEnum {
   "windows",
@@ -72,54 +72,15 @@ export interface IGame {
   rank: number;
   releaseMeta: {
     name: string;
-    meta_url: string;
+    meta_uri: string;
     platforms: {
-      windows_amd64?: {
-        name: string;
-        executable: string;
-        installSize: string;
-        downloadSize: string;
-        external_url: string;
-      };
-      windows_arm64?: {
-        name: string;
-        executable: string;
-        installSize: string;
-        downloadSize: string;
-        external_url: string;
-      };
-      darwin_amd64?: {
-        name: string;
-        executable: string;
-        installSize: string;
-        downloadSize: string;
-        external_url: string;
-      };
-      darwin_arm64?: {
-        name: string;
-        executable: string;
-        installSize: string;
-        downloadSize: string;
-        external_url: string;
-      };
-      linux_amd64?: {
-        name: string;
-        executable: string;
-        installSize: string;
-        downloadSize: string;
-        external_url: string;
-      };
-      linux_arm64?: {
-        name: string;
-        executable: string;
-        installSize: string;
-        downloadSize: string;
-        external_url: string;
-      };
-      web?: {
-        name: string;
-        external_url: string;
-      };
+      windows_amd64?: IGameReleaseNative;
+      windows_arm64?: IGameReleaseNative;
+      darwin_amd64?: IGameReleaseNative;
+      darwin_arm64?: IGameReleaseNative;
+      linux_amd64?: IGameReleaseNative;
+      linux_arm64?: IGameReleaseNative;
+      web?: IGameReleaseBrowser;
     };
     project_id: string;
     release_id: string;
@@ -130,6 +91,15 @@ export interface IGame {
   title: string;
   visibilityState: string; // active
   externalStoreId: string;
+
+  heroes: string;
+  developers: string;
+  publisher: string;
+  warning: string;
+  warningLink: string;
+  averageRating: number;
+  feedbackCount: number;
+  downloadCount: number;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -137,4 +107,27 @@ export interface IGame {
 
 export interface IGameList {
   games: IGame[];
+}
+
+export interface IGameReleaseNative {
+  name: string;
+  executable: string;
+  installSize: string;
+  downloadSize: string;
+  external_url: string;
+}
+
+export interface IGameReleaseBrowser {
+  name: string;
+  external_url: string;
+}
+
+export interface IFeedback {
+  _id: string;
+  rating: number;
+  text: string;
+  createdAt: Date;
+  userNickname: string;
+  userAvatar: string;
+  userOnlineStatus: boolean;
 }

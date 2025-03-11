@@ -1,10 +1,10 @@
-import { Stack } from "@mui/material";
+import { Stack, Box } from "@mui/material";
 
-import mailIcon from "../../assets/account/mail.png";
-import facebookIcon from "../../assets/account/facebook-icon.svg";
-import googleIcon from "../../assets/account/google-icon.svg";
-import discordIcon from "../../assets/account/discord-icon.svg";
-import binanceIcon from "../../assets/account/binance-icon.svg";
+import mailIcon from "../../assets/account/Mail.png";
+import facebookIcon from "../../assets/account/FacebookIcon.svg";
+import googleIcon from "../../assets/account/GoogleIcon.svg";
+import discordIcon from "../../assets/account/DiscordIcon.svg";
+import binanceIcon from "../../assets/account/BinanceIcon.svg";
 import AuthIconButton from "./AuthIconButton";
 
 const list = [
@@ -28,7 +28,17 @@ const list = [
 const AuthIconButtons = () => {
   return (
     <>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Box className={`fs-16-regular light`} sx={{ textAlign: "center", marginBottom: "16px" }}>
+        Coming Soon
+      </Box>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{
+          filter: "grayscale(1.0)",
+        }}
+      >
         {list.map((one, index) => (
           <AuthIconButton key={index} icon={one.icon} />
         ))}

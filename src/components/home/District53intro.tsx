@@ -1,39 +1,52 @@
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import D53Modal from "./D53Modal";
-
 import { Grid, Box, Stack, Tooltip } from "@mui/material";
 
-import InstallButton from "../store/InstallButton";
+import D53Modal from "./D53Modal";
+import InstallButton from "../game/InstallButton";
 
-import "../../fonts/Cobe/Cobe-Regular.ttf";
+import districteffect from "../../assets/main/DistrictEffect.svg";
+import districteffect1 from "../../assets/main/DistrictEffect1.svg";
+import districteffect2 from "../../assets/main/DistrictEffect2.svg";
+import { IGameList } from "../../types/GameTypes";
+import { useSelector } from "react-redux";
+import { getGameList } from "../../store/GameListSlice";
 
-import homeStyles from "../../styles/homeStyles";
-import districteffect from "../../assets/main/districteffect.svg";
-import districteffect1 from "../../assets/main/districteffect1.svg";
-import districteffect2 from "../../assets/main/districteffect2.svg";
-
-import { District53 } from "../../lib/game/district 53/District53";
-
-interface props {
+interface IPropsDistrict53Intro {
   setImage?: (image: any) => void;
 }
 
-const District53intro = ({ setImage }: props) => {
+const District53Intro = ({ setImage }: IPropsDistrict53Intro) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const homeclasses = homeStyles();
+
+  const gameListStore: IGameList = useSelector(getGameList);
+
+  const District53Game = useMemo(() => gameListStore?.games?.find((one) => one?.title === "District53"), [gameListStore]);
+
   const [selected, setSelected] = useState(0);
   const [d53Open, setD53Open] = useState<boolean>(false);
 
   return (
     <div style={{ width: "320px" }}>
-      <Grid className={homeclasses.district_content} item xs={12}>
+      <Grid
+        sx={{
+          borderRadius: "var(--Angle-Number, 16px)",
+          flexShrink: "initial",
+          backgroundColor: "var(--bg-stroke-side-menu-bg, rgba(29, 29, 29, 0.30))",
+          padding: "20px",
+          WebkitFlexShrink: "initial",
+          position: "relative",
+          overflow: "hidden",
+        }}
+        item
+        xs={12}
+      >
         <img
           src={districteffect}
           style={{
@@ -94,7 +107,7 @@ const District53intro = ({ setImage }: props) => {
               cursor: "pointer",
             }}
             onClick={() => {
-              navigate(`/coming/${District53?._id}`);
+              navigate(`/game/${District53Game?._id}`);
             }}
           >
             {t("hom-5_district53")}
@@ -123,7 +136,7 @@ const District53intro = ({ setImage }: props) => {
                 justifyContent: "center",
               }}
             >
-              <InstallButton game={District53} />
+              <InstallButton game={District53Game} />
             </Grid>
           </Stack>
         </Grid>
@@ -139,7 +152,7 @@ const District53intro = ({ setImage }: props) => {
         }}
       >
         <Swiper spaceBetween={15} slidesPerView={"auto"} loop={true}>
-          {District53?.projectMeta?.gallery?.map((item, index) => (
+          {District53Game?.projectMeta?.gallery?.map((item, index) => (
             <SwiperSlide key={index} style={{ width: "150px" }}>
               {item.type === "image" && (
                 <img
@@ -169,4 +182,4 @@ const District53intro = ({ setImage }: props) => {
   );
 };
 
-export default District53intro;
+export default District53Intro;

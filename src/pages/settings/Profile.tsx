@@ -1,47 +1,42 @@
 import { useTranslation } from "react-i18next";
-import { useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 
-import { Box, Button, Divider, Stack, Tooltip } from "@mui/material";
-
-import { useNotification } from "../../providers/NotificationProvider";
-import { useSocket } from "../../providers/SocketProvider";
+import { Box, Button, CircularProgress, Divider, Stack, Tooltip } from "@mui/material";
 
 import Avatar from "../../components/home/Avatar";
 import InputText from "../../components/account/InputText";
 
+import { useNotification } from "../../providers/NotificationProvider";
+
 import { AppDispatch } from "../../store";
-import { selectNotification } from "../../features/settings/NotificationSlice";
-import { fileUpload, updateUserNickname } from "../../features/account/AccountApi";
+import { addAccountList } from "../../store/AccountListSlice";
+import { getAccount, setAccount } from "../../store/AccountSlice";
 
-import { notificationType, propsType } from "../../types/settingTypes";
-import { IAccount } from "../../types/accountTypes";
+import { UserAPI } from "../../lib/api/UserAPI";
 
-import SettingStyle from "../../styles/SettingStyle";
+import { IAccount } from "../../types/AccountTypes";
 
-import backIcon from "../../assets/settings/back-icon.svg";
-import editIcon from "../../assets/settings/edit-icon.svg";
-import { ISocketParamsSyncEventsAll } from "../../types/SocketTypes";
-import { SyncEventNames } from "../../consts/SyncEventNames";
-import { IMyInfo } from "../../types/chatTypes";
-import { getMyInfo, setMyInfo } from "../../features/account/MyInfoSlice";
-import { getAccount, setAccount } from "../../features/account/AccountSlice";
+import backIcon from "../../assets/setting/BackIcon.svg";
+import editIcon from "../../assets/setting/EditIcon.svg";
+import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 
-const Profile = ({ view, setView }: propsType) => {
-  const classname = SettingStyle();
+interface IPropsProfile {
+  view: string;
+  setView: (panel: string) => void;
+}
+
+const Profile: FC<IPropsProfile> = ({ view, setView }) => {
   const { t } = useTranslation();
-  const { socket } = useSocket();
   const dispatch = useDispatch<AppDispatch>();
+  const { showNotification } = useNotification();
 
   const accountStore: IAccount = useSelector(getAccount);
-  const notificationStore: notificationType = useSelector(selectNotification);
-  const myInfoStore: IMyInfo = useSelector(getMyInfo);
 
-  const [nickname, setNickname] = useState(accountStore?.nickName);
+  const [nickname, setNickname] = useState(accountStore?.nickname);
   const [error, setError] = useState<string>("");
-
-  const { setNotificationStatus, setNotificationTitle, setNotificationDetail, setNotificationOpen, setNotificationLink } = useNotification();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const validationSchema = Yup.string()
     .required(t("cca-63_required"))
@@ -51,85 +46,65 @@ const Profile = ({ view, setView }: propsType) => {
 
   const updateAccount = useCallback(async () => {
     try {
+      setLoading(true);
       await validationSchema.validate(nickname);
       setError("");
-
-      dispatch(setAccount({ ...accountStore, nickName: nickname }));
-
-      const res = await updateUserNickname(myInfoStore?._id, nickname);
-      console.log(res.data, "updateUserNickName");
-
-      setNotificationStatus("success");
-      setNotificationTitle(t("alt-1_nickname-saved"));
-      setNotificationDetail(t("alt-2_nickname-saved-intro"));
-      setNotificationOpen(true);
-      setNotificationLink(null);
+      const updatedUser = await UserAPI.updateProfile({ nickname });
+      const updatedAccount = {
+        ...updatedUser,
+        password: accountStore?.password,
+        mnemonic: accountStore?.mnemonic,
+      };
+      dispatch(setAccount(updatedAccount));
+      dispatch(addAccountList(updatedAccount));
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.PROFILE_UPDATE_SUCCESS });
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
         setError(err.message);
+      } else {
+        showNotification({ content: CONST_NOTIFICATION_CONTENTS.PROFILE_UPDATE_FAIL, text: err.toString() });
       }
-      console.log(err);
-
-      setNotificationStatus("failed");
-      setNotificationTitle(t("alt-3_nickname-notsaved"));
-      setNotificationDetail(t("alt-4_nickname-notsaved-intro"));
-      setNotificationOpen(true);
-      setNotificationLink(null);
+    } finally {
+      setLoading(false);
     }
-  }, [nickname, accountStore, myInfoStore]);
+  }, [nickname, accountStore]);
 
-  const UploadFile = () => {
+  const launchUploader = () => {
     const fileInput = document.getElementById("file-input");
     if (fileInput) {
       fileInput.click();
     }
   };
 
-  const uploadImg = useCallback(() => {
-    const fileInput = document.getElementById("file-input") as HTMLInputElement;
-    const file = fileInput.files ? fileInput.files[0] : null;
-    const formData = new FormData();
-    formData.append("file", file);
-    fileUpload(formData)
-      .then((res) => {
-        dispatch(
-          setMyInfo({
-            ...myInfoStore,
-            avatar: res.data.avatar,
-          })
-        );
-
-        if (socket.current && socket.current.connected) {
-          const data: ISocketParamsSyncEventsAll = {
-            sender_id: myInfoStore?._id,
-            instructions: [SyncEventNames.UPDATE_IMAGE_RENDER_TIME],
-            is_to_self: true,
-          };
-          socket.current.emit("sync-events-all", JSON.stringify(data));
-          console.log("socket.current.emit > sync-events-all", data);
-        }
-
-        setNotificationStatus("success");
-        setNotificationTitle(t("alt-32_avatar-saved"));
-        setNotificationDetail(t("alt-33_avatar-saved-intro"));
-        setNotificationOpen(true);
-        setNotificationLink(null);
-      })
-      .catch((err) => {
-        console.log(err);
-        setNotificationStatus("failed");
-        setNotificationTitle(t("alt-34_avatar-notsaved"));
-        setNotificationDetail(t("alt-35_avatar-notsaved-intro"));
-        setNotificationOpen(true);
-        setNotificationLink(null);
-      });
-  }, [socket.current, myInfoStore]);
+  const uploadImage = useCallback(async () => {
+    try {
+      setLoading(true);
+      const fileInput = document.getElementById("file-input") as HTMLInputElement;
+      const file = fileInput.files ? fileInput.files[0] : null;
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const updatedUser = await UserAPI.updateAvatar(formData);
+      const updatedAccount = {
+        ...updatedUser,
+        password: accountStore?.password,
+        mnemonic: accountStore?.mnemonic,
+      };
+      dispatch(setAccount(updatedAccount));
+      dispatch(addAccountList(updatedAccount));
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.AVATAR_UPDATE_SUCCESS });
+    } catch (err) {
+      console.error("Failed to uploadImage: ", err);
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.AVATAR_UPDATE_FAIL, text: err.toString() });
+    } finally {
+      setLoading(false);
+    }
+  }, [accountStore]);
 
   return (
     <>
       {view === "profile" && (
         <Stack direction={"column"}>
-          <input type="file" id="file-input" onChange={uploadImg} style={{ display: "none" }} />
+          <input type="file" id="file-input" onChange={uploadImage} style={{ display: "none" }} />
           <Stack flexDirection={"row"} justifyContent={"flex-start"} gap={"10px"} alignItems={"center"} textAlign={"center"} sx={{ padding: "20px" }}>
             <Button className={"setting-back-button"} onClick={() => setView("general")}>
               <Box component={"img"} src={backIcon}></Box>
@@ -141,14 +116,16 @@ const Profile = ({ view, setView }: propsType) => {
             <Stack direction={"row"} justifyContent={"space-between"} textAlign={"center"} padding={"30px"}>
               <Stack direction={"row"} justifyContent={"center"} textAlign={"right"} alignItems={"center"} gap={"10px"}>
                 <Box className="center-align">
-                  {/* <img src={avatar} /> */}
-                  <Avatar onlineStatus={true} url={myInfoStore?.avatar} size={92} status={!notificationStore.alert ? "donotdisturb" : "online"} />
+                  <Avatar onlineStatus={true} url={accountStore?.avatar} size={92} status="active" />
                 </Box>
                 <Box className="fs-h5 white">{t("set-68_change-avatar")}</Box>
               </Stack>
               <Box className="center-align">
-                <Box sx={{ display: "flex" }} className="common-btn" onClick={UploadFile}>
-                  <Tooltip title={t("set-82_edit")} classes={{ tooltip: classname.tooltip }}>
+                <Box sx={{ display: "flex" }} className="common-btn" onClick={launchUploader}>
+                  <Tooltip
+                    title={t("set-82_edit")}
+                    sx={{ padding: "6px 8px 6px 8px", borderRadius: "32px", border: "1px", borderColor: "#FFFFFF1A", backgroundColor: "#8080804D" }}
+                  >
                     <img src={editIcon} style={{ cursor: "pointer" }} />
                   </Tooltip>
                 </Box>
@@ -169,8 +146,16 @@ const Profile = ({ view, setView }: propsType) => {
               </Box>
             </Stack>
             <Box padding={"20px"} width={"90%"} sx={{ position: "absolute", bottom: "30px" }}>
-              <Button fullWidth className={classname.action_button} onClick={updateAccount}>
-                {t("set-57_save")}
+              <Button fullWidth className={"red-border-button"} onClick={updateAccount} disabled={loading}>
+                {loading ? (
+                  <CircularProgress
+                    sx={{
+                      color: "#F5EBFF",
+                    }}
+                  />
+                ) : (
+                  t("set-57_save")
+                )}
               </Button>
             </Box>
           </Stack>

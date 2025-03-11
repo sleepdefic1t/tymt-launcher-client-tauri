@@ -1,27 +1,27 @@
-import { useTranslation } from "react-i18next";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Divider, Stack } from "@mui/material";
 
-import { useNotification } from "../../providers/NotificationProvider";
-
 import InputText from "../../components/account/InputText";
 import SecurityLevel from "../../components/account/SecurityLevel";
 
-import { getAccount, setAccount } from "../../features/account/AccountSlice";
+import { getAccount, setAccount } from "../../store/AccountSlice";
 
-import { getKeccak256Hash } from "../../lib/api/Encrypt";
+import { getKeccak256Hash } from "../../lib/helper/EncryptHelper";
 
-import SettingStyle from "../../styles/SettingStyle";
+import { IAccount } from "../../types/AccountTypes";
+import { addAccountList } from "../../store/AccountListSlice";
 
-import backIcon from "../../assets/settings/back-icon.svg";
+import backIcon from "../../assets/setting/BackIcon.svg";
 
-import { propsType } from "../../types/settingTypes";
-import { IAccount } from "../../types/accountTypes";
+export interface IPropsPassword {
+  view: string;
+  setView: (_: string) => void;
+}
 
-const Password = ({ view, setView }: propsType) => {
-  const classname = SettingStyle();
+const Password = ({ view, setView }: IPropsPassword) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -31,55 +31,32 @@ const Password = ({ view, setView }: propsType) => {
   const [oldPwd, setOldPwd] = useState("");
   const [cfmPwd, setCfmPwd] = useState("");
 
-  const { setNotificationStatus, setNotificationTitle, setNotificationDetail, setNotificationOpen, setNotificationLink } = useNotification();
-
   const updatePassword = useCallback(() => {
     if (accountStore?.password !== getKeccak256Hash(oldPwd)) {
-      setNotificationStatus("failed");
-      setNotificationTitle(t("alt-15_update-password"));
-      setNotificationDetail(t("alt-16_update-password-old"));
-      setNotificationOpen(true);
-      setNotificationLink(null);
       setNewPwd("");
       setOldPwd("");
       setCfmPwd("");
       return;
     }
     if (accountStore?.password === getKeccak256Hash(newPwd)) {
-      setNotificationStatus("failed");
-      setNotificationTitle(t("alt-15_update-password"));
-      setNotificationDetail(t("alt-17_update-password-new"));
-      setNotificationOpen(true);
-      setNotificationLink(null);
       setNewPwd("");
       setOldPwd("");
       setCfmPwd("");
       return;
     }
     if (cfmPwd !== newPwd) {
-      setNotificationStatus("failed");
-      setNotificationTitle(t("alt-15_update-password"));
-      setNotificationDetail(t("alt-18_update-password-new-not"));
-      setNotificationOpen(true);
-      setNotificationLink(null);
       setNewPwd("");
       setOldPwd("");
       setCfmPwd("");
       return;
     }
-    setNotificationStatus("success");
-    setNotificationTitle(t("alt-15_update-password"));
-    setNotificationDetail(t("alt-19_update-password-success"));
-    setNotificationOpen(true);
-    setNotificationLink(null);
-
     dispatch(
       setAccount({
         ...accountStore,
         password: getKeccak256Hash(newPwd),
       })
     );
-
+    dispatch(addAccountList(accountStore));
     setNewPwd("");
     setOldPwd("");
     setCfmPwd("");
@@ -113,7 +90,42 @@ const Password = ({ view, setView }: propsType) => {
               </Box>
             </Stack>
             <Box padding={"20px"} width={"90%"} sx={{ position: "absolute", bottom: "30px" }}>
-              <Button fullWidth className={classname.action_button} onClick={updatePassword}>
+              <Button
+                fullWidth
+                sx={{
+                  "&.MuiButtonBase-root": {
+                    textTransform: "none",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "400",
+                    lineHeight: "24px" /* 133.333% */,
+                    letterSpacing: "-0.36px",
+                    height: "46px",
+                    borderRadius: "16px",
+                    backgroundColor: "transparent",
+                    color: "#52E1F2",
+                    borderColor: "#EF4444",
+                    fontFamily: "Cobe",
+                    boxShadow: "none",
+                    border: "1px solid",
+                    paddingTop: "5px",
+                    "&:hover": {
+                      borderColor: "#EF4444",
+                      backgroundColor: "#EF4444",
+                    },
+                    "&:active": {
+                      backgroundColor: "#EF4444",
+                      boxShadow: "1px 1px #EF44445F",
+                    },
+                    "&:disabled": {
+                      backgroundColor: "#222222", // Example: light gray background
+                      color: "#A0A0A0", // Example: gray text color
+                      borderColor: "#222222", // Example: gray border color
+                    },
+                  },
+                }}
+                onClick={updatePassword}
+              >
                 {t("set-57_save")}
               </Button>
             </Box>

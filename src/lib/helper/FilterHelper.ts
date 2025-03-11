@@ -1,4 +1,4 @@
-import { FilterOptionNames } from "../../consts/FilterOptionNames";
+import { FilterOptionNames } from "../../const/FilterOptionNames";
 import { IGame } from "../../types/GameTypes";
 
 export const filterByPlatform = (games: IGame[], platform: string) => {
@@ -13,7 +13,7 @@ export const filterByPlatform = (games: IGame[], platform: string) => {
     }
     return data;
   } catch (err) {
-    console.error("Failed to filterByPlatform: ", err);
+    // console.error("Failed to filterByPlatform: ", err);
     return games;
   }
 };
@@ -22,6 +22,7 @@ export const filterByGenre = (games: IGame[], genre: string) => {
   try {
     let data = games;
     if (genre === FilterOptionNames.GENRE_ALL) {
+      return data;
     } else if (genre === FilterOptionNames.GENRE_ACTION) {
       data = data.filter((game) => game.projectMeta.tags.some((tag) => tag === "Action"));
     } else if (genre === FilterOptionNames.GENRE_ADVENTURE) {
@@ -35,7 +36,7 @@ export const filterByGenre = (games: IGame[], genre: string) => {
     }
     return data;
   } catch (err) {
-    console.error("Failed to filterByGenre: ", err);
+    // console.error("Failed to filterByGenre: ", err);
     return games;
   }
 };
@@ -44,6 +45,7 @@ export const filterByRank = (games: IGame[], rank: string) => {
   try {
     let data = games;
     if (rank === FilterOptionNames.RANK_ALL) {
+      return data;
     } else if (rank === FilterOptionNames.RANK_10) {
       data = data.filter((game) => game.rank <= 10);
     } else if (rank === FilterOptionNames.RANK_50) {
@@ -53,7 +55,7 @@ export const filterByRank = (games: IGame[], rank: string) => {
     }
     return data;
   } catch (err) {
-    console.error("Failed to filterByRank: ", err);
+    // console.error("Failed to filterByRank: ", err);
     return games;
   }
 };
@@ -62,6 +64,7 @@ export const filterByType = (games: IGame[], type: string) => {
   try {
     let data = games;
     if (type === FilterOptionNames.TYPE_ALL) {
+      return data;
     } else if (type === FilterOptionNames.TYPE_NATIVE) {
       data = data.filter((game) => game.projectMeta.type === "native");
     } else if (type === FilterOptionNames.TYPE_BROWSER) {
@@ -69,7 +72,7 @@ export const filterByType = (games: IGame[], type: string) => {
     }
     return data;
   } catch (err) {
-    console.error("Failed to filterByType: ", err);
+    // console.error("Failed to filterByType: ", err);
     return games;
   }
 };
@@ -80,7 +83,7 @@ export const filterByKeyword = (games: IGame[], keyword: string) => {
     data = data.filter((game) => game.title.toLowerCase().includes(keyword.toLowerCase()));
     return data;
   } catch (err) {
-    console.error("Failed to filterByKeyword: ", err);
+    // console.error("Failed to filterByKeyword: ", err);
     return games;
   }
 };

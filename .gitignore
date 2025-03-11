@@ -12,6 +12,7 @@ node_modules/*
 dist
 dist-ssr
 src/consts/testMnemonics.ts
+src/consts/privateStoreIds.ts
 .env
 .env.prod
 .env.dev

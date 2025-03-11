@@ -1,8 +1,11 @@
-import { Box, Stack, Modal, Fade } from "@mui/material";
-import closeIcon from "../../assets/settings/x-icon.svg";
-import logo from "../../assets/main/foxhead-comingsoon.png";
-import { openLink } from "../../lib/helper/DownloadHelper";
 import { useTranslation } from "react-i18next";
+
+import { Box, Stack, Modal, Fade } from "@mui/material";
+
+import { openLink } from "../../lib/helper/TauriHelper";
+
+import closeIcon from "../../assets/setting/XIcon.svg";
+import logo from "../../assets/main/FoxHeadComingSoon.png";
 
 interface props {
   open: boolean;

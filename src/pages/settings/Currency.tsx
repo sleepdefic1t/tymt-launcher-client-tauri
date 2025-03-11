@@ -1,20 +1,24 @@
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 
-import { supportCurrency } from "../../consts/SupportCurrency";
-
 import { Box, Button, Divider, Stack } from "@mui/material";
 
+import { CONST_SUPPORT_CURRENCIES } from "../../const/CurrencyConsts";
+
 import { AppDispatch } from "../../store";
-import { getCurrentCurrency, setCurrentCurrency } from "../../features/wallet/CurrentCurrencySlice";
+import { getCurrentCurrency, setCurrentCurrency } from "../../store/CurrentCurrencySlice";
 
-import backIcon from "../../assets/settings/back-icon.svg";
-import checkImg from "../../assets/settings/check-icon.svg";
+import { ICurrentCurrency } from "../../types/CurrencyTypes";
 
-import { propsType } from "../../types/settingTypes";
-import { ICurrentCurrency } from "../../types/walletTypes";
+import backIcon from "../../assets/setting/BackIcon.svg";
+import checkImg from "../../assets/setting/CheckIcon.svg";
 
-const Currency = ({ view, setView }: propsType) => {
+export interface IPropsCurrency {
+  view: string;
+  setView: (_: string) => void;
+}
+
+const Currency = ({ view, setView }: IPropsCurrency) => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -22,12 +26,13 @@ const Currency = ({ view, setView }: propsType) => {
 
   const handleCurrencyClick = (_currency: string) => {
     dispatch(setCurrentCurrency(_currency));
+    setView("wallet");
   };
 
   return (
     <>
       {view === "currency" && (
-        <Stack direction={"column"}>
+        <Stack direction={"column"} width={"100%"}>
           <Stack flexDirection={"row"} justifyContent={"flex-start"} gap={"10px"} alignItems={"center"} textAlign={"center"} padding={"20px"}>
             <Button className={"setting-back-button"} onClick={() => setView("wallet")}>
               <Box component={"img"} src={backIcon}></Box>
@@ -35,12 +40,12 @@ const Currency = ({ view, setView }: propsType) => {
             <Box className="fs-h3 white">{t("set-34_currency")}</Box>
           </Stack>
           <Divider variant="middle" sx={{ backgroundColor: "#FFFFFF1A" }} />
-          <Stack direction={"column"} justifyContent={""}>
-            {supportCurrency?.map((supportCurrency) => (
-              <>
+          <Stack direction={"column"} width={"100%"}>
+            {CONST_SUPPORT_CURRENCIES?.map((supportCurrency) => (
+              <div style={{ width: "100%" }} key={`currency-list-${supportCurrency?.name}`}>
                 <Button
                   className="common-btn"
-                  sx={{ padding: "20px" }}
+                  sx={{ padding: "20px", width: "100%" }}
                   onClick={() => {
                     handleCurrencyClick(supportCurrency?.name);
                   }}
@@ -63,7 +68,7 @@ const Currency = ({ view, setView }: propsType) => {
                   </Stack>
                 </Button>
                 <Divider variant="fullWidth" sx={{ backgroundColor: "#FFFFFF1A" }} />
-              </>
+              </div>
             ))}
           </Stack>
         </Stack>

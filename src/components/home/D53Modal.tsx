@@ -1,17 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { fetch as tauriFetch, ResponseType } from "@tauri-apps/api/http";
-
-import { production_version } from "../../configs";
 
 import { Box, Stack, Modal, Button, Fade } from "@mui/material";
 
-import { useNotification } from "../../providers/NotificationProvider";
-
 import InputText from "../account/InputText";
 
-import closeIcon from "../../assets/settings/x-icon.svg";
-import { runD53 } from "../../lib/helper/DownloadHelper";
+// import { runD53 } from "../../lib/helper/DownloadHelper";
+
+import closeIcon from "../../assets/setting/XIcon.svg";
 
 interface props {
   open: boolean;
@@ -30,10 +26,11 @@ interface IServer {
 
 const D53Modal = ({ open, setOpen }: props) => {
   const { t } = useTranslation();
+  //@ts-ignore
   const [serverList, setServerList] = useState<IServer[]>([]);
   const [serverIp, setServerIp] = useState<string>("");
 
-  const { setNotificationStatus, setNotificationTitle, setNotificationDetail, setNotificationOpen, setNotificationLink } = useNotification();
+  // const { setNotificationStatus, setNotificationTitle, setNotificationDetail, setNotificationOpen, setNotificationLink } = useNotification();
 
   const modalStyle = {
     display: "flex",
@@ -41,33 +38,37 @@ const D53Modal = ({ open, setOpen }: props) => {
     justifyContent: "center",
   };
 
+  //@ts-ignore
   const handlePlayClick = async (autoMode: boolean) => {
     if (!serverIp) {
-      setNotificationStatus("failed");
-      setNotificationTitle(t("alt-36_server-required"));
-      setNotificationDetail(t("alt-37_please-fill-server"));
-      setNotificationOpen(true);
-      setNotificationLink(null);
+      // showNotification(t("alt-36_server-required"), t("alt-37_please-fill-server"));
+      // setNotificationStatus("failed");
+      // setNotificationTitle(t("alt-36_server-required"));
+      // setNotificationDetail(t("alt-37_please-fill-server"));
+      // setNotificationOpen(true);
+      // setNotificationLink(null);
     } else {
-      const selectedServer = serverList?.find((server) => server.ip === serverIp);
+      const selectedServer = serverList?.find((server) => server?.ip === serverIp);
       if (!selectedServer) {
-        // await runGame("district53", serverIp, autoMode);
+        // await runD53(serverIp, autoMode);
       } else {
         if (selectedServer?.clients >= selectedServer?.clients_max) {
-          setNotificationStatus("failed");
-          setNotificationTitle(t("alt-9_run-failed"));
-          setNotificationDetail(t("alt-38_sorry-server-full"));
-          setNotificationOpen(true);
-          setNotificationLink(null);
+          // showNotification(t("alt-9_run-failed"), t("alt-38_sorry-server-full"));
+          // setNotificationStatus("failed");
+          // setNotificationTitle(t("alt-9_run-failed"));
+          // setNotificationDetail(t("alt-38_sorry-server-full"));
+          // setNotificationOpen(true);
+          // setNotificationLink(null);
         } else {
-          const res = await runD53(serverIp, autoMode);
-          if (!res) {
-            setNotificationStatus("failed");
-            setNotificationTitle(t("alt-9_run-failed"));
-            setNotificationDetail(t("alt-10_run-failed-intro"));
-            setNotificationOpen(true);
-            setNotificationLink(null);
-          }
+          // const res = await runD53(serverIp, autoMode);
+          // if (!res) {
+          //   showNotification(t("alt-9_run-failed"), t("alt-10_run-failed-intro"));
+          //   // setNotificationStatus("failed");
+          //   // setNotificationTitle(t("alt-9_run-failed"));
+          //   // setNotificationDetail(t("alt-10_run-failed-intro"));
+          //   // setNotificationOpen(true);
+          //   // setNotificationLink(null);
+          // }
         }
       }
     }
@@ -83,16 +84,12 @@ const D53Modal = ({ open, setOpen }: props) => {
     let intervalId: NodeJS.Timeout;
     if (open) {
       const init = async () => {
-        const apiURL = production_version === "prod" ? `https://serverlist.district53.io/` : `http://dev.game.district53.io:5000/`;
-        const res: any = await tauriFetch(apiURL, {
-          method: "GET",
-          timeout: 30,
-          responseType: ResponseType.JSON,
-        });
-        setServerList(res.data);
-        setServerIp(res.data[0].ip);
+        // const apiURL = CONFIG_PRODUCTION_VERSION === "prod" ? `https://serverlist.district53.io/` : `http://dev.game.district53.io:5000/`;
+        // const apiURL = `https://serverlist.district53.io/`;
+        // const data = await window.electronAPI.fetch(apiURL);
+        // setServerList(data);
+        // setServerIp(data[0]?.ip);
       };
-
       init();
       intervalId = setInterval(init, 30 * 1e3);
     }
@@ -129,29 +126,29 @@ const D53Modal = ({ open, setOpen }: props) => {
                 {"Invalid IP address format"}
               </Box>
             )}
-            {serverList.map((server) =>
-              server.visible ? (
+            {serverList?.map((server) =>
+              server?.visible ? (
                 <Button
                   fullWidth
-                  onClick={() => setServerIp(server.ip)}
+                  onClick={() => setServerIp(server?.ip)}
                   sx={{
                     textTransform: "none",
                     border: "1px solid #FFFFFF33",
                     borderRadius: "0px",
                     marginTop: "-1px",
-                    filter: server.status !== "online" ? "grayscale(100%)" : null,
+                    filter: server?.status !== "online" ? "grayscale(100%)" : null,
                   }}
-                  disabled={server.status !== "online"}
+                  disabled={server?.status !== "online"}
                 >
                   <Stack direction={"row"} width={"100%"} gap={"4px"} alignItems={"center"}>
-                    <Box className={server.clients < server.clients_max ? "fs-16-regular white" : "fs-16-regular red"}>{`${server.display_name}`}</Box>
+                    <Box className={server?.clients < server?.clients_max ? "fs-16-regular white" : "fs-16-regular red"}>{`${server?.display_name}`}</Box>
                     <Stack direction={"row"} alignItems={"center"} gap={"4px"}>
-                      <Box className={"fs-12-regular"} color={server.clients < server.clients_max ? "#52E1F2" : "#EF4444"}>{`(${server.clients ?? "0"}/${
-                        server.clients_max ?? "0"
+                      <Box className={"fs-12-regular"} color={server?.clients < server?.clients_max ? "#52E1F2" : "#EF4444"}>{`(${server?.clients ?? "0"}/${
+                        server?.clients_max ?? "0"
                       }`}</Box>
                       <Stack direction={"row"} alignItems={"center"}>
-                        <Box className={"fs-10-light"} color={server.clients < server.clients_max ? "#52E1F2" : "#EF4444"}>{`Joined`}</Box>
-                        <Box className={"fs-12-regular"} color={server.clients < server.clients_max ? "#52E1F2" : "#EF4444"}>{`)`}</Box>
+                        <Box className={"fs-10-light"} color={server?.clients < server?.clients_max ? "#52E1F2" : "#EF4444"}>{`Joined`}</Box>
+                        <Box className={"fs-12-regular"} color={server?.clients < server?.clients_max ? "#52E1F2" : "#EF4444"}>{`)`}</Box>
                       </Stack>
                     </Stack>
                   </Stack>

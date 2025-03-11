@@ -1,20 +1,13 @@
-import { IGame } from "./GameTypes";
-
-export interface INotificationParams {
-  status: string; // failed, success, warning, alert, message
+export interface INotificationContent {
   title: string;
-  message: string;
+  text: string;
+  status: string; // failed, success, warning, alert
+  duration: number;
   link: string;
-  translate: boolean;
 }
 
-export interface INotificationGameDownloadParams {
-  status: string; //started, finished, cancelled, failed
-  game: IGame;
-}
-
-export interface INotificationGameDownloadProgressParams {
-  downloaded: number;
-  speed: number;
-  total_size: number;
+export interface INotificationEventParams {
+  content: INotificationContent;
+  text?: string;
+  link?: string;
 }

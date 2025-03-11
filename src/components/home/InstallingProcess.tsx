@@ -1,23 +1,34 @@
-import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Box, Stack } from "@mui/material";
 
 import InstallProcessContextMenu from "./InstallProcessContextMenu";
 
-import { getDownloadStatus } from "../../features/home/DownloadStatusSlice";
+import { getDownloadStatus, setDownloadStatus } from "../../store/DownloadStatusSlice";
+import { getCurrentLogo } from "../../store/tymtLogoSlice";
 
-import downloadbig from "../../assets/main/downloadbig.svg";
-import downloadsmall from "../../assets/main/downloadsmall.svg";
+import downloadbig from "../../assets/main/DownloadBig.svg";
+import downloadsmall from "../../assets/main/DownloadSmall.svg";
 
-import { getCurrentLogo } from "../../features/home/Tymtlogo";
-
-import { IDownloadStatus, IPoint, TymtlogoType } from "../../types/homeTypes";
+import { IDownloadStatus, IPoint, tymtLogoType } from "../../types/HomeTypes";
 import { openDir } from "../../lib/helper/DownloadHelper";
 import numeral from "numeral";
+import { listen } from "@tauri-apps/api/event";
+import { IGame, IGameList } from "../../types/GameTypes";
+import { getGameList } from "../../store/GameListSlice";
+import { getDeveloperGameList } from "../../store/DeveloperGameListSlice";
 
 const InstallingProcess = () => {
-  const drawer: TymtlogoType = useSelector(getCurrentLogo);
+  const dispatch = useDispatch();
+  const drawer: tymtLogoType = useSelector(getCurrentLogo);
   const downloadStatusStore: IDownloadStatus = useSelector(getDownloadStatus);
+  const gameListStore: IGameList = useSelector(getGameList);
+  const developerGameListStore: IGameList = useSelector(getDeveloperGameList);
+
+  const game: IGame = useMemo(
+    () => [...gameListStore?.games, ...developerGameListStore?.games]?.find((one) => one?._id === downloadStatusStore?.game),
+    [gameListStore, developerGameListStore, downloadStatusStore?.game]
+  );
 
   const [showContextMenu, setShowContextMenu] = useState<boolean>(false);
   const [contextMenuPosition, setContextMenuPosition] = useState<IPoint>({
@@ -34,9 +45,24 @@ const InstallingProcess = () => {
     setShowContextMenu(true);
   };
 
+  useEffect(() => {
+    const unlisten_download_progress = listen("game-download-progress", async (event) => {
+      try {
+        dispatch(setDownloadStatus(event.payload));
+        console.log(event.payload);
+      } catch (err) {
+        console.error("Failed to listen download progress: ", err);
+      }
+    });
+
+    return () => {
+      unlisten_download_progress.then((unlistenFn) => unlistenFn());
+    };
+  }, []);
+
   return (
     <>
-      {drawer.isDrawerExpanded && downloadStatusStore.isDownloading && (
+      {drawer.isDrawerExpanded && !!downloadStatusStore.game && (
         <Box onContextMenu={handleRightClick}>
           <Button
             sx={{
@@ -67,7 +93,7 @@ const InstallingProcess = () => {
             }}
           >
             <img
-              src={downloadStatusStore?.game?.imageUrl}
+              src={game?.imageUrl}
               style={{
                 position: "absolute",
                 left: "0px",
@@ -93,7 +119,7 @@ const InstallingProcess = () => {
                   width: "100px",
                 }}
               >
-                {downloadStatusStore?.game?.title}
+                {game?.title}
               </Box>
               <Box
                 className={"fs-14-regular gray"}
@@ -104,13 +130,13 @@ const InstallingProcess = () => {
                 }}
               >
                 <img src={downloadbig} />
-                {`${numeral((downloadStatusStore?.progress / downloadStatusStore?.total) * 100).format("0")}%`}
+                {`${numeral((downloadStatusStore?.downloaded / downloadStatusStore?.total) * 100).format("0")}%`}
               </Box>
             </Stack>
           </Button>
         </Box>
       )}
-      {!drawer.isDrawerExpanded && downloadStatusStore.isDownloading && (
+      {!drawer.isDrawerExpanded && !!downloadStatusStore?.game && (
         <Box onContextMenu={handleRightClick}>
           <Button
             sx={{
@@ -141,7 +167,7 @@ const InstallingProcess = () => {
             }}
           >
             <img
-              src={downloadStatusStore?.game?.imageUrl}
+              src={game?.imageUrl}
               style={{
                 position: "absolute",
                 left: "0px",
@@ -159,7 +185,7 @@ const InstallingProcess = () => {
               }}
             >
               <img src={downloadsmall} width={"16px"} />
-              {`${numeral((downloadStatusStore?.progress / downloadStatusStore?.total) * 100).format("0")}%`}
+              {`${numeral((downloadStatusStore?.downloaded / downloadStatusStore?.total) * 100).format("0")}%`}
             </Box>
           </Button>
         </Box>

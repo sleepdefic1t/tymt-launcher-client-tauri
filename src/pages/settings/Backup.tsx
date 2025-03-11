@@ -1,31 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { emit } from "@tauri-apps/api/event";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-
-import { TauriEventNames } from "../../consts/TauriEventNames";
 
 import { Box, Button, Divider, Stack } from "@mui/material";
 
 import InputText from "../../components/account/InputText";
 import MnemonicRevealPad from "../../components/account/MnemonicRevealPad";
 
-import { getAccount } from "../../features/account/AccountSlice";
+import { getAccount } from "../../store/AccountSlice";
 
-import { decrypt, getKeccak256Hash } from "../../lib/api/Encrypt";
+import { getKeccak256Hash, decrypt } from "../../lib/helper/EncryptHelper";
 
-import { propsType } from "../../types/settingTypes";
-import { INotificationParams } from "../../types/NotificationTypes";
-import { IAccount } from "../../types/accountTypes";
+import { IAccount } from "../../types/AccountTypes";
 
-import SettingStyle from "../../styles/SettingStyle";
+import backIcon from "../../assets/setting/BackIcon.svg";
 
-import backIcon from "../../assets/settings/back-icon.svg";
+export interface IPropsBackup {
+  view: string;
+  setView: (_: string) => void;
+}
 
-const Backup = ({ view, setView }: propsType) => {
-  const classname = SettingStyle();
+const Backup = ({ view, setView }: IPropsBackup) => {
   const { t } = useTranslation();
 
   const accountStore: IAccount = useSelector(getAccount);
@@ -39,24 +36,8 @@ const Backup = ({ view, setView }: propsType) => {
       try {
         const decryptedPassphrase = await decrypt(accountStore?.mnemonic, password);
         setPassphrase(decryptedPassphrase);
-        const noti_0: INotificationParams = {
-          status: "success",
-          title: `Success`,
-          message: `Passphrase has been revealed!`,
-          link: null,
-          translate: true,
-        };
-        emit(TauriEventNames.NOTIFICATION, noti_0);
       } catch (err) {
         console.error("Failed to handleSubmit: ", err);
-        const noti_0: INotificationParams = {
-          status: "failed",
-          title: `Error`,
-          message: `Backup failed during decryption!`,
-          link: null,
-          translate: true,
-        };
-        emit(TauriEventNames.NOTIFICATION, noti_0);
       }
     },
     [accountStore]
@@ -71,7 +52,9 @@ const Backup = ({ view, setView }: propsType) => {
         .required(t("cca-63_required"))
         .test("equals", t("cca-60_wrong-password"), (value) => getKeccak256Hash(value) === accountStore?.password),
     }),
-    onSubmit: () => handleSubmit(formik.values.password),
+    onSubmit: () => {
+      handleSubmit(formik.values.password);
+    },
   });
 
   useEffect(() => {
@@ -132,6 +115,7 @@ const Backup = ({ view, setView }: propsType) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     error={formik.touched.password && formik.errors.password ? true : false}
+                    showTooltip={false}
                   />
                 </Box>
                 {formik.touched.password && formik.errors.password && (
@@ -160,7 +144,43 @@ const Backup = ({ view, setView }: propsType) => {
                 {passphrase && !blur && `${t("set-92_will-blur-again")} ${time} ${t("set-93_seconds")}`}
               </Box>
               <Box padding={"20px"} width={"90%"} sx={{ position: "absolute", bottom: "30px" }}>
-                <Button fullWidth className={classname.action_button} disabled={formik.errors.password ? true : false} type="submit">
+                <Button
+                  fullWidth
+                  sx={{
+                    "&.MuiButtonBase-root": {
+                      textTransform: "none",
+                      fontSize: "18px",
+                      fontStyle: "normal",
+                      fontWeight: "400",
+                      lineHeight: "24px" /* 133.333% */,
+                      letterSpacing: "-0.36px",
+                      height: "46px",
+                      borderRadius: "16px",
+                      backgroundColor: "transparent",
+                      color: "#52E1F2",
+                      borderColor: "#EF4444",
+                      fontFamily: "Cobe",
+                      boxShadow: "none",
+                      border: "1px solid",
+                      paddingTop: "5px",
+                      "&:hover": {
+                        borderColor: "#EF4444",
+                        backgroundColor: "#EF4444",
+                      },
+                      "&:active": {
+                        backgroundColor: "#EF4444",
+                        boxShadow: "1px 1px #EF44445F",
+                      },
+                      "&:disabled": {
+                        backgroundColor: "#222222", // Example: light gray background
+                        color: "#A0A0A0", // Example: gray text color
+                        borderColor: "#222222", // Example: gray border color
+                      },
+                    },
+                  }}
+                  disabled={formik.errors.password ? true : false}
+                  type="submit"
+                >
                   {t("ncca-51_confirm")}
                 </Button>
               </Box>

@@ -1,55 +1,30 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 import numeral from "numeral";
 
-import { currencySymbols } from "../../consts/SupportCurrency";
-import { ChainNames } from "../../consts/Chains";
+import { CONFIG_SOLAR_SCAN } from "../../config/MainConfig";
 
-import { useNotification } from "../../providers/NotificationProvider";
+import { Grid, Box, Divider, Stack, Button, Pagination, IconButton, Tooltip, CircularProgress } from "@mui/material";
 
-import PasswordModal from "../../components/modals/PasswordModal";
+import { useWallet } from "../../providers/WalletProvider";
+
+import AnimatedComponent from "../../components/home/AnimatedComponent";
+import PasswordModal from "../../components/modal/PasswordModal";
 import InputVoteBox from "../../components/wallet/InputVoteBox";
-import AnimatedComponent from "../../components/AnimatedComponent";
 
-import { Grid, Box, Divider, Stack, Button, Pagination, IconButton, Tooltip } from "@mui/material";
-
-import { getWallet } from "../../features/wallet/WalletSlice";
-import { getCurrencyList } from "../../features/wallet/CurrencyListSlice";
-import { getCurrentCurrency } from "../../features/wallet/CurrentCurrencySlice";
-import { getPriceList } from "../../features/wallet/PriceListSlice";
-import { getBalanceList } from "../../features/wallet/BalanceListSlice";
-
-import SolarAPI from "../../lib/api/SolarAPI";
 import Solar from "../../lib/wallet/Solar";
+import { compareDictionaries } from "../../lib/helper/JSONHelper";
+import { openLink } from "../../lib/helper/TauriHelper";
 
-import { formatDecimal } from "../../lib/helper";
-import { translateString } from "../../lib/api/Translate";
-import { openLink } from "../../lib/helper/DownloadHelper";
-import { getNativeTokenBalanceByChainName, getNativeTokenPriceByChainName } from "../../lib/helper/WalletHelper";
+import { IVotingData } from "../../types/WalletTypes";
 
-import accountIcon from "../../assets/wallet/account.svg";
-import solarIcon from "../../assets/chains/solar.svg";
-import refreshIcon from "../../assets/wallet/refresh-icon.svg";
-
-import { IBalanceList, ICurrencyList, ICurrentCurrency, IPriceList, IVotingData, IWallet } from "../../types/walletTypes";
+import accountIcon from "../../assets/wallet/Account.svg";
+import solarIcon from "../../assets/chain/Solar.svg";
+import refreshIcon from "../../assets/wallet/RefreshIcon.svg";
 
 const WalletVote = () => {
   const { t } = useTranslation();
-
-  const currencyListStore: ICurrencyList = useSelector(getCurrencyList);
-  const currentCurrencyStore: ICurrentCurrency = useSelector(getCurrentCurrency);
-  const walletStore: IWallet = useSelector(getWallet);
-  const priceListStore: IPriceList = useSelector(getPriceList);
-  const balanceListStore: IBalanceList = useSelector(getBalanceList);
-
-  const reserve: number = useMemo(
-    () => currencyListStore?.list?.find((one) => one?.name === currentCurrencyStore?.currency)?.reserve,
-    [currencyListStore, currentCurrencyStore]
-  );
-  const symbol: string = useMemo(() => currencySymbols[currentCurrencyStore?.currency], [currentCurrencyStore]);
-  const sxpPrice = useMemo(() => getNativeTokenPriceByChainName(priceListStore, ChainNames?.SOLAR), [priceListStore]);
-  const sxpBalance = useMemo(() => getNativeTokenBalanceByChainName(balanceListStore, ChainNames?.SOLAR), [balanceListStore]);
+  const { sxpPrice, sxpBalance, sxpAddress, currentCurrencySymbol, currentCurrencyReserve } = useWallet();
 
   const [data, setData] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
@@ -62,64 +37,18 @@ const WalletVote = () => {
   const [latestBlock, setLatestBlock] = useState<number>(0);
   const [totalVoted, setTotalVoted] = useState<number>(0);
   const [totalRewards, setTotalRewards] = useState<number>(0);
-
-  const { setNotificationStatus, setNotificationTitle, setNotificationDetail, setNotificationOpen, setNotificationLink } = useNotification();
-
-  const SolarGet53Delegates = () => {
-    const query1 = {
-      page: 1,
-      limit: 53,
-      isResigned: false,
-      orderBy: "rank:asc",
-    };
-    return Solar.getDelegates(query1, "delegates");
-  };
-
-  const SolarGetMyVotingData = useCallback(() => {
-    const query2 = {
-      page: 1,
-      limit: 1,
-    };
-    return SolarAPI.getData(query2, `wallets/${walletStore?.solar}/votes`);
-  }, [walletStore]);
-
-  const SolarGetAllDelegates = async () => {
-    const query1 = {
-      page: 1,
-      limit: 100,
-      isResigned: false,
-      orderBy: "address:asc",
-    };
-    const res1: any = await Solar.getDelegates(query1, "delegates");
-    const numberOfDelegates = res1.data.meta.totalCount;
-    const numberOfPages = Math.ceil(numberOfDelegates / 100);
-    let queries = [];
-    for (let i = 2; i <= numberOfPages; i++) {
-      queries.push({
-        page: i,
-        limit: 100,
-        isResigned: false,
-        orderBy: "address:asc",
-      });
-    }
-    const res2: any[] = await Promise.all(queries.map((query) => Solar.getDelegates(query, "delegates")));
-    let res3: any[] = res1.data.data;
-    for (let i = 0; i < res2.length; i++) {
-      res3 = [...res3, ...res2[i].data.data];
-    }
-    return res3;
-  };
-
-  const SolarGetBlockchain = () => {
-    return SolarAPI.getData({}, `blockchain`);
-  };
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleRefreshClick = async () => {
     try {
+      setLoading(true);
       setCurrentPage(1);
-
-      const [res1, res2, res3, res4] = await Promise.all([SolarGet53Delegates(), SolarGetMyVotingData(), SolarGetAllDelegates(), SolarGetBlockchain()]);
-
+      const [res1, res2, res3, res4] = await Promise.all([
+        Solar.get53Delegates(1),
+        Solar.getVotingData(sxpAddress),
+        Solar.getAllDelegates(),
+        Solar.getBlockchain(),
+      ]);
       setData(res1.data.data);
       setTotalPage(res1.data.meta.pageCount);
       if (Array.isArray(res2.data.data) && res2.data.data.length > 0) {
@@ -134,46 +63,23 @@ const WalletVote = () => {
       setTotalVoted(newTotalVoted);
       setTotalRewards(newTotalRewards);
       setLatestBlock(res4.data.data.block.height);
-
-      setNotificationStatus("success");
-      setNotificationTitle(t("wal-54_success"));
-      setNotificationDetail(t("wal-55_block-producers-refreshed"));
-      setNotificationOpen(true);
-      setNotificationLink(null);
     } catch (err) {
       console.error("Failed to refresh voting page: ", err);
-      const translated = await translateString(err.toString());
-      setNotificationStatus("failed");
-      setNotificationTitle(t("wal-53_refresh-vote-failed"));
-      setNotificationDetail(translated);
-      setNotificationOpen(true);
-      setNotificationLink(null);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const compareDictionaries = (dict1: IVotingData, dict2: IVotingData) => {
-    if (Object.keys(dict1).length !== Object.keys(dict2).length) {
-      return false;
-    }
-    for (let key in dict1) {
-      if (dict1[key] !== dict2[key]) {
-        return false;
-      }
-    }
-    return true;
-  };
-
-  const handlePageChange = (_event, value) => {
+  const handlePageChange = async (_event: any, value: number) => {
     setCurrentPage(value);
-    const query1 = {
-      page: value,
-      limit: 53,
-      isResigned: false,
-      orderBy: "rank:asc",
-    };
-    Solar.getDelegates(query1, "delegates").then((res) => {
+    setLoading(true);
+    try {
+      const res = await Solar.get53Delegates(value);
       setData(res.data.data);
-    });
+    } catch (err) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -192,12 +98,11 @@ const WalletVote = () => {
   useEffect(() => {
     let intervalId;
     let error = false;
-
     const fetchData = async () => {
       if (error) {
       } else {
         try {
-          const res = await SolarGetBlockchain();
+          const res = await Solar.getBlockchain();
           setLatestBlock(res.data.data.block.height);
         } catch (err) {
           console.error("Failed to setInterval 4*1e3: ", err);
@@ -205,21 +110,18 @@ const WalletVote = () => {
         }
       }
     };
-
     intervalId = setInterval(fetchData, 4 * 1e3);
-
     return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
     let intervalId;
     let error = false;
-
     const fetchData = async () => {
       if (error) {
       } else {
         try {
-          const BPArray = await SolarGetAllDelegates();
+          const BPArray = await Solar.getAllDelegates();
           const newTotalVoted = BPArray.reduce((sum, element) => sum + element.votesReceived.votes / 1e8, 0);
           const newTotalRewards = BPArray.reduce((sum, element) => sum + element.forged.total / 1e8, 0);
           setTotalVoted(newTotalVoted);
@@ -230,9 +132,7 @@ const WalletVote = () => {
         }
       }
     };
-
     intervalId = setInterval(fetchData, 120 * 1e3);
-
     return () => clearInterval(intervalId);
   });
 
@@ -278,7 +178,9 @@ const WalletVote = () => {
             <Stack padding={"24px 40px"}>
               <Box className="fs-16-regular light t-center">{t("wal-18_total-voted")}</Box>
               <Box className="fs-34-bold white t-center">{`${numeral(totalVoted).format("0,0")} SXP`}</Box>
-              <Box className="fs-18-regular light t-center">{`${symbol} ${numeral(totalVoted * Number(sxpPrice) * Number(reserve)).format("0,0")}`}</Box>
+              <Box className="fs-18-regular light t-center">{`${currentCurrencySymbol} ${numeral(totalVoted * sxpPrice * currentCurrencyReserve).format(
+                "0,0"
+              )}`}</Box>
             </Stack>
             <Stack padding={"32px 24px"}>
               <Box
@@ -291,7 +193,9 @@ const WalletVote = () => {
             <Stack padding={"24px 40px"}>
               <Box className="fs-16-regular light t-center">{t("wal-19_total-rewards")}</Box>
               <Box className="fs-34-bold beach t-center">{`+${numeral(totalRewards).format("0,0")} SXP`}</Box>
-              <Box className="fs-18-regular light t-center">{`+${symbol} ${numeral(totalRewards * Number(sxpPrice) * Number(reserve)).format("0,0")}`}</Box>
+              <Box className="fs-18-regular light t-center">{`+${currentCurrencySymbol} ${numeral(
+                totalRewards * Number(sxpPrice) * Number(currentCurrencyReserve)
+              ).format("0,0")}`}</Box>
             </Stack>
             <Stack padding={"32px 24px"}>
               <Box
@@ -303,7 +207,9 @@ const WalletVote = () => {
             </Stack>
             <Stack padding={"24px 40px"}>
               <Box className="fs-16-regular light t-center">{t("wal-51_sxp-price")}</Box>
-              <Box className="fs-34-bold white t-center">{`${symbol} ${numeral(Number(sxpPrice) * Number(reserve)).format("0,0.00")}`}</Box>
+              <Box className="fs-34-bold white t-center">{`${currentCurrencySymbol} ${numeral(Number(sxpPrice) * Number(currentCurrencyReserve)).format(
+                "0,0.00"
+              )}`}</Box>
             </Stack>
           </Grid>
           <Grid item xs={12}>
@@ -403,7 +309,138 @@ const WalletVote = () => {
                     <Box className="fs-14-regular light">{""}</Box>
                   </Grid>
                 </Grid>
-                {data.map((item, index) => (
+                {loading ? (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center", // Optional for vertical alignment
+                      width: "100%", // Fill the parent width
+                      padding: "50px 0",
+                    }}
+                  >
+                    <CircularProgress
+                      size="100px"
+                      sx={{
+                        color: "#afafaf",
+                        width: "40px",
+                        height: "40px",
+                      }}
+                    />
+                  </Box>
+                ) : (
+                  data.map((item, index) => (
+                    <Button
+                      key={`blockproducer-${item.address}`}
+                      sx={{
+                        height: "74px",
+                        textTransform: "none",
+                        borderLeft: Object.keys(votingData).includes(item.username) && votingData[item.username] !== 0 ? "5px solid #EF4444" : "none",
+                      }}
+                      onDoubleClick={() => {
+                        openLink(`${CONFIG_SOLAR_SCAN}wallet/${item.username}`);
+                      }}
+                    >
+                      <Stack width={"100%"}>
+                        <Grid container>
+                          <Grid item xs={0.3}>
+                            <Stack direction={"row"} alignItems={"center"} height={"74px"}>
+                              <Box className="fs-14-regular light t-left">{(currentPage - 1) * 53 + index + 1}.</Box>
+                            </Stack>
+                          </Grid>
+                          <Grid item xs={3.5}>
+                            <Stack direction={"row"} alignItems={"center"} height={"74px"} spacing={"8px"}>
+                              <Box
+                                component={"img"}
+                                src={`https://assets.solarscan.com/avatars/${item.address}.jpg`}
+                                width={"40px"}
+                                height={"40px"}
+                                sx={{
+                                  borderRadius: "20px",
+                                }}
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = accountIcon;
+                                }}
+                              />
+                              <Stack spacing={"8px"}>
+                                <Box className="fs-18-regular white">{item.username}</Box>
+                                <Stack direction={"row"} alignItems={"center"} spacing={"8px"}>
+                                  {currentPage === 1 && (
+                                    <Box
+                                      className="fs-12-light white"
+                                      sx={{
+                                        borderRadius: "4px",
+                                        border: "1px solid #3A7E52",
+                                        backgroundColor: "rgba(58, 126, 82, 0.20)",
+                                        padding: "4px 8px",
+                                      }}
+                                    >
+                                      {t("wal-58_active")}
+                                    </Box>
+                                  )}
+                                  <Box
+                                    className="fs-12-light white"
+                                    sx={{
+                                      borderRadius: "4px",
+                                      border: "1px solid #EF8244",
+                                      backgroundColor: "rgba(239, 130, 68, 0.20)",
+                                      padding: "4px 8px",
+                                    }}
+                                  >
+                                    {`${item.votesReceived.voters} ${t("wal-59_voters")}`}
+                                  </Box>
+                                </Stack>
+                              </Stack>
+                            </Stack>
+                          </Grid>
+                          <Grid item xs={1.5}>
+                            <Stack direction={"row"} alignItems={"center"} height={"74px"}>
+                              <Box className="fs-18-regular white t-left">{item.blocks.produced}</Box>
+                            </Stack>
+                          </Grid>
+                          <Grid item xs={2}>
+                            <Stack direction={"row"} alignItems={"center"} height={"74px"}>
+                              <Stack>
+                                <Box className="fs-18-regular white t-left">{`${numeral(item.forged.total ?? 0).format("0,0")} SXP`}</Box>
+                                <Box className="fs-12-regular light t-left">
+                                  {`${numeral((item.forged.total * Number(sxpPrice) * Number(currentCurrencyReserve)) / 1e8).format(
+                                    "0,0.00"
+                                  )} ${currentCurrencySymbol}`}
+                                </Box>
+                              </Stack>
+                            </Stack>
+                          </Grid>
+                          <Grid item xs={2.5}>
+                            <Stack direction={"row"} alignItems={"center"} height={"74px"}>
+                              <Stack>
+                                <Box className="fs-18-regular white t-left">{numeral(item.votesReceived.votes ?? 0).format("0,0")}</Box>
+                                <Box className="fs-12-regular light t-left">{item.votesReceived.percent} %</Box>
+                              </Stack>
+                            </Stack>
+                          </Grid>
+                          <Grid item xs={2.2}>
+                            <Stack direction={"row"} alignItems={"center"} height={"74px"}>
+                              <Box className="wallet-form-card-hover br-16 blur" padding={"0px 16px"} height={"54px"}>
+                                <Stack direction={"row"} alignItems={"center"}>
+                                  <InputVoteBox id={item.username} label={""} align="right" value={votingData} onChange={setVotingData} />
+                                  <Box className="fs-18-regular light">%</Box>
+                                </Stack>
+                              </Box>
+                            </Stack>
+                          </Grid>
+                        </Grid>
+                        <Divider
+                          sx={{
+                            backgroundColor: "#FFFFFF1A",
+                          }}
+                        />
+                      </Stack>
+                    </Button>
+                  ))
+                )}
+
+                {/* {data.map((item, index) => (
                   <Button
                     key={`blockproducer-${item.address}`}
                     sx={{
@@ -412,7 +449,7 @@ const WalletVote = () => {
                       borderLeft: Object.keys(votingData).includes(item.username) && votingData[item.username] !== 0 ? "5px solid #EF4444" : "none",
                     }}
                     onDoubleClick={() => {
-                      openLink(`https://solarscan.com/wallet/${item.username}`);
+                      openLink(`${CONFIG_SOLAR_SCAN}wallet/${item.username}`);
                     }}
                   >
                     <Stack width={"100%"}>
@@ -476,9 +513,11 @@ const WalletVote = () => {
                         <Grid item xs={2}>
                           <Stack direction={"row"} alignItems={"center"} height={"74px"}>
                             <Stack>
-                              <Box className="fs-18-regular white t-left">{`${numeral(formatDecimal(item.forged.total ?? 0)).format("0,0")} SXP`}</Box>
+                              <Box className="fs-18-regular white t-left">{`${numeral(item.forged.total ?? 0).format("0,0")} SXP`}</Box>
                               <Box className="fs-12-regular light t-left">
-                                {`${numeral((item.forged.total * Number(sxpPrice) * Number(reserve)) / 1e8).format("0,0.00")} ${symbol}`}
+                                {`${numeral((item.forged.total * Number(sxpPrice) * Number(currentCurrencyReserve)) / 1e8).format(
+                                  "0,0.00"
+                                )} ${currentCurrencySymbol}`}
                               </Box>
                             </Stack>
                           </Stack>
@@ -486,7 +525,7 @@ const WalletVote = () => {
                         <Grid item xs={2.5}>
                           <Stack direction={"row"} alignItems={"center"} height={"74px"}>
                             <Stack>
-                              <Box className="fs-18-regular white t-left">{numeral(formatDecimal(item.votesReceived.votes ?? 0)).format("0,0")}</Box>
+                              <Box className="fs-18-regular white t-left">{numeral(item.votesReceived.votes ?? 0).format("0,0")}</Box>
                               <Box className="fs-12-regular light t-left">{item.votesReceived.percent} %</Box>
                             </Stack>
                           </Stack>
@@ -509,7 +548,7 @@ const WalletVote = () => {
                       />
                     </Stack>
                   </Button>
-                ))}
+                ))} */}
                 <Grid container>
                   <Grid item xs={12} container justifyContent={"center"}>
                     <Pagination

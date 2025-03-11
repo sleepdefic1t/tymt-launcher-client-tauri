@@ -6,7 +6,6 @@ import Main from "./Main";
 import Chain from "./Chain";
 import General from "./General";
 import Language from "./Language";
-import Chat from "./Chat";
 import Message from "./Message";
 import Friend from "./Friend";
 import Wallet from "./Wallet";
@@ -22,16 +21,16 @@ import Address from "./Address";
 import Backup from "./Backup";
 import ChooseProfile from "./ChooseProfile";
 
-import SettingStyle from "../../styles/SettingStyle";
-
-import { propsSettingType } from "../../types/settingTypes";
-
-import closeImg from "../../assets/settings/collaps-close-btn.svg";
+import closeImg from "../../assets/setting/CollapsCloseBtn.svg";
 
 type Anchor = "right";
 
-const Settings = ({ view, setView }: propsSettingType) => {
-  const classname = SettingStyle();
+export interface IPropsSettings {
+  view: boolean;
+  setView: (_: boolean) => void;
+}
+
+const Settings = ({ view, setView }: IPropsSettings) => {
   const [state, setState] = useState({ right: false });
   const [panel, setPanel] = useState("main");
 
@@ -50,22 +49,55 @@ const Settings = ({ view, setView }: propsSettingType) => {
       // onClose={toggleDrawer("right", false)}
       onClose={() => setView(false)}
       onOpen={toggleDrawer("right", true)}
-      classes={{ paper: classname.setting_container }}
+      // classes={{ paper: classname.setting_container }}
       slotProps={{
         backdrop: {
           onClick: toggleDrawer("right", false),
         },
       }}
+      sx={{
+        "& .MuiPaper-root": {
+          height: "98% !important",
+          minWidth: "550px",
+          display: "flex",
+          borderRadius: "32px",
+          backgroundColor: "#8080804D !important",
+          backgroundBlendMode: "luminosity",
+          backdropFilter: "blur(4px)",
+          margin: "10px",
+          position: "fixed",
+          flexDirection: "row", // No need for "&.MuiPaper-root" here
+        },
+        "& .MuiBox-root": {
+          overflow: "auto", // Enable scrolling
+          scrollbarWidth: "none", // Firefox
+          "&::-webkit-scrollbar": {
+            display: "none", // Chrome, Safari
+          },
+        },
+      }}
     >
-      <Box className={classname.collaps_pan}>
-        <img src={closeImg} className={classname.close_icon} onClick={() => setView(false)} />
+      <Box sx={{ width: "45px", height: "100%", position: "relative" }}>
+        <img src={closeImg} style={{ cursor: "pointer", position: "absolute", bottom: "40px" }} onClick={() => setView(false)} />
       </Box>
-      <Box className={classname.setting_pan}>
+      <Box
+        sx={{
+          maxWidth: "505px",
+          width: "100%",
+          height: "100%",
+          overflow: "scroll",
+          borderRadius: "24px",
+          backgroundColor: "#071516",
+          whiteSpace: "nowrap",
+          overFlowX: "auto",
+          scrollbarWidth: "none",
+          position: "relative",
+        }}
+      >
         <Main view={panel} setView={setPanel} />
         <Chain view={panel} setView={setPanel} />
         <General view={panel} setView={setPanel} />
         <Language view={panel} setView={setPanel} />
-        <Chat view={panel} setView={setPanel} />
         <Message view={panel} setView={setPanel} />
         <Friend view={panel} setView={setPanel} />
         <Wallet view={panel} setView={setPanel} />

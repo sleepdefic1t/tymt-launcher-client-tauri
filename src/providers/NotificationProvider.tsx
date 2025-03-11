@@ -1,108 +1,81 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import AlertComp from "../components/AlertComp";
-import { useSelector } from "react-redux";
-import { selectNotification } from "../features/settings/NotificationSlice";
-import { notificationType } from "../types/settingTypes";
-import { useLocation } from "react-router-dom";
-import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/api/notification";
-import notiIcon from "../assets/main/32x32.png";
-import { decrypt } from "../lib/api/Encrypt";
-import { selectEncryptionKeyStore } from "../features/chat/Chat-encryptionkeySlice";
-import { encryptionkeyStoreType } from "../types/chatTypes";
-import { useTranslation } from "react-i18next";
-import { invoke } from "@tauri-apps/api/tauri";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
+
+// import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+// import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/plugin-notification";
+
+import PushNotification from "../components/home/PushNotification";
+
+// import NotiIcon from "../assets/main/32x32.png";
+
+import { CONST_EVENT_NAMES } from "../const/EventConsts";
+import { INotificationContent, INotificationEventParams } from "../types/NotificationTypes";
 
 interface NotificationContextType {
-  setNotificationOpen: (open: boolean) => void;
-  setNotificationStatus: (status: string) => void;
-  setNotificationTitle: (title: string) => void;
-  setNotificationDetail: (detail: any) => void;
-  setNotificationLink: (detail: string) => void;
+  showNotification: (_: INotificationEventParams) => void;
 }
 
-const NotificationContext = createContext<NotificationContextType>({
-  setNotificationOpen: () => {},
-  setNotificationStatus: () => {},
-  setNotificationTitle: () => {},
-  setNotificationDetail: () => {},
-  setNotificationLink: () => {},
-});
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const useNotification = () => useContext(NotificationContext);
 
-interface NotificationProviderProps {
-  children: ReactNode;
-}
+export const NotificationProvider = () => {
+  const [content, setContent] = useState<INotificationContent>();
+  const [customText, setCustormText] = useState<string>("");
+  const [customLink, setCustomLink] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
 
-export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
-  const location = useLocation();
-  const { t } = useTranslation();
-  const [notificationOpen, setNotificationOpen] = useState<boolean>(false);
-  const [notificationStatus, setNotificationStatus] = useState<string>("");
-  const [notificationTitle, setNotificationTitle] = useState<string>("");
-  const [notificationDetail, setNotificationDetail] = useState<string>("");
-  const [notificationLink, setNotificationLink] = useState<string>("");
+  const showNotification = (data: INotificationEventParams) => {
+    setContent(data.content);
+    setCustormText(data.text);
+    setCustomLink(data.link);
+    setOpen(true);
+  };
 
-  const notificationStore: notificationType = useSelector(selectNotification);
-
-  const encryptionStore: encryptionkeyStoreType = useSelector(selectEncryptionKeyStore);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     let permissionGranted = await isPermissionGranted();
+  //     const windowIsVisible = await invoke<boolean>("is_window_visible");
+  //     if (!permissionGranted) {
+  //       const permission = await requestPermission();
+  //       permissionGranted = permission === "granted";
+  //     }
+  //     if (permissionGranted && !windowIsVisible) {
+  //       sendNotification({
+  //         title: notificationTitle,
+  //         body: notificationDetail,
+  //         icon: NotiIcon,
+  //       });
+  //     }
+  //   };
+  //   if (notificationOpen && notificationStore.alert) {
+  //     init();
+  //   }
+  // }, []);
 
   useEffect(() => {
-    const init = async () => {
-      let permissionGranted = await isPermissionGranted();
-      const windowIsVisible = await invoke<boolean>("is_window_visible");
-      if (!permissionGranted) {
-        const permission = await requestPermission();
-        permissionGranted = permission === "granted";
-      }
-      if (permissionGranted && !windowIsVisible) {
-        if (notificationStatus === "message") {
-          const senderId = notificationLink.split("?senderId=")[1];
-          const existkey = encryptionStore.encryption_Keys[senderId];
-          console.log("existkey", existkey);
-          console.log("encryptionStore", encryptionStore);
-          console.log("senderId", senderId);
-          console.log("notiLink", notificationLink);
-          const decryptedmessage: string = existkey ? await decrypt(notificationDetail, existkey) : t("not-13_cannot-decrypt");
-          sendNotification({
-            title: notificationTitle,
-            body: decryptedmessage,
-            icon: notiIcon,
-          });
-        } else {
-          sendNotification({
-            title: notificationTitle,
-            body: notificationDetail,
-            icon: notiIcon,
-          });
-        }
-      }
-    };
+    const unlisten_notification = listen(CONST_EVENT_NAMES.NOTIFICATION, async (event) => {
+      const data = event.payload as INotificationEventParams;
+      setContent(data.content);
+      setCustormText(data.text);
+      setCustomLink(data.link);
+      setOpen(true);
+    });
 
-    if (notificationOpen && notificationStore.alert) {
-      init();
-    }
-  }, [notificationStatus, notificationLink, notificationOpen, notificationTitle, notificationDetail, notificationStore.alert]);
+    return () => {
+      unlisten_notification.then((unlistenFn) => unlistenFn());
+    };
+  });
 
   return (
     <NotificationContext.Provider
       value={{
-        setNotificationOpen,
-        setNotificationStatus,
-        setNotificationTitle,
-        setNotificationDetail,
-        setNotificationLink,
+        showNotification,
       }}
     >
-      {children}
-      <AlertComp
-        open={notificationStore.alert && location.pathname !== "/d53-transaction" ? notificationOpen : false}
-        status={notificationStatus}
-        title={notificationTitle}
-        detail={notificationDetail}
-        setOpen={setNotificationOpen}
-        link={notificationLink}
-      />
+      <Outlet />
+      <PushNotification content={content} text={customText} link={customLink} open={open} setOpen={setOpen} />
     </NotificationContext.Provider>
   );
 };

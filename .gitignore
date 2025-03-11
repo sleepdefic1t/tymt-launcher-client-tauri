@@ -11,6 +11,8 @@ node_modules/*
 !node_modules/@solar-network/crypto/package.json
 dist
 dist-ssr
+src/consts/testMnemonics.ts
+src/consts/privateStoreIds.ts
 .env
 .env.prod
 .env.dev
@@ -19,8 +21,8 @@ dist-ssr
 *.local
 configs/*
 
-# Intercom config
-/public/intercom.json
+# tawk config
+/public/tawk.json
 
 # Editor directories and files
 .vscode/*

@@ -1,14 +1,40 @@
-import { Box, Button, Divider, Stack } from "@mui/material";
+import { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import backIcon from "../../assets/settings/back-icon.svg";
-import arrowImg from "../../assets/settings/arrow-right.svg";
-import { propsType } from "../../types/settingTypes";
-import ComingModal from "../../components/ComingModal";
-import { useState } from "react";
 
-const Security = ({ view, setView }: propsType) => {
+import { Box, Button, Divider, Stack } from "@mui/material";
+
+import ComingModal from "../../components/modal/ComingModal";
+
+import { getAccount } from "../../store/AccountSlice";
+
+import { getKeccak256Hash } from "../../lib/helper/EncryptHelper";
+
+import { IAccount } from "../../types/AccountTypes";
+
+import backIcon from "../../assets/setting/BackIcon.svg";
+import arrowImg from "../../assets/setting/ArrowRight.svg";
+
+export interface IPropsSecurity {
+  view: string;
+  setView: (_: string) => void;
+}
+
+const Security = ({ view, setView }: IPropsSecurity) => {
   const { t } = useTranslation();
+
+  const accountStore: IAccount = useSelector(getAccount);
+
+  const isGuest = useMemo(() => accountStore?.nickname === "Guest" && accountStore?.password === getKeccak256Hash(""), [accountStore]);
+
   const [coming, setComing] = useState<boolean>(false);
+
+  const handleBackupClick = () => {
+    if (isGuest) {
+      return;
+    }
+    setView("backup");
+  };
 
   return (
     <>
@@ -32,29 +58,15 @@ const Security = ({ view, setView }: propsType) => {
               </Stack>
             </Button>
             <Divider variant="fullWidth" sx={{ backgroundColor: "#FFFFFF1A" }} />
-            <Stack
-              direction={"column"}
-              justifyContent={"flex-start"}
-              gap={1}
-              padding={"20px"}
-              sx={{
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "#ffffff1a",
-                },
-              }}
-              onClick={() => setComing(true)}
-            >
-              <Box className="fs-h4 white">{t("set-72_multi-factor-auth")}</Box>
-              <Box
-                className="fs-16-regular gray"
-                sx={{
-                  whiteSpace: "normal",
-                }}
-              >
-                {t("set-73_multi-factor-detail")}
-              </Box>
-            </Stack>
+            <Button className="common-btn" sx={{ padding: "20px" }} onClick={handleBackupClick}>
+              <Stack direction={"row"} justifyContent={"space-between"} textAlign={"center"}>
+                <Box className="fs-h4 white">{t("set-89_backup-passphrase")}</Box>
+                <Box className="center-align">
+                  <img src={arrowImg} />
+                </Box>
+              </Stack>
+            </Button>
+            <Divider variant="fullWidth" sx={{ backgroundColor: "#FFFFFF1A" }} />
           </Stack>
           <ComingModal open={coming} setOpen={setComing} />
         </Stack>

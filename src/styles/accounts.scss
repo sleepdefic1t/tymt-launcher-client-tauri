@@ -58,7 +58,7 @@
   &.MuiButtonBase-root {
     height: 46px;
     color: #52e1f2;
-    font-family: Cobe-Bold;
+    font-family: Cobe;
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -74,6 +74,7 @@
     }
     &.Mui-disabled {
       border: 1px solid #2a2525;
+      background-color: #2a2525;
       color: #7c7c7c;
     }
   }

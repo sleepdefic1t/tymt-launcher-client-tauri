@@ -1,18 +1,52 @@
-import { useSelector } from "react-redux";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Tooltip, Stack, Box } from "@mui/material";
-import onlineframe from "../../assets/chat/onlineframe.svg";
-import offlineframe from "../../assets/chat/offlineframe.svg";
-import donotdisturbframe from "../../assets/chat/donotdisturbframe.svg";
-import mask from "../../assets/account/mask.png";
-import { IChain } from "../../types/walletTypes";
-import { getChain } from "../../features/wallet/ChainSlice";
-import accountIcon from "../../assets/wallet/account.svg";
-import { tymt_backend_url } from "../../configs";
+import { useSelector } from "react-redux";
 
-const Avatar = ({ size, userid, onlineStatus, ischain, status }: any) => {
+import { CONFIG_TYMT_BACKEND_URL } from "../../config/MainConfig";
+
+import { Tooltip, Stack, Box } from "@mui/material";
+
+import { getCurrentChain } from "../../store/CurrentChainSlice";
+
+import { getSupportChainByName } from "../../lib/helper/WalletHelper";
+
+import { ICurrentChain } from "../../types/ChainTypes";
+
+import onlineframe from "../../assets/chat/OnlineFrame.svg";
+import offlineframe from "../../assets/chat/OfflineFrame.svg";
+import donotdisturbframe from "../../assets/chat/DoNotDisturbFrame.svg";
+import mask from "../../assets/account/Mask.png";
+import accountIcon from "../../assets/wallet/Account.svg";
+
+export interface IPropsAvatar {
+  url: string;
+  size: number;
+  onlineStatus: boolean;
+  status: string;
+  isChain?: boolean;
+  userid?: string;
+}
+
+const Avatar = ({ size, url, onlineStatus, isChain, status }: IPropsAvatar) => {
   const { t } = useTranslation();
-  const chain: IChain = useSelector(getChain);
+
+  const currentChainStore: ICurrentChain = useSelector(getCurrentChain);
+  const currentSupportChain = useMemo(() => getSupportChainByName(currentChainStore?.chain), [currentChainStore]);
+
+  // const [user, setUser] = useState<ICurrentChatroomMember>();
+
+  // useEffect(() => {
+  //   if (userid) {
+  //     const init = async () => {
+  //       const res = await UserAPI.getUserById(userid);
+  //       if (!res?.data?.result?.data) {
+  //         return;
+  //       }
+  //       setUser(res?.data?.result?.data);
+  //     };
+  //     init();
+  //   }
+  // }, [userid]);
 
   return (
     <>
@@ -30,9 +64,9 @@ const Avatar = ({ size, userid, onlineStatus, ischain, status }: any) => {
             }}
           >
             <Box className="fs-16-regular white">
-              {onlineStatus && status === "online"
+              {onlineStatus && status === "active"
                 ? t("tol-4_online")
-                : onlineStatus && status === "donotdisturb"
+                : onlineStatus && status === "do-not-disturb"
                 ? t("tol-6_donotdisturb")
                 : onlineStatus && status === undefined
                 ? t("tol-4_online")
@@ -83,7 +117,7 @@ const Avatar = ({ size, userid, onlineStatus, ischain, status }: any) => {
           )}
           {onlineStatus === true && (
             <img
-              src={status === "donotdisturb" ? donotdisturbframe : onlineframe}
+              src={status === "do-not-disturb" ? donotdisturbframe : onlineframe}
               style={{
                 position: "absolute",
                 width: "100%",
@@ -96,9 +130,9 @@ const Avatar = ({ size, userid, onlineStatus, ischain, status }: any) => {
               }}
             />
           )}
-          {ischain && (
+          {isChain && (
             <img
-              src={chain.chain.logo}
+              src={currentSupportChain?.native?.logo}
               style={{
                 position: "absolute",
                 width: "18px",
@@ -111,8 +145,7 @@ const Avatar = ({ size, userid, onlineStatus, ischain, status }: any) => {
           )}
           <Box
             component={"img"}
-            key={`${new Date().getTime()}`}
-            src={`${tymt_backend_url}/users/get-avatar/${userid}?${Date.now()}`}
+            src={`${CONFIG_TYMT_BACKEND_URL}${url}`}
             sx={{
               position: "absolute",
               top: "50%",
@@ -126,6 +159,7 @@ const Avatar = ({ size, userid, onlineStatus, ischain, status }: any) => {
               maskSize: "cover",
               zIndex: 1,
               opacity: 0.9,
+              transition: "all 0.5s",
             }}
             loading="lazy"
             onError={(e) => {

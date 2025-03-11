@@ -1,19 +1,17 @@
-import { IWallet } from "./IWallet";
 import { ethers } from "ethers";
 import * as ethereumjsWallet from "ethereumjs-wallet";
 import * as bip39 from "bip39";
-import { avax_api_url, avax_rpc_url, net_name } from "../../configs";
-import { IToken, IGetTokenBalanceRes } from "../../types/walletTypes";
-import tymtStorage from "../Storage";
 
-class Avalanche implements IWallet {
-  address: string;
-  ticker: "AVAX" = "AVAX";
+import { CONFIG_AVAX_API_URL, CONFIG_AVAX_RPC_URL, CONFIG_NETWORK_NAME } from "../../config/MainConfig";
+import tymtStorage from "../storage/tymtStorage";
 
-  constructor() {
-    this.address = "";
-  }
+import { ISupportToken } from "../../types/ChainTypes";
+import { IBalance } from "../../types/WalletTypes";
+import { IRecipient } from "../../types/TransactionTypes";
+import { CONST_CHAIN_IDS } from "../../const/ChainConsts";
+import { CryptoAPI } from "../api/CryptoAPI";
 
+export class Avalanche {
   static async getWalletFromMnemonic(mnemonic: string): Promise<any> {
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const hdNode = ethereumjsWallet.hdkey.fromMasterSeed(seed);
@@ -32,36 +30,36 @@ class Avalanche implements IWallet {
 
   static async getBalance(addr: string): Promise<number> {
     try {
-      const customProvider = new ethers.JsonRpcProvider(avax_rpc_url);
+      const customProvider = new ethers.JsonRpcProvider(CONFIG_AVAX_RPC_URL);
       return parseFloat(ethers.formatEther(await customProvider.getBalance(addr))) / 1e9 / 1e9;
     } catch {
       return 0;
     }
   }
 
-  static async getTokenBalance(addr: string, tokens: IToken[]): Promise<IGetTokenBalanceRes[]> {
+  static async getTokenBalance(addr: string, tokens: ISupportToken[]): Promise<IBalance[]> {
     try {
-      let result: IGetTokenBalanceRes[] = [];
+      let result: IBalance[] = [];
       for (let i = 0; i < tokens.length; i++) {
-        const tokenContractAddress = tokens[i].address;
-        const tokenAbi = ["function balanceOf(address owner) view returns (uint256)"];
-        const customProvider = new ethers.JsonRpcProvider(avax_rpc_url);
-        const tokenContract = new ethers.Contract(tokenContractAddress, tokenAbi, customProvider);
-        if (net_name === "testnet") {
+        if (CONFIG_NETWORK_NAME === "testnet") {
           result.push({
-            cmc: tokens[i].cmc,
-            balance: 0,
+            symbol: tokens[i].symbol,
+            balance: 0.0,
           });
         } else {
+          const tokenContractAddress = tokens[i].address;
+          const tokenAbi = ["function balanceOf(address owner) view returns (uint256)"];
+          const customProvider = new ethers.JsonRpcProvider(CONFIG_AVAX_RPC_URL);
+          const tokenContract = new ethers.Contract(tokenContractAddress, tokenAbi, customProvider);
           result.push({
-            cmc: tokens[i].cmc,
+            symbol: tokens[i].symbol,
             balance: parseFloat(await tokenContract.balanceOf(addr)) / 10 ** (tokens[i].decimals as number),
           });
         }
       }
       return result;
     } catch (err) {
-      console.log(err);
+      // console.log("Failed to AVALANCHE getTokenBalance: ", err);
       return [];
     }
   }
@@ -70,10 +68,10 @@ class Avalanche implements IWallet {
     if (page === 1) {
       let endpoint = "";
       tymtStorage.set(`avaxNextToken`, "");
-      if (net_name === "mainnet") {
-        endpoint = `${avax_api_url}/address/${addr}/erc20-transfers?limit=15`;
+      if (CONFIG_NETWORK_NAME === "mainnet") {
+        endpoint = `${CONFIG_AVAX_API_URL}/address/${addr}/erc20-transfers?limit=15`;
       } else {
-        endpoint = `${avax_api_url}/address/${addr}/transactions?&limit=15`;
+        endpoint = `${CONFIG_AVAX_API_URL}/address/${addr}/transactions?&limit=15`;
       }
       try {
         const res = await (await fetch(endpoint)).json();
@@ -81,49 +79,91 @@ class Avalanche implements IWallet {
         tymtStorage.set(`avaxNextToken`, nextToken);
         return res.items;
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        // console.error("Error fetching transactions:", error);
         return [];
       }
     } else {
       const nextToken = tymtStorage.get(`avaxNextToken`);
-      let endpoint = `${avax_api_url}/address/${addr}/erc20-transfers?limit=15&next=${nextToken}`;
+      let endpoint = `${CONFIG_AVAX_API_URL}/address/${addr}/erc20-transfers?limit=15&next=${nextToken}`;
       try {
         const res = await (await fetch(endpoint)).json();
         const nextToken: string = res.link.nextToken;
         tymtStorage.set(`avaxNextToken`, nextToken);
         return res.items;
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        // console.error("Error fetching transactions:", error);
         return [];
       }
     }
   }
 
-  static async sendTransaction(passphrase: string, tx: { recipients: any[]; fee: string; vendorField?: string }) {
-    if (tx.recipients.length > 0) {
-      try {
-        let wallet = await Avalanche.getWalletFromMnemonic(passphrase);
-        const customProvider = new ethers.JsonRpcProvider(avax_rpc_url);
-        wallet = wallet.connect(customProvider);
-        tx.recipients.map(async (recipient) => {
-          const response = await wallet.sendTransaction({
+  static async sendTransaction(
+    privateKey: string,
+    sender: string,
+    recipients: IRecipient[]
+  ): Promise<{ success: boolean; message?: string; error?: string; data?: any }> {
+    let successfulTransactions: string[] = [];
+    let failedTransactions: string[] = [];
+    const transactionResults: { [address: string]: string } = {};
+
+    try {
+      const gasLimit = 22000;
+      const chainId = CONST_CHAIN_IDS.AVALANCHE; // Binance Smart Chain
+      const [gasPrice, initialNonce] = await Promise.all([CryptoAPI.getAvaxGasPrice(), CryptoAPI.getAvaxTransactionCount(sender)]);
+
+      for (let i = 0; i < recipients.length; i++) {
+        const recipient = recipients[i];
+        const nonce = initialNonce + i; // Increment nonce for each transaction
+
+        try {
+          // Create transaction
+          const transaction = {
             to: recipient.address,
             value: ethers.parseEther(recipient.amount),
-          });
-          const receipt = await response.wait(1);
-          const hash = receipt.transactionHash;
-          const block = receipt.blockNumber;
-          const status = receipt.status ? "Success" : "Failure";
-          const gas = receipt.gasUsed.toString();
-          console.log(`Transaction: [${hash}](^5^${hash})`);
-          console.log(`Block: ${block}`);
-          console.log(`Status: ${status}`);
-          console.log(`Gas Used: ${gas}`);
-        });
-        return true;
-      } catch {
-        return false;
+            gasLimit: gasLimit,
+            gasPrice: gasPrice,
+            nonce: nonce,
+            chainId: chainId,
+          };
+
+          // Sign transaction
+          const wallet = new ethers.Wallet(privateKey);
+          const signedTx = await wallet.signTransaction(transaction);
+
+          // Broadcast transaction
+          const res = await CryptoAPI.sendAvaxRawTransaction([signedTx]);
+          transactionResults[recipient.address] = res; // Store transaction result
+
+          if (res.success) successfulTransactions.push(recipient.address);
+          else failedTransactions.push(recipient.address);
+        } catch (err) {
+          console.error(`Failed to send transaction to ${recipient.address}:`, err);
+          failedTransactions.push(recipient.address);
+        }
       }
+    } catch (err) {
+      console.error("Failed to AVAX sendTransaction: ", err);
+    } finally {
+      if (successfulTransactions.length === recipients.length)
+        return {
+          success: true,
+          message: "All transactions broadcasted.",
+          data: {
+            successfulTransactions,
+            failedTransactions,
+            transactionResults,
+          },
+        };
+      else
+        return {
+          success: false,
+          error: `Transactions to ${failedTransactions.join(",")} failed.`,
+          data: {
+            successfulTransactions,
+            failedTransactions,
+            transactionResults,
+          },
+        };
     }
   }
 }

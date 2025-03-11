@@ -1,37 +1,89 @@
-import { useEffect } from "react";
-import { listen } from "@tauri-apps/api/event";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Box, Stack } from "@mui/material";
-import homeStyles from "../../styles/homeStyles";
-import downloadbig from "../../assets/main/downloadbig.svg";
-import downloadsmall from "../../assets/main/downloadsmall.svg";
-import { useSelector } from "react-redux";
-import { getCurrentLogo } from "../../features/home/Tymtlogo";
-import { IDownloadStatus, TymtlogoType } from "../../types/homeTypes";
-import Games from "../../lib/game/Game";
-import { openDir } from "../../lib/api/Downloads";
-import { getDownloadStatus } from "../../features/home/DownloadStatusSlice";
+
+import InstallProcessContextMenu from "./InstallProcessContextMenu";
+
+import { getDownloadStatus, setDownloadStatus } from "../../store/DownloadStatusSlice";
+import { getCurrentLogo } from "../../store/tymtLogoSlice";
+
+import downloadbig from "../../assets/main/DownloadBig.svg";
+import downloadsmall from "../../assets/main/DownloadSmall.svg";
+
+import { IDownloadStatus, IPoint, tymtLogoType } from "../../types/HomeTypes";
+import { openDir } from "../../lib/helper/DownloadHelper";
+import numeral from "numeral";
+import { listen } from "@tauri-apps/api/event";
+import { IGame, IGameList } from "../../types/GameTypes";
+import { getGameList } from "../../store/GameListSlice";
+import { getDeveloperGameList } from "../../store/DeveloperGameListSlice";
 
 const InstallingProcess = () => {
-  const homeclasses = homeStyles();
-  const drawer: TymtlogoType = useSelector(getCurrentLogo);
+  const dispatch = useDispatch();
+  const drawer: tymtLogoType = useSelector(getCurrentLogo);
   const downloadStatusStore: IDownloadStatus = useSelector(getDownloadStatus);
+  const gameListStore: IGameList = useSelector(getGameList);
+  const developerGameListStore: IGameList = useSelector(getDeveloperGameList);
+
+  const game: IGame = useMemo(
+    () => [...gameListStore?.games, ...developerGameListStore?.games]?.find((one) => one?._id === downloadStatusStore?.game),
+    [gameListStore, developerGameListStore, downloadStatusStore?.game]
+  );
+
+  const [showContextMenu, setShowContextMenu] = useState<boolean>(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState<IPoint>({
+    x: 0,
+    y: 0,
+  });
+
+  const handleRightClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    setContextMenuPosition({ x: mouseX, y: mouseY });
+    setShowContextMenu(true);
+  };
 
   useEffect(() => {
-    const unlisten = listen("download-progress", (event) => {
-      console.log(event.payload as string);
+    const unlisten_download_progress = listen("game-download-progress", async (event) => {
+      try {
+        dispatch(setDownloadStatus(event.payload));
+        console.log(event.payload);
+      } catch (err) {
+        console.error("Failed to listen download progress: ", err);
+      }
     });
 
     return () => {
-      unlisten.then((unlistenFn) => unlistenFn());
+      unlisten_download_progress.then((unlistenFn) => unlistenFn());
     };
   }, []);
 
   return (
     <>
-      {drawer.isDrawerExpanded && downloadStatusStore.isDownloading && (
-        <>
+      {drawer.isDrawerExpanded && !!downloadStatusStore.game && (
+        <Box onContextMenu={handleRightClick}>
           <Button
-            className={homeclasses.button_download}
+            sx={{
+              width: "180px",
+              height: "52px",
+              marginLeft: "10px",
+              marginBottom: "20px",
+              borderRadius: "16px",
+              border: "1px solid rgba(255, 255, 255, 0.20)",
+              backgroundColor: "rgba(128, 128, 128, 0.10)",
+              backdropFilter: "blur(50px)",
+              color: "gray",
+              alignItems: "center",
+              display: "flex",
+              justifyContent: "left",
+              position: "relative",
+              "&:hover": {
+                backgroundColor: "var(--bg-stroke-icon-button-bg-10, rgba(128, 128, 128, 0.10))",
+                border: "1px solid var(--Stroke-linear-Hover, rgba(255, 255, 255, 0.10))",
+              },
+            }}
             onClick={async () => {
               try {
                 await openDir();
@@ -41,10 +93,10 @@ const InstallingProcess = () => {
             }}
           >
             <img
-              src={Games[downloadStatusStore.name].downloadImg}
+              src={game?.imageUrl}
               style={{
                 position: "absolute",
-                left: -4,
+                left: "0px",
                 height: "50px",
                 width: "40px",
                 borderRadius: "16px",
@@ -56,8 +108,18 @@ const InstallingProcess = () => {
                 marginLeft: "25%",
               }}
             >
-              <Box className={"fs-16 white"} sx={{ textTransform: "none", display: "flex", marginLeft: 0.5 }}>
-                {Games[downloadStatusStore.name].name}
+              <Box
+                className={"fs-16 white"}
+                sx={{
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                  WebkitLineClamp: 7,
+                  WebkitBoxOrient: "vertical",
+                  display: "-webkit-box",
+                  width: "100px",
+                }}
+              >
+                {game?.title}
               </Box>
               <Box
                 className={"fs-14-regular gray"}
@@ -68,16 +130,52 @@ const InstallingProcess = () => {
                 }}
               >
                 <img src={downloadbig} />
-                Downloading...
+                {`${numeral((downloadStatusStore?.downloaded / downloadStatusStore?.total) * 100).format("0")}%`}
               </Box>
             </Stack>
           </Button>
-        </>
+        </Box>
       )}
-      {!drawer.isDrawerExpanded && downloadStatusStore.isDownloading && (
-        <>
-          <Button className={homeclasses.button_download_small}>
-            <img src={Games[downloadStatusStore.name].downloadImg} style={{ position: "absolute", left: -2, width: "21px" }} />
+      {!drawer.isDrawerExpanded && !!downloadStatusStore?.game && (
+        <Box onContextMenu={handleRightClick}>
+          <Button
+            sx={{
+              width: "74px",
+              height: "21px",
+              marginLeft: "10px",
+              marginBottom: "20px",
+              borderRadius: "16px",
+              border: "1px solid rgba(255, 255, 255, 0.20)",
+              backgroundColor: "rgba(128, 128, 128, 0.10)",
+              backdropFilter: "blur(50px)",
+              color: "gray",
+              alignItems: "center",
+              display: "flex",
+              justifyContent: "center",
+              position: "relative",
+              "&:hover": {
+                backgroundColor: "var(--bg-stroke-icon-button-bg-10, rgba(128, 128, 128, 0.10))",
+                border: "1px solid var(--Stroke-linear-Hover, rgba(255, 255, 255, 0.10))",
+              },
+            }}
+            onClick={async () => {
+              try {
+                await openDir();
+              } catch (error) {
+                console.error("Failed to open the directory:", error);
+              }
+            }}
+          >
+            <img
+              src={game?.imageUrl}
+              style={{
+                position: "absolute",
+                left: "0px",
+                height: "19px",
+                width: "16px",
+                borderRadius: "16px",
+              }}
+            />
             <Box
               className={"fs-14-regular gray"}
               sx={{
@@ -87,10 +185,12 @@ const InstallingProcess = () => {
               }}
             >
               <img src={downloadsmall} width={"16px"} />
+              {`${numeral((downloadStatusStore?.downloaded / downloadStatusStore?.total) * 100).format("0")}%`}
             </Box>
           </Button>
-        </>
+        </Box>
       )}
+      <InstallProcessContextMenu view={showContextMenu} setView={setShowContextMenu} contextMenuPosition={contextMenuPosition} />
     </>
   );
 };

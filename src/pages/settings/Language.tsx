@@ -1,35 +1,41 @@
-import { Box, Button, Divider, Stack } from "@mui/material";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import backIcon from "../../assets/settings/back-icon.svg";
-import checkImg from "../../assets/settings/check-icon.svg";
-import { selectLanguage, setLanguage } from "../../features/settings/LanguageSlice";
-import { propsType } from "../../types/settingTypes";
-import { languageType } from "../../types/settingTypes";
-import { getCurrency, setCurrency } from "../../features/wallet/CurrencySlice";
-import { ICurrency } from "../../types/walletTypes";
-import { AppDispatch } from "../../store";
 
-const Language = ({ view, setView }: propsType) => {
+import { Box, Button, Divider, Stack } from "@mui/material";
+
+import { CONST_CURRENCY_NAMES } from "../../const/CurrencyConsts";
+
+import { AppDispatch } from "../../store";
+import { getLanguageSetting, setLanguageSetting } from "../../store/LanguageSettingSlice";
+import { setCurrentCurrency } from "../../store/CurrentCurrencySlice";
+
+import { ILanguageSetting } from "../../types/SettingTypes";
+
+import backIcon from "../../assets/setting/BackIcon.svg";
+import checkImg from "../../assets/setting/CheckIcon.svg";
+
+export interface IPropsLanguage {
+  view: string;
+  setView: (_: string) => void;
+}
+
+const Language = ({ view, setView }: IPropsLanguage) => {
   const dispatch = useDispatch<AppDispatch>();
-  const language: languageType = useSelector(selectLanguage);
-  const currencyStore: ICurrency = useSelector(getCurrency);
+  const languageSettingStore: ILanguageSetting = useSelector(getLanguageSetting);
 
   const {
     t,
     i18n: { changeLanguage },
   } = useTranslation();
 
-  const setLang = useCallback(
-    (lang: string) => {
-      dispatch(setLanguage({ ...language, language: lang }));
-    },
-    [language]
-  );
+  const setLang = (lang: string) => {
+    dispatch(setLanguageSetting(lang));
+  };
+
   useEffect(() => {
-    changeLanguage(language.language);
-  }, [language.language]);
+    changeLanguage(languageSettingStore.lang);
+  }, [languageSettingStore]);
 
   return (
     <>
@@ -48,17 +54,12 @@ const Language = ({ view, setView }: propsType) => {
               sx={{ padding: "20px" }}
               onClick={() => {
                 setLang("en");
-                dispatch(
-                  setCurrency({
-                    ...currencyStore,
-                    current: "USD",
-                  })
-                );
+                dispatch(setCurrentCurrency(CONST_CURRENCY_NAMES["USD"]));
               }}
             >
               <Stack direction={"row"} justifyContent={"space-between"} textAlign={"center"}>
                 <Box className="fs-h4 white">{t("set-9_english")}</Box>
-                <Box className="center-align">{language.language == "en" && <img src={checkImg} />}</Box>
+                <Box className="center-align">{languageSettingStore.lang == "en" && <img src={checkImg} />}</Box>
               </Stack>
             </Button>
             <Divider variant="fullWidth" sx={{ backgroundColor: "#FFFFFF1A" }} />
@@ -67,17 +68,12 @@ const Language = ({ view, setView }: propsType) => {
               sx={{ padding: "20px" }}
               onClick={() => {
                 setLang("jp");
-                dispatch(
-                  setCurrency({
-                    ...currencyStore,
-                    current: "JPY",
-                  })
-                );
+                dispatch(setCurrentCurrency(CONST_CURRENCY_NAMES["JPY"]));
               }}
             >
               <Stack direction={"row"} justifyContent={"space-between"} textAlign={"center"}>
                 <Box className="fs-h4 white">{t("set-17_japanese")}</Box>
-                <Box className="center-align">{language.language == "jp" && <img src={checkImg} />}</Box>
+                <Box className="center-align">{languageSettingStore.lang == "jp" && <img src={checkImg} />}</Box>
               </Stack>
             </Button>
             <Divider variant="fullWidth" sx={{ backgroundColor: "#FFFFFF1A" }} />

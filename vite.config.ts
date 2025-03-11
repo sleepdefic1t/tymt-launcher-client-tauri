@@ -13,7 +13,9 @@ export default defineConfig({
     legacy({
       targets: ["defaults", "not IE 11"],
     }),
-    nodePolyfills(),
+    nodePolyfills({
+      include: ["crypto", "vm", "process", "os", "stream"], // Include the required polyfills
+    }),
   ],
   resolve: {
     alias: {
@@ -24,7 +26,7 @@ export default defineConfig({
     port: 1420,
     watch: {
       ignored: ["**/src-tauri/**"],
-    },
+    }
   },
   build: {
     chunkSizeWarningLimit: 8192,

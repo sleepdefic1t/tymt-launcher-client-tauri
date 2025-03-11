@@ -1,45 +1,26 @@
-export interface propsType {
-  view: string;
-  setView: (panel: string) => void;
+export interface ILanguage {
+  language: string;
 }
 
-export interface propsFeeType {
-  status: string;
-  setStatus: (status: string) => void;
+export interface IWalletSetting {
+  pageRefreshed: boolean;
+  hideZeroBalance: boolean;
+  currentCurrency: string;
+  feeLevel: string;
 }
 
-export interface notificationType {
-  alert: boolean;
-  update: boolean;
+export interface INotificationSetting {
+  status: string; // active, idle, do-not-disturb
   sound: boolean;
-  hour: number;
-  trigger: boolean;
-  alertbadge: boolean;
+  inAppNotification: boolean;
+  nativeNotification: boolean;
 }
 
-export interface chatType {
-  disturb: boolean;
-  message: string;
-  friend: string;
+export interface ILanguageSetting {
+  lang: string;
 }
-export interface addressType {
+
+export interface IAddress {
   name: string;
   address: string;
-}
-
-export interface propsSettingType {
-  view: boolean;
-  setView: (param: boolean) => void;
-}
-
-export interface walletType {
-  refreshed: boolean;
-  hidde: boolean;
-  currency: string;
-  status: string;
-  fee: string;
-}
-
-export interface languageType {
-  language: string;
 }

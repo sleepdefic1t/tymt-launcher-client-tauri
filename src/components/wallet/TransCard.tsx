@@ -1,195 +1,118 @@
+import { Suspense } from "react";
+import numeral from "numeral";
+
 import { Stack, Box, Button, CircularProgress } from "@mui/material";
-import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 
-import timerIcon from "../../assets/wallet/timer-icon.svg";
-import {
-  getTransactionsAsync,
-  selectTrasaction,
-  setTransasctions,
-  // setTransasctions,
-} from "../../features/wallet/CryptoSlice";
-import { IChain, transactionIconMap } from "../../types/walletTypes";
-import { formatBalance, formatTransaction } from "../../lib/helper";
-import { getChain } from "../../features/wallet/ChainSlice";
-import { useEffect } from "react";
-import { AppDispatch } from "../../store";
-import { openLink } from "../../lib/api/Downloads";
+import { useWallet } from "../../providers/WalletProvider";
 
-import { ICurrency } from "../../types/walletTypes";
-import { getCurrency } from "../../features/wallet/CurrencySlice";
-import { currencySymbols } from "../../consts/currency";
-// import InfiniteScroll from "react-infinite-scroller";
-import _ from "lodash";
-import { useTranslation } from "react-i18next";
-import tymtStorage from "../../lib/Storage";
+import TooltipComponent from "../home/TooltipComponent";
 
-const TransCard = () => {
-  const { t } = useTranslation();
-  const chain: IChain = useSelector(getChain);
-  const transactions: any[] = useSelector(selectTrasaction);
-  const dispatch = useDispatch<AppDispatch>();
-  const currencyStore: ICurrency = useSelector(getCurrency);
-  const reserve: number = currencyStore.data[currencyStore.current] as number;
-  const currencySymbol: string = currencySymbols[currencyStore.current];
-  const [page, setPage] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
-  // const [hasMore, setHasMore] = useState<boolean>(true);
+import { formatTx } from "../../lib/helper/WalletHelper";
 
-  useEffect(() => {
-    dispatch(setTransasctions());
-    dispatch(
-      getTransactionsAsync({
-        chain: chain,
-        page: 1,
-      })
-    );
-    setPage(1);
-  }, [dispatch, chain]);
+import { ITransactionPagination } from "../../types/TransactionTypes";
 
-  useEffect(() => {
-    if (page !== 1) {
-      setLoading(true);
-      dispatch(
-        getTransactionsAsync({
-          chain: chain,
-          page: page,
-        })
-      )
-        .then(() => {
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error("Failed to load more: ", err);
-          setLoading(false);
-        });
-    }
-  }, [dispatch, page]);
+import timerIcon from "../../assets/wallet/TimerIcon.svg";
+import noreviews from "../../assets/main/NoReviews.png";
+import { openLink } from "../../lib/helper/TauriHelper";
 
-  const handleButtonClick = (path: string) => {
-    const externalLink = path;
-    openLink(externalLink);
-  };
+export interface IPropsTransCard {
+  loading: boolean;
+  txList: ITransactionPagination;
+}
 
-  const loadMore = async () => {
-    setPage(page + 1); // will trigger useEffect
-  };
+const TransCard = ({ loading, txList }: IPropsTransCard) => {
+  const { currentChainWalletAddress, currentNativeOrToken, currentCurrencySymbol, currentCurrencyReserve, currentChainNativePrice, currentSupportChain } =
+    useWallet();
 
   return (
-    <Box>
-      {/* <InfiniteScroll
-        pageStart={page}
-        loadMore={loadMore}
-        hasMore={true}
-        isReverse={false}
-        useWindow={false}
-      > */}
-      {transactions &&
-        transactions?.map((data, index) => {
-          const { direction, address, time, url, amount, logo, symbol } =
-            formatTransaction(chain, data);
-          if (!address || !url || !amount) return null;
-          else
+    <Suspense>
+      {loading ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center", // Optional for vertical alignment
+            width: "100%", // Fill the parent width
+            padding: "150px 0",
+          }}
+        >
+          <CircularProgress
+            size="100px"
+            sx={{
+              color: "#afafaf",
+            }}
+          />
+        </Box>
+      ) : (
+        <Box>
+          {!txList?.data?.length && (
+            <Box
+              sx={{
+                justifyContent: "center",
+                marginTop: "24px",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Box sx={{ justifyContent: "center", display: "flex" }}>
+                <img src={noreviews} width={"300px"} height={"300px"} />
+              </Box>
+              <Box className={"fs-20-regular white"} textAlign={"center"} marginTop={"24px"}>
+                {"No transactions"}
+              </Box>
+            </Box>
+          )}
+          {txList?.data?.map((tx, index) => {
+            const { displayTxImage, displayTxAmount, displayTxAddress, displayTxTooltip, displayTimestamp, txScanLink } = formatTx(
+              tx,
+              currentChainWalletAddress,
+              currentSupportChain?.native?.name
+            );
             return (
-              <Button
-                key={`${index}-${new Date().toISOString()}`}
-                sx={{
-                  textTransform: "none",
-                  width: "100%",
-                }}
-                onDoubleClick={() => handleButtonClick(url)}
-              >
-                <Stack
-                  direction={"row"}
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                  padding={"7px 25px"}
-                  width={"100%"}
+              <TooltipComponent placement="bottom" text={`${displayTxTooltip}: Double-click for detail`} key={`tooltip-${tx.txId}-${index}`}>
+                <Button
+                  key={`${tx.txId}-${index}`}
+                  sx={{
+                    textTransform: "none",
+                    width: "100%",
+                  }}
+                  onDoubleClick={() => {
+                    openLink(txScanLink);
+                  }}
                 >
-                  <Stack
-                    direction={"row"}
-                    spacing={"16px"}
-                    alignItems={"center"}
-                  >
-                    <Box
-                      component={"img"}
-                      src={transactionIconMap.get(direction)}
-                      width={"32px"}
-                      height={"32px"}
-                    />
-                    <Stack>
-                      <Box className={"fs-16-regular white"}>
-                        {address?.substring(0, 6)}...
-                        {address?.substring(address.length - 10)}
-                      </Box>
-                      <Stack
-                        direction={"row"}
-                        alignItems={"center"}
-                        spacing={"8px"}
-                      >
-                        <Box
-                          component={"img"}
-                          src={timerIcon}
-                          width={"12px"}
-                          height={"12px"}
-                        />
-                        <Box className={"fs-12-regular light"}>{time}</Box>
+                  <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} padding={"7px 25px"} width={"100%"}>
+                    <Stack direction={"row"} spacing={"16px"} alignItems={"center"}>
+                      <Box component={"img"} src={displayTxImage} width={"32px"} height={"32px"} />
+                      <Stack>
+                        <Box className={"fs-16-regular white"}>
+                          {displayTxAddress?.substring(0, 6)}...
+                          {displayTxAddress?.substring(tx?.sender?.length - 10)}
+                        </Box>
+                        <Stack direction={"row"} alignItems={"center"} spacing={"8px"}>
+                          <Box component={"img"} src={timerIcon} width={"12px"} height={"12px"} />
+                          <Box className={"fs-12-regular light"}>{displayTimestamp}</Box>
+                        </Stack>
                       </Stack>
                     </Stack>
-                  </Stack>
-                  <Stack>
-                    <Stack
-                      direction={"row"}
-                      spacing={"8px"}
-                      alignItems={"center"}
-                    >
-                      <Box
-                        component={"img"}
-                        src={logo}
-                        width={"16px"}
-                        height={"16px"}
-                      ></Box>
-                      <Box className={"fs-16-regular white center-align"}>
-                        {`${amount} ${symbol}`}
-                      </Box>
+                    <Stack>
+                      <Stack direction={"row"} spacing={"8px"} alignItems={"center"}>
+                        <Box component={"img"} src={currentNativeOrToken.logo} width={"24px"} height={"24px"}></Box>
+                        <Box className={"fs-16-regular white center-align"}>{`${numeral(displayTxAmount).format("0,0.00[0000]")} ${
+                          currentNativeOrToken.symbol
+                        }`}</Box>
+                      </Stack>
+                      <Box className={"fs-12-light light t-right"}>{`${currentCurrencySymbol} ${numeral(
+                        displayTxAmount * currentChainNativePrice * currentCurrencyReserve
+                      ).format("0,0.[00]")}`}</Box>
                     </Stack>
-                    <Box className={"fs-12-light light t-right"}>
-                      {`${currencySymbol} ${formatBalance(
-                        Number(chain.chain.price ?? 0) *
-                          Number(amount) *
-                          reserve
-                      )}`}
-                    </Box>
                   </Stack>
-                </Stack>
-              </Button>
+                </Button>
+              </TooltipComponent>
             );
-        })}
-      {tymtStorage.get(`loadMoreAvailable`) === true && (
-        <Button
-          key={`load-more`}
-          sx={{
-            textTransform: "none",
-            width: "100%",
-            height: "52px",
-          }}
-          onClick={loadMore}
-        >
-          {!loading && (
-            <Box className="fs-16-regular light">{t("wal-60_load-more")}</Box>
-          )}
-          {loading && (
-            <CircularProgress
-              sx={{
-                color: "#F5EBFF",
-              }}
-            />
-          )}
-        </Button>
+          })}
+        </Box>
       )}
-
-      {/* </InfiniteScroll> */}
-    </Box>
+    </Suspense>
   );
 };
 

@@ -1,18 +1,16 @@
-import { IWallet } from "./IWallet";
 import { ethers } from "ethers";
 import * as ethereumjsWallet from "ethereumjs-wallet";
 import * as bip39 from "bip39";
-import { matic_api_key, matic_api_url, matic_rpc_url, net_name } from "../../configs";
-import { IToken, IGetTokenBalanceRes } from "../../types/walletTypes";
 
-class Polygon implements IWallet {
-  address: string;
-  ticker: "MATIC" = "MATIC";
+import { CONFIG_POL_API_KEY, CONFIG_POL_API_URL, CONFIG_NETWORK_NAME } from "../../config/MainConfig";
 
-  constructor() {
-    this.address = "";
-  }
+import { ISupportToken } from "../../types/ChainTypes";
+import { IBalance } from "../../types/WalletTypes";
+import { IRecipient } from "../../types/TransactionTypes";
+import { CryptoAPI } from "../api/CryptoAPI";
+import { CONST_CHAIN_IDS } from "../../const/ChainConsts";
 
+export class Polygon {
   static async getWalletFromMnemonic(mnemonic: string): Promise<any> {
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const hdNode = ethereumjsWallet.hdkey.fromMasterSeed(seed);
@@ -31,30 +29,31 @@ class Polygon implements IWallet {
 
   static async getBalance(addr: string): Promise<number> {
     try {
-      const result = (await (await fetch(`${matic_api_url}?module=account&action=balance&address=${addr}&apikey=${matic_api_key}`)).json()).result;
+      if (CONFIG_NETWORK_NAME === "testnet") return 0;
+      const result = (await (await fetch(`${CONFIG_POL_API_URL}?module=account&action=balance&address=${addr}&apikey=${CONFIG_POL_API_KEY}`)).json()).result;
       return (result as number) / 1e9 / 1e9;
     } catch {
       return 0;
     }
   }
 
-  static async getTokenBalance(addr: string, tokens: IToken[]): Promise<IGetTokenBalanceRes[]> {
+  static async getTokenBalance(addr: string, tokens: ISupportToken[]): Promise<IBalance[]> {
     try {
-      let result: IGetTokenBalanceRes[] = [];
+      let result: IBalance[] = [];
       for (let i = 0; i < tokens.length; i++) {
-        if (net_name === "testnet") {
+        if (CONFIG_NETWORK_NAME === "testnet") {
           result.push({
-            cmc: tokens[i].cmc,
+            symbol: tokens[i].symbol,
             balance: 0,
           });
         } else {
           result.push({
-            cmc: tokens[i].cmc,
+            symbol: tokens[i].symbol,
             balance:
               ((
                 await (
                   await fetch(
-                    `${matic_api_url}?module=account&action=tokenbalance&contractAddress=${tokens[i].address}&address=${addr}&apikey=${matic_api_key}`
+                    `${CONFIG_POL_API_URL}?module=account&action=tokenbalance&contractAddress=${tokens[i].address}&address=${addr}&apikey=${CONFIG_POL_API_KEY}`
                   )
                 ).json()
               ).result as number) /
@@ -64,51 +63,78 @@ class Polygon implements IWallet {
       }
       return result;
     } catch (err) {
-      console.log(err);
+      console.error("Failed to POLYGON getTokenBalance: ", err);
       return [];
     }
   }
 
-  static async getTransactions(addr: string): Promise<any> {
-    try {
-      return (
-        await (
-          await fetch(
-            `${matic_api_url}?module=account&action=txlist&address=${addr}&startblock=0&endblock=99999999&page=1&offset=10&sort=desc&apikey=${matic_api_key}`
-          )
-        ).json()
-      ).result;
-    } catch {
-      return undefined;
-    }
-  }
+  static async sendTransaction(
+    privateKey: string,
+    sender: string,
+    recipients: IRecipient[]
+  ): Promise<{ success: boolean; message?: string; error?: string; data?: any }> {
+    let successfulTransactions: string[] = [];
+    let failedTransactions: string[] = [];
+    const transactionResults: { [address: string]: string } = {};
 
-  static async sendTransaction(passphrase: string, tx: { recipients: any[]; fee: string; vendorField?: string }) {
-    if (tx.recipients.length > 0) {
-      try {
-        let wallet = await Polygon.getWalletFromMnemonic(passphrase);
-        const customProvider = new ethers.JsonRpcProvider(matic_rpc_url);
-        wallet = wallet.connect(customProvider);
-        tx.recipients.map(async (recipient) => {
-          const response = await wallet.sendTransaction({
+    try {
+      const gasLimit = 22000;
+      const chainId = CONST_CHAIN_IDS.POLYGON; // Polygon
+      const [gasPrice, initialNonce] = await Promise.all([CryptoAPI.getPolGasPrice(), CryptoAPI.getPolTransactionCount(sender)]);
+
+      for (let i = 0; i < recipients.length; i++) {
+        const recipient = recipients[i];
+        const nonce = initialNonce + i; // Increment nonce for each transaction
+
+        try {
+          // Create transaction
+          const transaction = {
             to: recipient.address,
             value: ethers.parseEther(recipient.amount),
-          });
-          const receipt = await response.wait(1);
-          const hash = receipt.transactionHash;
-          const block = receipt.blockNumber;
-          const status = receipt.status ? "Success" : "Failure";
-          const gas = receipt.gasUsed.toString();
-          console.log(`Transaction: [${hash}](^5^${hash})`);
-          console.log(`Block: ${block}`);
-          console.log(`Status: ${status}`);
-          console.log(`Gas Used: ${gas}`);
-          console.log("----------");
-        });
-        return true;
-      } catch {
-        return false;
+            gasLimit: gasLimit,
+            gasPrice: gasPrice,
+            nonce: nonce,
+            chainId: chainId,
+          };
+
+          // Sign transaction
+          const wallet = new ethers.Wallet(privateKey);
+          const signedTx = await wallet.signTransaction(transaction);
+
+          // Broadcast transaction
+          const res = await CryptoAPI.sendPolRawTransaction([signedTx]);
+          transactionResults[recipient.address] = res; // Store transaction result
+
+          if (res.success) successfulTransactions.push(recipient.address);
+          else failedTransactions.push(recipient.address);
+        } catch (err) {
+          console.error(`Failed to send transaction to ${recipient.address}:`, err);
+          failedTransactions.push(recipient.address);
+        }
       }
+    } catch (err) {
+      console.error("Failed to POL sendTransaction: ", err);
+    } finally {
+      if (successfulTransactions.length === recipients.length)
+        return {
+          success: true,
+          message: "All transactions broadcasted.",
+          data: {
+            successfulTransactions,
+            failedTransactions,
+            transactionResults,
+          },
+        };
+      else
+        return {
+          success: false,
+          error: `Transactions to ${failedTransactions.join(",")} failed.`,
+          data: {
+            successfulTransactions,
+            failedTransactions,
+            transactionResults,
+          },
+        };
     }
   }
 }

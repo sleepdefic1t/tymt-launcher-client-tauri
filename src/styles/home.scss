@@ -66,7 +66,7 @@
 // Button group styles
 .button_group {
   margin-right: 0%;
-  width: 420px;
+  gap: 8px;
   height: 44px;
   display: flex;
   align-items: center;
@@ -120,6 +120,7 @@
     z-index: 11;
     background: var(--bg-stroke-icon-button-bg-10, rgba(128, 128, 128, 0.1));
     background-blend-mode: luminosity;
+    position: relative;
     backdrop-filter: blur(50px);
     &:hover {
       background-color: var(--bg-stroke-icon-button-bg-10, rgba(128, 128, 128, 0.1));
@@ -127,7 +128,32 @@
     &:active {
       background: var(--bg-stroke-icon-button-bg-active-30, rgba(128, 128, 128, 0.3));
     }
+  }
+}
+
+.button_metamask {
+  &.MuiButtonBase-root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: none;
+    min-width: 44px;
+    height: 44px;
+    text-transform: none;
+    border-radius: var(--Angle-Small, 16px);
+    border: 1px solid var(--Stroke-linear-Hover, rgba(255, 255, 255, 0.1));
+    z-index: 11;
+    background: var(--bg-stroke-icon-button-bg-10, rgba(128, 128, 128, 0.1));
+    background-blend-mode: luminosity;
     position: relative;
+    backdrop-filter: blur(50px);
+    &:hover {
+      background-color: var(--bg-stroke-icon-button-bg-10, rgba(128, 128, 128, 0.1));
+      border: 2px solid var(--Stroke-linear-Hover, rgba(255, 255, 255, 0.2));
+    }
+    &:active {
+      background: var(--bg-stroke-icon-button-bg-active-30, rgba(128, 128, 128, 0.3));
+    }
   }
 }
 
@@ -324,7 +350,7 @@
 // Coming soon card container
 .card_coming_container {
   width: 94%;
-  height: 361px;
+  height: 297px;
   padding: 32px;
   flex-shrink: 0;
   border-radius: 16px;
@@ -483,4 +509,17 @@
   filter: blur(5vw);
   background: radial-gradient(circle at 50% 50%, var(--tymt-blue), #00000000);
   z-index: 1;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-100%, 0);
+  }
+}
+
+.marquee-element {
+  animation: marquee 5s linear infinite;
 }

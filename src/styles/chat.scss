@@ -7,7 +7,7 @@ $Main-Red: #ef4444;
 
 .modal_content {
   width: 250px;
-  height: 158px;
+  // height: 158px;
   position: fixed;
   top: 50%;
   right: -30px;
@@ -26,7 +26,7 @@ $Main-Red: #ef4444;
 
 .modal_content_chatroom {
   width: 250px;
-  height: 158px;
+  // height: 158px;
   position: fixed;
   top: 50%;
   left: 230px;
@@ -41,6 +41,21 @@ $Main-Red: #ef4444;
   justify-content: center;
   align-items: center;
   z-index: 1;
+}
+
+.modal_content_center {
+  // width: 250px;
+  // height: 158px;
+  border-radius: var(--Angle-Small, #{$Angle-Small});
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-stroke-white-20-modal-stroke, #{$bg-stroke-white-20-modal-stroke});
+  background: rgba(11, 11, 11, 0.4);
+  padding: 20px;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal_btn_left {
@@ -154,11 +169,30 @@ $Main-Red: #ef4444;
     height: 40px;
     border-radius: 52px;
     background: #ef4444;
+    transition: opacity 0.5s ease, transform 0.1s ease;
+    transform: scale(1);
     &:hover {
       background: #992727;
     }
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+}
+
+.upload_button {
+  &.MuiButtonBase-root {
+    margin-left: 10px;
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 52px;
+    background: #52e1f2;
     transition: opacity 0.5s ease, transform 0.1s ease;
     transform: scale(1);
+    &:hover {
+      background: #0d99ff;
+    }
     &:active {
       transform: scale(0.9);
     }
@@ -223,7 +257,6 @@ $Main-Red: #ef4444;
 
 .bubble {
   padding: 10px 14px 6px 14px;
-  border-radius: 20px;
   background-color: #58914e;
   overflow: hidden;
   white-space: normal;
@@ -233,106 +266,53 @@ $Main-Red: #ef4444;
   z-index: 50;
   position: relative;
   display: flex;
-  // justify-content: space-between;
   flex-wrap: wrap;
   gap: 5px;
 }
 
 .bubble-partner {
   padding: 10px 14px 6px 14px;
+  background-color: #72916a;
+  overflow: hidden;
+  white-space: normal;
+  word-wrap: break-word;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  z-index: 50;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.bubble-image {
+  overflow: hidden;
+  white-space: normal;
+  word-wrap: break-word;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  z-index: 50;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.br-20 {
   border-radius: 20px;
-  background-color: #72916a;
-  overflow: hidden;
-  white-space: normal;
-  word-wrap: break-word;
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
-  z-index: 50;
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 5px;
 }
 
-.bubble-partner-lastmessage {
-  padding: 10px 14px 6px 14px;
-  border-radius: 20px 20px 20px 0;
-  background-color: #72916a;
-  overflow: hidden;
-  white-space: normal;
-  word-wrap: break-word;
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
-  z-index: 50;
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 5px;
+.br-20-20-0-20 {
+  border-radius: 20px 20px 0px 20px;
 }
 
-.bubble-lastmessage-unexpanded {
-  padding: 10px 14px 6px 14px;
-  border-radius: 20px 20px 0 20px;
-  background-color: #58914e;
-  overflow: hidden;
-  white-space: normal;
-  word-wrap: break-word;
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
-  z-index: 50;
-  position: relative;
-  display: flex;
-  // justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 5px;
+.br-20-20-20-0 {
+  border-radius: 20px 20px 20px 0px;
 }
 
-.bubble-lastmessage-expanded {
-  padding: 10px 14px 6px 14px;
-  border-radius: 20px 20px 20px 0;
-  background-color: #58914e;
-  overflow: hidden;
-  white-space: normal;
-  word-wrap: break-word;
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
-  z-index: 50;
-  position: relative;
-  display: flex;
-  // justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 5px;
+.bubble-middle {
+  border-radius: 20px;
 }
-
-// .sb13::before {
-//   content: "";
-//   width: 0px;
-//   height: 0px;
-//   position: absolute;
-//   background-color: #58914e;
-//   border-left: 15px solid #58914e;
-//   border-right: 15px solid transparent;
-//   border-top: 15px solid #58914e;
-//   border-bottom: 15px solid transparent;
-//   right: -16px;
-//   top: 0px;
-// }
-
-// .sb14::before {
-//   content: "";
-//   width: 0px;
-//   height: 0px;
-//   position: absolute;
-//   background-color: #72916a;
-//   border-left: 15px solid transparent;
-//   border-right: 15px solid #72916a;
-//   border-top: 15px solid #72916a;
-//   border-bottom: 15px solid transparent;
-//   left: -16px;
-//   top: 0px;
-// }
 
 .timestamp-inbubble {
   display: block;
@@ -346,13 +326,12 @@ $Main-Red: #ef4444;
   width: 101%;
   flex-grow: 1;
   overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
   margin-bottom: 0px;
-  // height: calc(100vh - 200px);
   height: 100%;
   padding-right: 10px;
   scroll-behavior: smooth;
-  // justify-content: flex-end;
-  // scrollbar-width: none;
   &::-webkit-scrollbar {
     width: 5px;
     border-radius: 100px;
@@ -377,4 +356,34 @@ $Main-Red: #ef4444;
 
 .infinitescroll {
   scrollbar-width: thin;
+}
+
+.date_field {
+  .MuiInputBase-root {
+    font-family: "Cobe";
+    color: white;
+  }
+
+  .MuiInputBase-root::before {
+    border-bottom: 1px solid #7c7c7c;
+  }
+
+  .MuiInputBase-root::after {
+    border-bottom: 2px solid #afafaf;
+  }
+
+  label.Mui-focused {
+    font-family: "Cobe";
+    color: #afafaf !important;
+  }
+
+  .MuiInputLabel-root {
+    font-family: "Cobe";
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #afafaf;
+    padding: 5px;
+    top: -10px;
+  }
 }

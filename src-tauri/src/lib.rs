@@ -63,7 +63,8 @@ fn create_named_mutex(name: &str) -> std::io::Result<()> {
     use winapi::um::synchapi::CreateMutexA;
 
     let mutex_name = std::ffi::CString::new(name).expect("CString::new failed");
-    let handle: *mut std::ffi::c_void = unsafe { CreateMutexA(std::ptr::null_mut(), 0, mutex_name.as_ptr()) };
+    let handle: *mut std::ffi::c_void =
+        unsafe { CreateMutexA(std::ptr::null_mut(), 0, mutex_name.as_ptr()) };
 
     if handle.is_null() {
         return Err(std::io::Error::last_os_error());
@@ -88,7 +89,8 @@ fn show_window(app: &tauri::AppHandle) {
     windows
         .values()
         .next()
-        .expect("Sorry, no window found")
+        .expect("Sorry, no wind
+        ow found")
         .set_focus()
         .expect("Can't Bring Window to Focus");
 }
@@ -551,9 +553,10 @@ async fn download_to_app_dir(
     let res = client
         .get(&url)
         .header(ACCEPT, "application/octet-stream")
+        .header(reqwest::header::USER_AGENT, "tymtLauncher/1.0")
         .send()
         .await
-        .or(Err(format!("Failed to GET from '{}'", &url)))?;
+        .map_err(|e| format!("Failed to GET from '{}': {}", &url, e))?;
     let total = res
         .content_length()
         .ok_or(format!("Failed to get content length from '{}'", &url))?;

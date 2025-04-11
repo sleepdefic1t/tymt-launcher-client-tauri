@@ -11,6 +11,7 @@ import District53Intro from "../../components/home/District53Intro";
 import RecentlyAddedGames from "../../components/home/RecentlyAddedGames";
 import UpdateModal from "../../components/home/UpdateModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
+import GameSwiperComponent from "../../components/home/GameSwiperComponent";
 
 const Homepage = () => {
   const [image, setImage] = useState<string>(CONST_GAME_DISTRICT53?.imageUrl);
@@ -50,6 +51,9 @@ const Homepage = () => {
         </Grid>
       </AnimatedComponent>
       <Grid container sx={{ marginTop: "80px" }}>
+        <GameSwiperComponent mode="free" />
+        <GameSwiperComponent mode="recently-added" />
+        <GameSwiperComponent mode="coming-soon" />
         <RecentlyAddedGames />
         <AnimatedComponent>
           <ComingsoonD53 />

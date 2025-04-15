@@ -6,9 +6,9 @@ import { CONST_GAME_DISTRICT53 } from "../../const/games/district53/District53";
 
 import GameBarSticker from "../../components/home/GameBarSticker";
 import Bottom from "../../components/home/Bottom";
-import ComingsoonD53 from "../../components/home/ComingSoon-D53";
+// import ComingsoonD53 from "../../components/home/ComingSoon-D53";
 import District53Intro from "../../components/home/District53Intro";
-import RecentlyAddedGames from "../../components/home/RecentlyAddedGames";
+// import RecentlyAddedGames from "../../components/home/RecentlyAddedGames";
 import UpdateModal from "../../components/home/UpdateModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
 import GameSwiperComponent from "../../components/home/GameSwiperComponent";

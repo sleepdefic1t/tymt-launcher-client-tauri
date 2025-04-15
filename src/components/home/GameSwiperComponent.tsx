@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, Box } from "@mui/material";
 
@@ -8,7 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import GameAPI from "../../lib/api/GameAPI";
 
-import ComingGameCard from "./ComingGameCard";
+// import ComingGameCard from "./ComingGameCard";
 import ComingGameSwiperButtonGroup from "./ComingGameSwiperButtonGroup";
 
 import foxhead from "../../assets/main/FoxHeadComingSoon.png";

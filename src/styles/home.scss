@@ -354,6 +354,21 @@
   padding: 32px;
   flex-shrink: 0;
   border-radius: 16px;
+ border: 1px solid rgba(255, 255, 255, 0.4);
+  background: radial-gradient(ellipse at 50% 100%, #ef444455 0%, #00000000 70% 50%);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(50px);
+  z-index: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.card_normal_container {
+  width: 94%;
+  // height: 297px;
+  padding: 32px;
+  flex-shrink: 0;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   background: rgba(31, 31, 31, 0.3);
   background-blend-mode: luminosity;

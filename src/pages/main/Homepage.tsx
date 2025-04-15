@@ -51,14 +51,22 @@ const Homepage = () => {
         </Grid>
       </AnimatedComponent>
       <Grid container sx={{ marginTop: "80px" }}>
-        <GameSwiperComponent mode="trending" />
-        <GameSwiperComponent mode="free" />
-        <GameSwiperComponent mode="recently-added" />
-        <GameSwiperComponent mode="coming-soon" />
-        <RecentlyAddedGames />
         <AnimatedComponent>
-          <ComingsoonD53 />
+          <GameSwiperComponent mode="trending" />
         </AnimatedComponent>
+        <AnimatedComponent>
+          <GameSwiperComponent mode="free" />
+        </AnimatedComponent>
+        <AnimatedComponent>
+          <GameSwiperComponent mode="recently-added" />
+        </AnimatedComponent>
+        <AnimatedComponent>
+          <GameSwiperComponent mode="coming-soon" />
+        </AnimatedComponent>
+        {/* <RecentlyAddedGames /> */}
+        {/* <AnimatedComponent>
+          <ComingsoonD53 />
+        </AnimatedComponent> */}
         <AnimatedComponent>
           <Bottom />
         </AnimatedComponent>

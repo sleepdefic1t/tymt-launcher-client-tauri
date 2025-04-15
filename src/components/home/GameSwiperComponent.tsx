@@ -95,7 +95,7 @@ const GameSwiperComponent = ({ mode }: IPropsGameSwiperComponent) => {
 
   return (
     <Grid item xs={12} container sx={{ margin: "40px 0px" }}>
-      <Box className={mode === "trending" ? `card_trending_container` : `card_coming_container`}>
+      <Box className={mode === "trending" ? `card_trending_container` : mode === "coming-soon" ? `card_coming_container` : `card_normal_container`}>
         <Grid container sx={{ justifyContent: "space-between", alignItems: "center" }}>
           <Box className={"fs-40-bold"} color={"white"} textTransform={"none"}>
             {mode === "trending"

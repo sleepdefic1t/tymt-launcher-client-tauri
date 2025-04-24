@@ -28,6 +28,7 @@ import { tymtLogoType } from "../../types/HomeTypes";
 import newlogo from "../../assets/main/NewLogo.png";
 import newlogohead from "../../assets/main/NewLogoHead.png";
 import searchlg from "../../assets/main/SearchLg.svg";
+import { invoke } from "@tauri-apps/api/core";
 
 const theme = createTheme({
   palette: {
@@ -184,7 +185,7 @@ const Navbar = () => {
           <TooltipComponent placement="top" text={t("tol-1_wallet")}>
             <Button
               className="button_navbar_common"
-              onClick={() => {
+              onClick={async () => {
                 navigate("/wallet");
               }}
             >

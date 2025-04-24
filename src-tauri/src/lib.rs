@@ -3,6 +3,8 @@
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
+mod minecraft;
+
 use actix_cors::Cors;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
 use futures_util::stream::StreamExt;
@@ -26,10 +28,12 @@ use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
-use tauri::{Builder, Emitter, Listener, Manager};
+use tauri::{Builder, Emitter, Listener, Manager, PhysicalPosition, PhysicalSize};
 use tauri_plugin_http::reqwest;
 use zip::read::ZipArchive; // For Unix-specific permissions
-
+use window_shadows::set_shadow;
+use window_vibrancy::{apply_blur, apply_acrylic};
+use tauri::{WebviewWindowBuilder, WebviewUrl};
 // use dotenv::dotenv;
 // use std::env;
 
@@ -154,7 +158,8 @@ pub fn main() -> std::io::Result<()> {
             show_transaction_window,
             hide_transaction_window,
             set_tray_items_enabled,
-            write_file
+            write_file,
+            minecraft::get_system_info,
         ])
         .setup(|app| {
             app.manage(AppData {

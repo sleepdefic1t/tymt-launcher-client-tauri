@@ -104,7 +104,7 @@ const StoreGameCard = ({ game, isComing, mode, index }: IPropsStoreGameCard) => 
                 },
               }}
               onClick={() => {
-                navigate(`/game/${game?._id}`);
+                if (mode !== "coming-soon") navigate(`/game/${game?._id}`);
               }}
             >
               {mode === "trending" && (
@@ -125,7 +125,7 @@ const StoreGameCard = ({ game, isComing, mode, index }: IPropsStoreGameCard) => 
                   {index + 1}
                 </Box>
               )}
-              {isComing && (
+              {mode === "coming-soon" && (
                 <Box
                   className={"fs-12-regular white"}
                   sx={{
@@ -279,7 +279,9 @@ const StoreGameCard = ({ game, isComing, mode, index }: IPropsStoreGameCard) => 
           </TooltipComponent>
         </div>
       </div>
-      <GameCardContextMenu contextMenuPosition={contextMenuPosition} view={showContextMenu} setView={setShowContextMenu} game={game} />
+      {mode !== "coming-soon" && (
+        <GameCardContextMenu contextMenuPosition={contextMenuPosition} view={showContextMenu} setView={setShowContextMenu} game={game} />
+      )}
     </>
   );
 };

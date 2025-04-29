@@ -83,7 +83,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           TAURI_SIGNING_PUBLIC_KEY: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
-          NODE_OPTIONS: '--max-old-space-size=8192'
+          NODE_OPTIONS: "--max-old-space-size=8192"
           VITE_APP_PRODUCTION_VERSION: "prod"
           VITE_APP_NETWORK_NAME: "mainnet"
           VITE_APP_LOCAL_SERVER_PORT: ${{ secrets.VITE_APP_LOCAL_SERVER_PORT }}
@@ -110,7 +110,7 @@ jobs:
           VITE_APP_MAINNET_OP_API_URL: "https://api-optimistic.etherscan.io/api"
           VITE_APP_MAINNET_ARB_API_URL: "https://api.arbiscan.io/api"
           VITE_APP_MAINNET_AVAX_API_URL: "https://api-beta.avascan.info/v2/network/mainnet/evm/all"
-          VITE_APP_MAINNET_BTC_API_URL:  "https://blockchain.info"
+          VITE_APP_MAINNET_BTC_API_URL: "https://blockchain.info"
           VITE_APP_ALCHEMY_KEY: ${{ secrets.VITE_APP_ALCHEMY_KEY }}
           VITE_APP_BSC_API_KEY: ${{ secrets.VITE_APP_BSC_API_KEY }}
           VITE_APP_ETH_API_KEY: ${{ secrets.VITE_APP_ETH_API_KEY }}

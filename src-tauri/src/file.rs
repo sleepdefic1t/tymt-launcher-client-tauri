@@ -11,6 +11,9 @@ use futures_util::stream::StreamExt;
 use std::cmp::min;
 use std::io::Write;
 
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
+
 #[tauri::command]
 pub async fn unzip_linux(
     app_handle: tauri::AppHandle,

@@ -79,9 +79,11 @@ jobs:
       - name: Tauri build
         uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          NODE_OPTIONS: "--max-old-space-size=8192"
+          TAURI_SIGNING_PUBLIC_KEY: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
+          NODE_OPTIONS: '--max-old-space-size=8192'
           VITE_APP_PRODUCTION_VERSION: "prod"
           VITE_APP_NETWORK_NAME: "mainnet"
           VITE_APP_LOCAL_SERVER_PORT: ${{ secrets.VITE_APP_LOCAL_SERVER_PORT }}

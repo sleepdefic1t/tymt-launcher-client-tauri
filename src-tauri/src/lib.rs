@@ -129,7 +129,8 @@ pub fn main() -> std::io::Result<()> {
             file::write_file,
             file::run_url_args,
             file::open_directory,
-            // file::set_permission,
+            #[cfg(target_family = "unix")]
+            file::set_permission,
             minecraft::get_system_info,
             window::create_child_window,
             window::destroy_child_window,

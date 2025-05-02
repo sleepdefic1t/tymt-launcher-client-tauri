@@ -22,6 +22,7 @@ import GameReview from "../../components/game/GameReview";
 
 import gradient1 from "../../assets/main/GradientGameOverview.svg";
 import { IGame } from "../../types/GameTypes";
+import BuyGameModal from "../../components/modal/BuyGameModal/BuyGameModal";
 
 export interface IPropsGameOverview {
   game: IGame;
@@ -34,6 +35,7 @@ const GameOverview = ({ game }: IPropsGameOverview) => {
   const [type, setType] = useState<string>("");
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const [currentSwitchIndex, setCurrentSwitchIndex] = useState<number>(0);
+  const [openBuyGameModal, setOpenBuyGameModal] = useState<boolean>(false);
 
   const textList: string[] = [t("ga-10_overview"), t("ga-11_review")];
 
@@ -110,6 +112,7 @@ const GameOverview = ({ game }: IPropsGameOverview) => {
           </Grid>
         </AnimatedComponent>
       </Grid>
+      <BuyGameModal open={true} setOpen={setOpenBuyGameModal} game={game} />
     </>
   );
 };

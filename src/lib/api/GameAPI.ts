@@ -31,7 +31,9 @@ export const GameAPI = {
     }
   },
 
-  fetchRecentlyAddedGameList: async (query: IPaginationQuery = { page: 1, limit: 20 }): Promise<{ data: IGame[]; meta: IMetaPagination }> => {
+  fetchRecentlyAddedGameList: async (
+    query: IPaginationQuery = { page: 1, limit: 20, sort: '{"tymtReleaseDate":1}' }
+  ): Promise<{ data: IGame[]; meta: IMetaPagination }> => {
     try {
       const res = await axiosAuth.get<{ data: IGame[]; meta: IMetaPagination }>(`/game/recent`, { params: query });
       return res.data;
@@ -57,6 +59,24 @@ export const GameAPI = {
       return res.data;
     } catch (err) {
       throw new Error(err.response?.data?.error ?? "Failed to fetchTrendingGameList");
+    }
+  },
+
+  postGameOrder: async (gameId: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post<{ data: any }>(`/game/order`, { gameId });
+      return res.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.error ?? "Failed to postGameOrder");
+    }
+  },
+
+  postGamePurchase: async (order_id: string, tx_hash: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.post<{ data: any }>(`/game/purchase`, { order_id, tx_hash });
+      return res.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.error ?? "Failed to postGamePurchase");
     }
   },
 

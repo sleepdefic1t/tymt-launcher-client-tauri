@@ -2,6 +2,8 @@ import { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
+import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
+
 import { Box, Stack, Modal, Button, TextField, InputAdornment, CircularProgress, Fade } from "@mui/material";
 
 import { useWallet } from "../../providers/WalletProvider";
@@ -23,7 +25,6 @@ import { IWalletSetting } from "../../types/SettingTypes";
 import closeIcon from "../../assets/setting/XIcon.svg";
 import logo from "../../assets/main/FoxHeadComingSoon.png";
 import solarBlockchainIcon from "../../assets/main/SolarBlockchain.png";
-import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 
 export interface IPropsPasswordModal {
   open: boolean;

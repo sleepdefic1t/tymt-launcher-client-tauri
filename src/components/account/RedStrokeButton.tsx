@@ -6,11 +6,18 @@ export interface IPropsRedStrokeButton {
   isSubmit?: boolean;
   loading?: boolean;
   disabled?: boolean;
+  fullWidth?: boolean;
 }
 
-const RedStrokeButton = ({ text, onClick, isSubmit, loading, disabled }: IPropsRedStrokeButton) => {
+const RedStrokeButton = ({ text, onClick, isSubmit, loading, disabled, fullWidth }: IPropsRedStrokeButton) => {
   return (
-    <Button onClick={onClick ? onClick : () => {}} className="red-border-button" type={isSubmit ? "submit" : undefined} disabled={disabled || loading}>
+    <Button
+      fullWidth={fullWidth}
+      onClick={onClick ? onClick : () => {}}
+      className="red-border-button"
+      type={isSubmit ? "submit" : undefined}
+      disabled={disabled || loading}
+    >
       {loading ? (
         <CircularProgress
           size={"24px"}

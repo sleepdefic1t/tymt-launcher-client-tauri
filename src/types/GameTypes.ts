@@ -101,6 +101,7 @@ export interface IGame {
   averageRating: number;
   feedbackCount: number;
   downloadCount: number;
+  price: number;
   createdAt: string;
   updatedAt: string;
   __v: number;

@@ -28,6 +28,11 @@
   src: url("./fonts/Cobe/Cobe-Heavy-Italic.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "Cobe-Light";
+  src: url("./fonts/Cobe/Cobe-Light.ttf") format("truetype");
+}
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   /* font-family: "Cobe"; */

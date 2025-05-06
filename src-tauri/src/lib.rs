@@ -101,7 +101,15 @@ pub fn main() -> std::io::Result<()> {
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
-            let _ = window::show_window(app);
+            // Get the main window of the app
+            if let Some(window) = app.get_window("tymtLauncher") {
+                // Show the window if it is hidden
+                if !window.is_visible().unwrap_or(false) {
+                    window.show().unwrap();
+                }
+                // Focus the window
+                window.set_focus().unwrap();
+            }
         }));
     }
 

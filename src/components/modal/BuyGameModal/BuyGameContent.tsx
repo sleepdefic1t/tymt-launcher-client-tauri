@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import numeral from "numeral";
-import { Box, Button, CircularProgress, Stack } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 import { CONST_CHAIN_ICONS } from "../../../const/ChainConsts";
 import { useWallet } from "../../../providers/WalletProvider";
 import { IGame } from "../../../types/GameTypes";
@@ -13,8 +13,6 @@ export interface IPropsBuyGameContent {
 
 const BuyGameContent = ({ game, purchaseGame }: IPropsBuyGameContent) => {
   const { sxpBalance, sxpPrice } = useWallet();
-
-  const [loading, setLoading] = useState<boolean>(false);
 
   const isInsufficient: boolean = useMemo(() => sxpBalance * sxpPrice < game?.price, [sxpBalance, sxpPrice, game?.price]);
 
@@ -68,17 +66,7 @@ const BuyGameContent = ({ game, purchaseGame }: IPropsBuyGameContent) => {
       </Box>
 
       <Button className={"red-button fw"} onClick={purchaseGame}>
-        {loading ? (
-          <CircularProgress
-            sx={{
-              color: "#F5EBFF",
-            }}
-          />
-        ) : isInsufficient ? (
-          "Top up balance"
-        ) : (
-          "Purchase"
-        )}
+        {isInsufficient ? "Top up balance" : "Purchase"}
       </Button>
     </Stack>
   );

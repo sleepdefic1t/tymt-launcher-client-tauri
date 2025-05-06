@@ -1,5 +1,4 @@
-import { useTranslation } from "react-i18next";
-import { Box, Button, CircularProgress, Stack } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 import { IGame } from "../../../types/GameTypes";
 import RedStrokeButton from "../../account/RedStrokeButton";
 
@@ -8,8 +7,6 @@ export interface IPropsThankContent {
 }
 
 const ThankContent = ({ game }: IPropsThankContent) => {
-  const { t } = useTranslation();
-
   return (
     <Stack direction={"column"} justifyContent={"center"} alignItems={"center"} gap={"40px"}>
       <Stack direction={"column"} justifyContent={"center"} alignItems={"center"} gap={"24px"}>

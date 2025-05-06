@@ -104,7 +104,7 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
       <Button
         fullWidth
         onClick={handleClick}
-        disabled={!isSupporting || !!downloadStatusStore?.game || purchaseLoading}
+        disabled={!isSupporting || !!downloadStatusStore?.game_id || purchaseLoading}
         sx={{
           height: "46px",
           width: "226px",
@@ -140,7 +140,7 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
               `Purchase`
             ) : installed ? (
               t("hom-7_play-game")
-            ) : downloadStatusStore?.game ? (
+            ) : downloadStatusStore?.game_id ? (
               <Stack direction={"row"} alignItems={"center"} gap={"4px"}>
                 <Box className={"fs-14-regular white t-center"}>{`${t("hom-21_downloading")}`}</Box>
                 <ThreeDots height="12px" width={"24px"} radius={4} color={`white`} />

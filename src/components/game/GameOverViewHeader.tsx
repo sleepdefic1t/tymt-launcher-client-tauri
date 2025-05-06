@@ -10,8 +10,8 @@ import { IGame } from "../../types/GameTypes";
 export interface IPropsGameOverViewHeader {
   game: IGame;
   purchased: boolean;
-  setOpenBuyGameModal: (_: boolean) => void;
-  purchaseLoading: boolean;
+  setOpenBuyGameModal?: (_: boolean) => void;
+  purchaseLoading?: boolean;
 }
 
 const GameOverViewHeader = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }: IPropsGameOverViewHeader) => {

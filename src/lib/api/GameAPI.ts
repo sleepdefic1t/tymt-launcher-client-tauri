@@ -62,6 +62,15 @@ export const GameAPI = {
     }
   },
 
+  increaseDownloadCount: async (gameId: string): Promise<any> => {
+    try {
+      const res = await axiosAuth.put<any>(`/game/download/${gameId}`);
+      return res.data;
+    } catch (err) {
+      console.error("Failed to increaseDownloadCount: ", err);
+    }
+  },
+
   postGameOrder: async (game_id: string): Promise<any> => {
     try {
       const res = await axiosAuth.post<{ data: any }>(`/game/order`, { game_id });
@@ -86,6 +95,15 @@ export const GameAPI = {
       return res.data;
     } catch (err) {
       throw new Error(err.response?.data?.error ?? "Failed to verifyPurchase");
+    }
+  },
+
+  fetchPurchase: async (): Promise<any> => {
+    try {
+      const res = await axiosAuth.get<{ data: any }>(`/game/purchase`);
+      return res.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.error ?? "Failed to fetchPurchase");
     }
   },
 

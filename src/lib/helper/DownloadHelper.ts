@@ -3,9 +3,8 @@ import { appDataDir } from "@tauri-apps/api/path";
 import { type, arch } from "@tauri-apps/plugin-os";
 import { invoke } from "@tauri-apps/api/core";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
-
 import { CONFIG_TYMT_VERSION } from "../../config/MainConfig";
-
+import GameAPI from "../api/GameAPI";
 import { IGame, IGameReleaseNative } from "../../types/GameTypes";
 
 export async function runUrlArgs(url: string, args: string[]) {
@@ -261,6 +260,7 @@ export const installGame = async (game: IGame) => {
 
 export const downloadAndInstallNewGame = async (game: IGame) => {
   try {
+    await GameAPI.increaseDownloadCount(game?._id);
     await downloadFileToAppDir(game);
     await installGame(game);
     await deleteDownloadFile(game);

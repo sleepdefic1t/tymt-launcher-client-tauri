@@ -6,6 +6,38 @@ import { IPropsMode } from "../../types/HomeTypes";
 const LibraryModeButton = ({ status, setStatus }: IPropsMode) => {
   const [mode, setMode] = useState(status);
   const { t } = useTranslation();
+
+  // Button configurations
+  const buttons = [
+    { status: 0, label: t("lib-1_your-games") },
+    { status: 2, label: t("lib-3_download") },
+    { status: 3, label: t("lib-5_coming") },
+  ];
+
+  // Shared button styles
+  const buttonStyles = {
+    "&.MuiButtonBase-root, &.MuiBox-root": {
+      display: "block",
+      textTransform: "none",
+      color: "#52E1F21A",
+      minWidth: "unset",
+      boxShadow: "none",
+      padding: "0px",
+      borderRadius: "16px",
+    },
+  };
+
+  const boxStyles = {
+    padding: "8px 16px",
+    fontFeatureSettings: "'calt' off",
+    fontFamily: "Cobe",
+    fontSize: "18px",
+    fontStyle: "normal",
+    fontWeight: "400",
+    lineHeight: "24px",
+    letterSpacing: "-0.36px",
+  };
+
   return (
     <Stack
       direction={"row"}
@@ -22,117 +54,31 @@ const LibraryModeButton = ({ status, setStatus }: IPropsMode) => {
         justifyContent: "center",
       }}
     >
-      <Button
-        onClick={() => {
-          setStatus(0);
-          setMode(0);
-        }}
-        sx={{
-          "&.MuiButtonBase-root, &.MuiBox-root": {
-            display: "block",
-            textTransform: "none",
-            color: "#52E1F21A",
-            minWidth: "unset",
-            boxShadow: "none",
-            padding: "0px",
-            borderRadius: "16px",
-          },
-          backgroundColor: mode === 0 ? "rgba(82, 225, 242, 0.10)" : undefined,
-          "&:hover": {
-            backgroundColor: mode === 0 ? "rgba(82, 225, 242, 0.10)" : undefined,
-          },
-        }}
-      >
-        <Box
+      {buttons.map((btn) => (
+        <Button
+          key={btn.status}
+          onClick={() => {
+            setStatus(btn.status);
+            setMode(btn.status);
+          }}
           sx={{
-            color: mode === 0 ? "#52E1F2" : "white",
-            padding: "8px 16px 8px 16px",
-            fontFeatureSettings: "'calt' off",
-            fontFamily: "Cobe",
-            fontSize: "18px",
-            fontStyle: "normal",
-            fontWeight: "400",
-            lineHeight: "24px" /* 133.333% */,
-            letterSpacing: "-0.36px",
+            ...buttonStyles,
+            backgroundColor: mode === btn.status ? "rgba(82, 225, 242, 0.10)" : undefined,
+            "&:hover": {
+              backgroundColor: mode === btn.status ? "rgba(82, 225, 242, 0.10)" : undefined,
+            },
           }}
         >
-          {t("lib-1_your-games")}
-        </Box>
-      </Button>
-      <Button
-        onClick={() => {
-          setStatus(2);
-          setMode(2);
-        }}
-        sx={{
-          "&.MuiButtonBase-root, &.MuiBox-root": {
-            display: "block",
-            textTransform: "none",
-            color: "#52E1F21A",
-            minWidth: "unset",
-            boxShadow: "none",
-            padding: "0px",
-            borderRadius: "16px",
-          },
-          backgroundColor: mode === 2 ? "rgba(82, 225, 242, 0.10)" : undefined,
-          "&:hover": {
-            backgroundColor: mode === 2 ? "rgba(82, 225, 242, 0.10)" : undefined,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            color: mode === 2 ? "#52E1F2" : "white",
-            padding: "8px 16px 8px 16px",
-            fontFeatureSettings: "'calt' off",
-            fontFamily: "Cobe",
-            fontSize: "18px",
-            fontStyle: "normal",
-            fontWeight: "400",
-            lineHeight: "24px" /* 133.333% */,
-            letterSpacing: "-0.36px",
-          }}
-        >
-          {t("lib-3_download")}
-        </Box>
-      </Button>
-      <Button
-        onClick={() => {
-          setStatus(3);
-          setMode(3);
-        }}
-        sx={{
-          "&.MuiButtonBase-root, &.MuiBox-root": {
-            display: "block",
-            textTransform: "none",
-            color: "#52E1F21A",
-            minWidth: "unset",
-            boxShadow: "none",
-            padding: "0px",
-            borderRadius: "16px",
-          },
-          backgroundColor: mode === 3 ? "rgba(82, 225, 242, 0.10)" : undefined,
-          "&:hover": {
-            backgroundColor: mode === 3 ? "rgba(82, 225, 242, 0.10)" : undefined,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            color: mode === 3 ? "#52E1F2" : "white",
-            padding: "8px 16px 8px 16px",
-            fontFeatureSettings: "'calt' off",
-            fontFamily: "Cobe",
-            fontSize: "18px",
-            fontStyle: "normal",
-            fontWeight: "400",
-            lineHeight: "24px" /* 133.333% */,
-            letterSpacing: "-0.36px",
-          }}
-        >
-          {t("lib-5_coming")}
-        </Box>
-      </Button>
+          <Box
+            sx={{
+              ...boxStyles,
+              color: mode === btn.status ? "#52E1F2" : "white",
+            }}
+          >
+            {btn.label}
+          </Box>
+        </Button>
+      ))}
     </Stack>
   );
 };

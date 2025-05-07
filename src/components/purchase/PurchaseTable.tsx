@@ -2,19 +2,18 @@ import { useTranslation } from "react-i18next";
 import { Box, Button, CircularProgress, Grid, Stack } from "@mui/material";
 import numeral from "numeral";
 import { format } from "date-fns";
+import { CONFIG_SOLAR_SCAN } from "../../config/MainConfig";
 import { CONST_CHAIN_ICONS } from "../../const/ChainConsts";
 import AnimatedComponent from "../home/AnimatedComponent";
-import NoGamePng from "../../assets/main/NoGames.png";
-import { IPurchaseHistory } from "../../types/APITypes/PurchaseAPITypes";
-import { IMetaPagination } from "../../types/APITypes/BasicAPITypes";
-import { config } from "process";
-import { CONFIG_SOLAR_SCAN } from "../../config/MainConfig";
-import { openLink } from "../../lib/helper/TauriHelper";
 import TooltipComponent from "../home/TooltipComponent";
+import { openLink } from "../../lib/helper/TauriHelper";
+import { IPurchaseHistory } from "../../types/APITypes/PurchaseAPITypes";
+import { IMetaPurchasePagination } from "../../types/APITypes/BasicAPITypes";
+import NoGamePng from "../../assets/main/NoGames.png";
 
 export interface IPropsPurchaseTable {
   loading: boolean;
-  historyPagination: { data: IPurchaseHistory[]; meta: IMetaPagination };
+  historyPagination: { data: IPurchaseHistory[]; meta: IMetaPurchasePagination };
 }
 
 const PurchaseTable = ({ loading, historyPagination }: IPropsPurchaseTable) => {

@@ -3,12 +3,12 @@ import { Grid, Box } from "@mui/material";
 import ReviewPagination from "../../components/game/ReviewPagination";
 import GameAPI from "../../lib/api/GameAPI";
 import { IPurchaseHistory } from "../../types/APITypes/PurchaseAPITypes";
-import { IMetaPagination } from "../../types/APITypes/BasicAPITypes";
+import { IMetaPurchasePagination } from "../../types/APITypes/BasicAPITypes";
 import PurchaseTable from "../../components/purchase/PurchaseTable";
 import PurchaseMetrics from "../../components/purchase/PurchaseMetrics";
 
 const PurchaseHistoryPage = () => {
-  const [historyPagination, setHistoryPagination] = useState<{ data: IPurchaseHistory[]; meta: IMetaPagination }>(null);
+  const [historyPagination, setHistoryPagination] = useState<{ data: IPurchaseHistory[]; meta: IMetaPurchasePagination }>(null);
   const [page, setPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
 

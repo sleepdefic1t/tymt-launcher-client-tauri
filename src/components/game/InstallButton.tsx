@@ -41,9 +41,11 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
   const [d53ModalView, setD53ModalView] = useState<boolean>(false);
   const [isSupporting, setIsSupporting] = useState<boolean>(false);
   const [installed, setInstalled] = useState(false);
+  const [installing, setInstalling] = useState(false);
 
   const handleClick = useCallback(async () => {
     try {
+      setInstalling(true);
       if (game?.projectMeta?.type === "browser") {
         const externalUrl = getGameReleaseBrowser(game)?.external_url;
         if (!externalUrl) return;
@@ -76,6 +78,7 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
       showNotification({ content: CONST_NOTIFICATION_CONTENTS.DOWNLOAD_FAIL, text: err.toString() });
     } finally {
       dispatch(resetDownloadStatus());
+      setInstalling(false);
     }
   }, [game, installed, purchased]);
 
@@ -116,7 +119,7 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
       <Button
         fullWidth
         onClick={handleClick}
-        disabled={!isSupporting || !!downloadStatusStore?.game_id || purchaseLoading}
+        disabled={!isSupporting || !!downloadStatusStore?.game_id || purchaseLoading || installing}
         sx={{
           height: "46px",
           width: "226px",
@@ -152,7 +155,7 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
               t("ga-48_purchase")
             ) : installed ? (
               t("hom-7_play-game")
-            ) : downloadStatusStore?.game_id ? (
+            ) : downloadStatusStore?.game_id || installing ? (
               <Stack direction={"row"} alignItems={"center"} gap={"4px"}>
                 <Box className={"fs-14-regular white t-center"}>{`${t("hom-21_downloading")}`}</Box>
                 <ThreeDots height="12px" width={"24px"} radius={4} color={`white`} />

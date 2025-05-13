@@ -67,7 +67,7 @@ const Wallet = () => {
         let res;
         switch (currentSupportChain?.native?.name) {
           case CONST_CHAIN_NAMES.SOLAR:
-            res = await CryptoAPI.getSxpTransactions(walletStore?.solar, page, 20);
+            res = await CryptoAPI.getSxpTransactions(walletStore?.solar, page, 50);
             break;
           case CONST_CHAIN_NAMES.ETHEREUM:
             res = await CryptoAPI.getEthTransactions(walletStore?.ethereum, page, 20);

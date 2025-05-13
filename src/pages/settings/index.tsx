@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Box, SwipeableDrawer } from "@mui/material";
 
@@ -41,6 +41,12 @@ const Settings = ({ view, setView }: IPropsSettings) => {
 
     setState({ ...state, [anchor]: open });
   };
+
+  useEffect(() => {
+    if (view) {
+      setPanel("main");
+    }
+  }, [view]);
 
   return (
     <SwipeableDrawer

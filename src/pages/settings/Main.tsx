@@ -42,6 +42,7 @@ const Main = ({ view, setView }: IPropsMain) => {
     currentChainNativeBalance,
     currentChainNativePrice,
     currentCurrencySymbol,
+    currentCurrencyReserve,
     totalBalance,
   } = useWallet();
 
@@ -161,7 +162,7 @@ const Main = ({ view, setView }: IPropsMain) => {
                 <Box className="fs-14-light blue">{currentChainWalletAddress ?? ""}</Box>
                 <Box className="fs-14-light gray">
                   {`${t("set-4_balance")} ${numeral(currentChainNativeBalance ?? 0).format("0,0.0000")} ${currentSupportChain?.native?.symbol} (${numeral(
-                    (currentChainNativeBalance ?? 0) * (currentChainNativePrice ?? 0)
+                    (currentChainNativeBalance ?? 0) * (currentChainNativePrice ?? 0) * (currentCurrencyReserve ?? 0)
                   ).format("0,0.00")} ${currentCurrencySymbol})`}
                 </Box>
                 <Box className="fs-14-light gray">{`${t("set-88_total_balance")} ${numeral(totalBalance).format("0,0.00")} ${currentCurrencySymbol}`}</Box>

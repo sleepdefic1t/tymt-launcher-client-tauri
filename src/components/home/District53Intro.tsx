@@ -136,7 +136,7 @@ const District53Intro = ({ setImage }: IPropsDistrict53Intro) => {
                 justifyContent: "center",
               }}
             >
-              <InstallButton game={District53Game} />
+              <InstallButton game={District53Game} purchased={true} />
             </Grid>
           </Stack>
         </Grid>

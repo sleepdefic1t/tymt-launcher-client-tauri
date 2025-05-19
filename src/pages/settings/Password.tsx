@@ -1,14 +1,15 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-
 import { Box, Button, Divider, Stack } from "@mui/material";
 
+import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 import InputText from "../../components/account/InputText";
 import SecurityLevel from "../../components/account/SecurityLevel";
 
 import { getAccount, setAccount } from "../../store/AccountSlice";
 
+import { useNotification } from "../../providers/NotificationProvider";
 import { encrypt, decrypt, getKeccak256Hash } from "../../lib/helper/EncryptHelper";
 
 import { IAccount } from "../../types/AccountTypes";
@@ -23,6 +24,7 @@ export interface IPropsPassword {
 
 const Password = ({ view, setView }: IPropsPassword) => {
   const { t } = useTranslation();
+  const { showNotification } = useNotification();
   const dispatch = useDispatch();
 
   const accountStore: IAccount = useSelector(getAccount);
@@ -68,8 +70,10 @@ const Password = ({ view, setView }: IPropsPassword) => {
       dispatch(setAccount(newAccountStore));
       dispatch(addAccountList(newAccountStore));
       resetFields();
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.PROFILE_UPDATE_SUCCESS });
     } catch (err) {
       console.error("Error updating password:", err);
+      showNotification({ content: CONST_NOTIFICATION_CONTENTS.PROFILE_UPDATE_FAIL, text: err.toString() });
       resetFields();
     }
   }, [accountStore, newPwd, oldPwd, cfmPwd]);

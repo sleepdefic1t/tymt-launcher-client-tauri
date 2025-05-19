@@ -9,7 +9,7 @@ import SecurityLevel from "../../components/account/SecurityLevel";
 
 import { getAccount, setAccount } from "../../store/AccountSlice";
 
-import { getKeccak256Hash } from "../../lib/helper/EncryptHelper";
+import { encrypt, decrypt, getKeccak256Hash } from "../../lib/helper/EncryptHelper";
 
 import { IAccount } from "../../types/AccountTypes";
 import { addAccountList } from "../../store/AccountListSlice";
@@ -31,7 +31,7 @@ const Password = ({ view, setView }: IPropsPassword) => {
   const [oldPwd, setOldPwd] = useState("");
   const [cfmPwd, setCfmPwd] = useState("");
 
-  const updatePassword = useCallback(() => {
+  const updatePassword = useCallback(async () => {
     if (accountStore?.password !== getKeccak256Hash(oldPwd)) {
       setNewPwd("");
       setOldPwd("");
@@ -50,13 +50,15 @@ const Password = ({ view, setView }: IPropsPassword) => {
       setCfmPwd("");
       return;
     }
-    dispatch(
-      setAccount({
-        ...accountStore,
-        password: getKeccak256Hash(newPwd),
-      })
-    );
-    dispatch(addAccountList(accountStore));
+    const newMnemonic = await encrypt(await decrypt(accountStore?.mnemonic, oldPwd), newPwd);
+    const newAccountStore = {
+      ...accountStore,
+      password: getKeccak256Hash(newPwd),
+      mnemonic: newMnemonic,
+    };
+    console.log(newAccountStore);
+    dispatch(setAccount(newAccountStore));
+    dispatch(addAccountList(newAccountStore));
     setNewPwd("");
     setOldPwd("");
     setCfmPwd("");

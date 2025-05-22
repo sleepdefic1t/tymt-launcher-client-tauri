@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Grid, Box, Stack, Tooltip } from "@mui/material";
+import { Grid, Box } from "@mui/material";
 
 import districteffect from "../../assets/main/DistrictEffect.svg";
 import districteffect1 from "../../assets/main/DistrictEffect1.svg";
@@ -63,11 +63,6 @@ const TymtIntro = () => {
           className={"fs-16-regular"}
           sx={{
             color: "white",
-            // textOverflow: "ellipsis",
-            // overflow: "hidden",
-            // WebkitLineClamp: 7,
-            // WebkitBoxOrient: "vertical",
-            // display: "-webkit-box",
           }}
         >
           {t("tymt-description")}

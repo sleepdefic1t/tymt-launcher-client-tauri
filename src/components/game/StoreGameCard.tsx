@@ -23,11 +23,11 @@ const StoreGameCard = ({ game, mode, index }: IPropsStoreGameCard) => {
   const [animationDuration, setAnimationDuration] = useState(10); // Default duration
 
   useEffect(() => {
-    if (containerRef.current && contentRef.current) {
+    if (containerRef?.current && contentRef?.current) {
       // Calculate the total width of all tags
       // @ts-ignore
-      const containerWidth = containerRef.current.offsetWidth;
-      const contentWidth = contentRef.current.scrollWidth;
+      const containerWidth = containerRef?.current?.offsetWidth;
+      const contentWidth = contentRef?.current?.scrollWidth;
 
       // Calculate the duration based on the width and desired speed
       const speed = 50; // Pixels per second (adjust as needed)

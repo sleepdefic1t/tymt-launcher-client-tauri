@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactPlayer from "react-player";
 import { Grid, Stack } from "@mui/material";
 // import { CONST_GAME_DISTRICT53 } from "../../const/games/district53/District53";
 // import GameBarSticker from "../../components/home/GameBarSticker";
@@ -9,7 +10,6 @@ import Bottom from "../../components/home/Bottom";
 import UpdateModal from "../../components/home/UpdateModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
 import GameSwiperComponent from "../../components/home/GameSwiperComponent";
-import ReactPlayer from "react-player";
 import { CONST_TYMT_LINKS } from "../../const/tymtConsts";
 import TymtIntro from "../../components/home/TymtIntro";
 // import EmbeddedWebview from "../../components/home/EmbeddedWebview";

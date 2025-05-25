@@ -102,6 +102,10 @@ const LibraryShow = ({ status }: IPropsLibraryShow) => {
     </Grid>
   );
 
+  useEffect(() => {
+    console.log(gamePagination?.data);
+  }, [gamePagination]);
+
   return (
     <>
       <Grid item xs={12}>
@@ -110,15 +114,17 @@ const LibraryShow = ({ status }: IPropsLibraryShow) => {
       <Grid item xs={12} container spacing={"32px"} mt={"32px"}>
         {loading
           ? renderSkeletons()
-          : gamePagination?.data?.length === 0
+          : !gamePagination?.data?.length
           ? renderNoGames()
-          : gamePagination?.data?.map((game, index) => (
-              <Grid item key={index}>
-                <AnimatedComponent>
-                  <StoreGameCard game={game} />
-                </AnimatedComponent>
-              </Grid>
-            ))}
+          : gamePagination?.data
+              ?.filter((game) => game)
+              .map((game, index) => (
+                <Grid item key={index}>
+                  <AnimatedComponent>
+                    <StoreGameCard game={game} />
+                  </AnimatedComponent>
+                </Grid>
+              ))}
         <Grid item xs={12} container justifyContent={"center"} marginTop={"32px"}>
           <ReviewPagination totalPage={gamePagination?.meta?.pagination?.pageCount} page={page} handlePageChange={handlePageChange} />
         </Grid>

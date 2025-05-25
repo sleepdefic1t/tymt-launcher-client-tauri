@@ -284,6 +284,10 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [walletSettingStore]);
 
+  useEffect(() => {
+    handleRefreshClick();
+  }, [walletStore]);
+
   return (
     <WalletContext.Provider
       value={{

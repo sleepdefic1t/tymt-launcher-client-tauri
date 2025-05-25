@@ -78,7 +78,7 @@ const LoginAccountForm = () => {
       navigate("/home");
       showNotification({ content: CONST_NOTIFICATION_CONTENTS.LOGIN_SUCCESS });
 
-      handleRefreshClick();
+      // handleRefreshClick();
     } catch (err) {
       console.error("Failed to handleLogin: ", err);
       showNotification({ content: CONST_NOTIFICATION_CONTENTS.LOGIN_FAIL, text: err.toString() });

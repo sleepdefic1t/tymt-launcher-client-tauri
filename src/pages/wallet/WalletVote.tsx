@@ -22,6 +22,15 @@ import accountIcon from "../../assets/wallet/Account.svg";
 import solarIcon from "../../assets/chain/Solar.svg";
 import refreshIcon from "../../assets/wallet/RefreshIcon.svg";
 
+const cellWidth = {
+  tx: 0.3,
+  account: 3,
+  block: 1.2,
+  rewards: 2.8,
+  vote: 2.5,
+  input: 2.2,
+};
+
 const WalletVote = () => {
   const { t } = useTranslation();
   const { sxpPrice, sxpBalance, sxpAddress, currentCurrencySymbol, currentCurrencyReserve } = useWallet();
@@ -290,22 +299,22 @@ const WalletVote = () => {
                   }}
                 />
                 <Grid container mb={"20px"}>
-                  <Grid item xs={0.3}>
+                  <Grid item xs={cellWidth.tx}>
                     <Box className="fs-14-regular light">{t("wal-24_tx#")}</Box>
                   </Grid>
-                  <Grid item xs={3.5}>
+                  <Grid item xs={cellWidth.account}>
                     <Box className="fs-14-regular light">{t("wal-25_account")}</Box>
                   </Grid>
-                  <Grid item xs={1.5}>
+                  <Grid item xs={cellWidth.block}>
                     <Box className="fs-14-regular light">{t("wal-26_block")}</Box>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={cellWidth.rewards}>
                     <Box className="fs-14-regular light">{t("wal-28_rewards-earned")}</Box>
                   </Grid>
-                  <Grid item xs={2.5}>
+                  <Grid item xs={cellWidth.vote}>
                     <Box className="fs-14-regular light">{t("wal-29_vote")}</Box>
                   </Grid>
-                  <Grid item xs={2.2}>
+                  <Grid item xs={cellWidth.input}>
                     <Box className="fs-14-regular light">{""}</Box>
                   </Grid>
                 </Grid>
@@ -343,12 +352,12 @@ const WalletVote = () => {
                     >
                       <Stack width={"100%"}>
                         <Grid container>
-                          <Grid item xs={0.3}>
+                          <Grid item xs={cellWidth.tx}>
                             <Stack direction={"row"} alignItems={"center"} height={"74px"}>
                               <Box className="fs-14-regular light t-left">{(currentPage - 1) * 53 + index + 1}.</Box>
                             </Stack>
                           </Grid>
-                          <Grid item xs={3.5}>
+                          <Grid item xs={cellWidth.account}>
                             <Stack direction={"row"} alignItems={"center"} height={"74px"} spacing={"8px"}>
                               <Box
                                 component={"img"}
@@ -394,15 +403,15 @@ const WalletVote = () => {
                               </Stack>
                             </Stack>
                           </Grid>
-                          <Grid item xs={1.5}>
+                          <Grid item xs={cellWidth.block}>
                             <Stack direction={"row"} alignItems={"center"} height={"74px"}>
                               <Box className="fs-18-regular white t-left">{item.blocks.produced}</Box>
                             </Stack>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid item xs={cellWidth.rewards}>
                             <Stack direction={"row"} alignItems={"center"} height={"74px"}>
                               <Stack>
-                                <Box className="fs-18-regular white t-left">{`${numeral(item.forged.total ?? 0).format("0,0")} SXP`}</Box>
+                                <Box className="fs-14-regular white t-left">{`${numeral(item.forged.total ?? 0).format("0,0")} SXP`}</Box>
                                 <Box className="fs-12-regular light t-left">
                                   {`${numeral((item.forged.total * Number(sxpPrice) * Number(currentCurrencyReserve)) / 1e8).format(
                                     "0,0.00"
@@ -411,15 +420,15 @@ const WalletVote = () => {
                               </Stack>
                             </Stack>
                           </Grid>
-                          <Grid item xs={2.5}>
+                          <Grid item xs={cellWidth.vote}>
                             <Stack direction={"row"} alignItems={"center"} height={"74px"}>
                               <Stack>
-                                <Box className="fs-18-regular white t-left">{numeral(item.votesReceived.votes ?? 0).format("0,0")}</Box>
+                                <Box className="fs-14-regular white t-left">{numeral(item.votesReceived.votes ?? 0).format("0,0")}</Box>
                                 <Box className="fs-12-regular light t-left">{item.votesReceived.percent} %</Box>
                               </Stack>
                             </Stack>
                           </Grid>
-                          <Grid item xs={2.2}>
+                          <Grid item xs={cellWidth.input}>
                             <Stack direction={"row"} alignItems={"center"} height={"74px"}>
                               <Box className="wallet-form-card-hover br-16 blur" padding={"0px 16px"} height={"54px"}>
                                 <Stack direction={"row"} alignItems={"center"}>

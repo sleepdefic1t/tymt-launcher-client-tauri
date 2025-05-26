@@ -42,13 +42,13 @@ const GameSwiperComponent = ({ mode }: IPropsGameSwiperComponent) => {
     const intervalId = setInterval(() => {
       if (!swiperRef.current) return;
 
-      const totalSlides = swiperRef.current.swiper.slides.length;
-      const nextIndex = swiperRef.current.swiper.activeIndex + 3;
+      const totalSlides = swiperRef?.current?.swiper?.slides?.length;
+      const nextIndex = swiperRef?.current?.swiper?.activeIndex + 3;
 
       if (nextIndex >= totalSlides - 3) {
-        swiperRef.current.swiper.slideTo(0);
+        swiperRef?.current?.swiper?.slideTo(0);
       } else {
-        swiperRef.current.swiper.slideTo(nextIndex);
+        swiperRef?.current?.swiper?.slideTo(nextIndex);
       }
     }, 3000);
 

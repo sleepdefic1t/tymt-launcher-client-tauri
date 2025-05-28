@@ -50,7 +50,9 @@ const ReviewModal = ({ open, setOpen, game, fetchReviewData }: IPropsReviewModal
       review: "",
     },
     validationSchema: Yup.object({
-      review: Yup.string().required(t("cca-63_required")),
+      review: Yup.string()
+        .required(t("cca-63_required"))
+        .max(5000, t("ga-49_max-length", { max: 5000 })),
     }),
     onSubmit: async () => {
       try {

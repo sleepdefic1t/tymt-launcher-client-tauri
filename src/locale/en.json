@@ -577,6 +577,7 @@
     "ga-46_remove-from-developer-store": "Remove from developer store",
     "ga-47_not-supported": "Not supported",
     "ga-48_purchase": "Purchase",
+    "ga-49_max-length": "You have exceeded the maximum allowed character length.",
     "alt-1_nickname-saved": "Nickname saved",
     "alt-2_nickname-saved-intro": "Your nickname has been successfully saved.",
     "alt-3_nickname-notsaved": "Nickname saved",

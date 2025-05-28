@@ -1,19 +1,14 @@
 import { Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import numeral from "numeral";
-
 import { Stack, Box, Button, CircularProgress } from "@mui/material";
-
 import { useWallet } from "../../providers/WalletProvider";
-
 import TooltipComponent from "../home/TooltipComponent";
-
 import { formatTx } from "../../lib/helper/WalletHelper";
-
+import { openLink } from "../../lib/helper/TauriHelper";
 import { ITransactionPagination } from "../../types/TransactionTypes";
-
 import timerIcon from "../../assets/wallet/TimerIcon.svg";
 import noreviews from "../../assets/main/NoReviews.png";
-import { openLink } from "../../lib/helper/TauriHelper";
 
 export interface IPropsTransCard {
   loading: boolean;
@@ -21,6 +16,8 @@ export interface IPropsTransCard {
 }
 
 const TransCard = ({ loading, txList }: IPropsTransCard) => {
+  const { t } = useTranslation();
+
   const { currentChainWalletAddress, currentNativeOrToken, currentCurrencySymbol, currentCurrencyReserve, currentChainNativePrice, currentSupportChain } =
     useWallet();
 
@@ -58,7 +55,7 @@ const TransCard = ({ loading, txList }: IPropsTransCard) => {
                 <img src={noreviews} width={"300px"} height={"300px"} />
               </Box>
               <Box className={"fs-20-regular white"} textAlign={"center"} marginTop={"24px"}>
-                {"No transactions"}
+                {t("wal-89_no-transactions")}
               </Box>
             </Box>
           )}

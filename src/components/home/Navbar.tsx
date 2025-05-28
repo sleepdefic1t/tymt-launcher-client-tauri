@@ -29,7 +29,7 @@ import { tymtLogoType } from "../../types/HomeTypes";
 import newlogo from "../../assets/main/NewLogo.png";
 import newlogohead from "../../assets/main/NewLogoHead.png";
 import searchlg from "../../assets/main/SearchLg.svg";
-import { CONST_TYMT_LINKS } from "../../const/tymtConsts";
+import { useConstVar } from "../../providers/ConstVarProvider";
 
 const theme = createTheme({
   palette: {
@@ -48,6 +48,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { constTymtLinks } = useConstVar();
   const { currentChainWalletAddress } = useWallet();
 
   const currentlogo: tymtLogoType = useSelector(getCurrentLogo);
@@ -163,7 +164,7 @@ const Navbar = () => {
               className="button_navbar_common"
               onClick={() => {
                 // setCardModalOpen(true);
-                openLink(CONST_TYMT_LINKS?.solarcard);
+                openLink(constTymtLinks?.solarcard);
               }}
             >
               <svg

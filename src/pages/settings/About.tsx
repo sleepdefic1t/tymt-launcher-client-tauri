@@ -1,8 +1,9 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Box, Button, Divider, Stack } from "@mui/material";
-import { CONST_TYMT_LINKS } from "../../const/tymtConsts";
-import { openLink } from "../../lib/helper/TauriHelper";
+import { useConstVar } from "../../providers/ConstVarProvider";
 import TooltipComponent from "../../components/home/TooltipComponent";
+import { openLink } from "../../lib/helper/TauriHelper";
 import backIcon from "../../assets/setting/BackIcon.svg";
 import followLink from "../../assets/setting/FollowLink.svg";
 import followX from "../../assets/setting/FollowX.svg";
@@ -18,55 +19,62 @@ export interface IPropsAbout {
   setView: (_: string) => void;
 }
 
-const linkButtons = [
-  {
-    key: "documentation",
-    labelKey: "set-51_documentation",
-    url: CONST_TYMT_LINKS.documentation,
-  },
-  {
-    key: "policy",
-    labelKey: "set-52_privacy-policy",
-    url: CONST_TYMT_LINKS.policy,
-  },
-];
-
-const socialLinks = [
-  { key: "website", icon: followLink, url: CONST_TYMT_LINKS.website },
-  {
-    key: "twitter",
-    icon: followX,
-    url: CONST_TYMT_LINKS.twitter,
-  },
-  {
-    key: "discord",
-    icon: followDiscord,
-    url: CONST_TYMT_LINKS.discord,
-  },
-  {
-    key: "telegram",
-    icon: followTelegram,
-    url: CONST_TYMT_LINKS.telegram,
-  },
-  {
-    key: "medium",
-    icon: followMedium,
-    url: CONST_TYMT_LINKS.medium,
-  },
-  {
-    key: "instagram",
-    icon: followInstagram,
-    url: CONST_TYMT_LINKS.instagram,
-  },
-  {
-    key: "facebook",
-    icon: followFacebook,
-    url: CONST_TYMT_LINKS.facebook,
-  },
-];
-
 const About = ({ view, setView }: IPropsAbout) => {
   const { t } = useTranslation();
+  const { constTymtLinks } = useConstVar();
+
+  const linkButtons = useMemo(
+    () => [
+      {
+        key: "documentation",
+        labelKey: "set-51_documentation",
+        url: constTymtLinks?.documentation,
+      },
+      {
+        key: "policy",
+        labelKey: "set-52_privacy-policy",
+        url: constTymtLinks?.policy,
+      },
+    ],
+    [constTymtLinks]
+  );
+
+  const socialLinks = useMemo(
+    () => [
+      { key: "website", icon: followLink, url: constTymtLinks?.website },
+      {
+        key: "twitter",
+        icon: followX,
+        url: constTymtLinks?.twitter,
+      },
+      {
+        key: "discord",
+        icon: followDiscord,
+        url: constTymtLinks?.discord,
+      },
+      {
+        key: "telegram",
+        icon: followTelegram,
+        url: constTymtLinks?.telegram,
+      },
+      {
+        key: "medium",
+        icon: followMedium,
+        url: constTymtLinks?.medium,
+      },
+      {
+        key: "instagram",
+        icon: followInstagram,
+        url: constTymtLinks?.instagram,
+      },
+      {
+        key: "facebook",
+        icon: followFacebook,
+        url: constTymtLinks?.facebook,
+      },
+    ],
+    [constTymtLinks]
+  );
 
   if (view !== "about") return null;
 

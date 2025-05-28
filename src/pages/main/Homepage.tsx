@@ -1,24 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ReactPlayer from "react-player";
+import { useConstVar } from "../../providers/ConstVarProvider";
 import { Grid, Stack } from "@mui/material";
 import Bottom from "../../components/home/Bottom";
 import UpdateModal from "../../components/home/UpdateModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
-import GameSwiperComponent from "../../components/home/GameSwiperComponent";
-import { getConstTymtLinks, IConstTymtLinks } from "../../const/tymtConsts";
 import TymtIntro from "../../components/home/TymtIntro";
+import GameSwiperComponent from "../../components/home/GameSwiperComponent";
 
 const Homepage = () => {
+  const { constTymtLinks } = useConstVar();
   const [updateModal, setUpdateModal] = useState<boolean>(false);
-  const [constTymtLinks, setConstTymtLinks] = useState<IConstTymtLinks>(null);
-
-  useEffect(() => {
-    getConstTymtLinks()
-      .then(setConstTymtLinks)
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
 
   return (
     <>
@@ -37,26 +29,6 @@ const Homepage = () => {
             </div>
             <TymtIntro />
           </Stack>
-          {/* <div style={{ width: "calc(100% - 353px)" }}> */}
-          {/* <Grid item xs={12}> */}
-          {/* <img
-                className="District53"
-                src={image}
-                width={"100%"}
-                style={{
-                  aspectRatio: "1.78",
-                  borderRadius: "16px",
-                  opacity: 1.0,
-                  flexShrink: 1,
-                }}
-                loading="lazy"
-              /> */}
-          {/* </Grid> */}
-          {/* <Grid item xs={12} container spacing={"32px"} mt={"0px"}>
-              <GameBarSticker />
-            </Grid> */}
-          {/* </div> */}
-          {/* <District53Intro setImage={setImage} /> */}
         </Grid>
       </AnimatedComponent>
       <Grid container sx={{ marginTop: "80px" }}>
@@ -72,10 +44,6 @@ const Homepage = () => {
         <AnimatedComponent>
           <GameSwiperComponent mode="coming-soon" />
         </AnimatedComponent>
-        {/* <RecentlyAddedGames /> */}
-        {/* <AnimatedComponent>
-          <ComingsoonD53 />
-        </AnimatedComponent> */}
         <AnimatedComponent>
           <Bottom />
         </AnimatedComponent>

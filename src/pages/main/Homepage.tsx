@@ -1,22 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { Grid, Stack } from "@mui/material";
-// import { CONST_GAME_DISTRICT53 } from "../../const/games/district53/District53";
-// import GameBarSticker from "../../components/home/GameBarSticker";
 import Bottom from "../../components/home/Bottom";
-// import ComingsoonD53 from "../../components/home/ComingSoon-D53";
-// import District53Intro from "../../components/home/District53Intro";
-// import RecentlyAddedGames from "../../components/home/RecentlyAddedGames";
 import UpdateModal from "../../components/home/UpdateModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
 import GameSwiperComponent from "../../components/home/GameSwiperComponent";
-import { CONST_TYMT_LINKS } from "../../const/tymtConsts";
+import { getConstTymtLinks, IConstTymtLinks } from "../../const/tymtConsts";
 import TymtIntro from "../../components/home/TymtIntro";
-// import EmbeddedWebview from "../../components/home/EmbeddedWebview";
 
 const Homepage = () => {
-  // const [image, setImage] = useState<string>(CONST_GAME_DISTRICT53?.imageUrl);
   const [updateModal, setUpdateModal] = useState<boolean>(false);
+  const [constTymtLinks, setConstTymtLinks] = useState<IConstTymtLinks>(null);
+
+  useEffect(() => {
+    getConstTymtLinks()
+      .then(setConstTymtLinks)
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
 
   return (
     <>
@@ -31,7 +33,7 @@ const Homepage = () => {
         >
           <Stack display={"flex"} direction={"row"} justifyContent={"space-between"} width={"100%"}>
             <div style={{ width: "calc(100% - 353px)", borderRadius: "16px", overflow: "hidden" }}>
-              <ReactPlayer url={CONST_TYMT_LINKS.youtube} playing loop muted width={"100%"} height={"100%"} />
+              <ReactPlayer url={constTymtLinks?.youtube} playing loop muted width={"100%"} height={"100%"} />
             </div>
             <TymtIntro />
           </Stack>

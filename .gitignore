@@ -20,8 +20,9 @@ src/consts/privateStoreIds.ts
 *.local
 configs/*
 
-# tawk config
+# Public config
 /public/tawk.json
+/public/CONST_TYMT_LINKS.json
 
 # Editor directories and files
 .vscode/*

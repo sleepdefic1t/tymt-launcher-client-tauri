@@ -117,9 +117,9 @@ export const GameAPI = {
     }
   },
 
-  fetchGamePriceInSXP: async (game_id: string): Promise<any> => {
+  fetchGamePriceInSXP: async (game_id: string): Promise<{ data: { price: number } }> => {
     try {
-      const res = await axiosAuth.get<{ data: any }>(`/game/price/${game_id}`);
+      const res = await axiosAuth.get<{ data: { price: number } }>(`/game/price/${game_id}`);
       return res.data;
     } catch (err) {
       throw new Error(err.response?.data?.error ?? "Failed to fetchGamePriceInSXP");

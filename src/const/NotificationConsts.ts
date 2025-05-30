@@ -38,6 +38,13 @@ export const CONST_NOTIFICATION_CONTENTS = {
     duration: CONST_NOTIFICATION_DURATION.DEFAULT,
     link: "",
   },
+  TOO_MANY_LOGIN_ATTEMPTS: {
+    title: "wal-56_failed",
+    text: "ncca-72_too-many-login",
+    status: CONST_NOTIFICATION_STATUS.FAILED,
+    duration: CONST_NOTIFICATION_DURATION.DEFAULT,
+    link: "",
+  },
   GAME_REFRESH_SUCCESS: {
     title: "set-85_success",
     text: "ga-41_game-list-updated",

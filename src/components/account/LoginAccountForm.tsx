@@ -32,6 +32,8 @@ const LoginAccountForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
+  const [attempts, setAttempts] = useState(0);
+  const MAX_ATTEMPTS = 5;
 
   const accountStore: IAccount = useSelector(getAccount);
   const accountStoreRef = useRef(accountStore);
@@ -124,6 +126,10 @@ const LoginAccountForm = () => {
         .required(t("cca-63_required")),
     }),
     onSubmit: async () => {
+      if (attempts >= MAX_ATTEMPTS) {
+        showNotification({ content: CONST_NOTIFICATION_CONTENTS.TOO_MANY_LOGIN_ATTEMPTS });
+        return;
+      }
       try {
         const password = formik.values.password;
         const decryptedMnemonic = await decrypt(accountStoreRef?.current?.mnemonic, password);
@@ -141,6 +147,10 @@ const LoginAccountForm = () => {
         // });
       } catch (err) {
         console.error("Failed to onSubmit at LoginAccountForm:  ", err);
+        setAttempts((prev) => prev + 1);
+        if (attempts + 1 >= MAX_ATTEMPTS) {
+          showNotification({ content: CONST_NOTIFICATION_CONTENTS.TOO_MANY_LOGIN_ATTEMPTS });
+        }
       }
     },
   });
@@ -167,7 +177,7 @@ const LoginAccountForm = () => {
               <AccountNextButton
                 isSubmit={true}
                 text={t("ncca-7_next")}
-                disabled={(formik.touched.password && formik.errors.password) || loading ? true : false}
+                disabled={(formik.touched.password && formik.errors.password) || loading || attempts >= MAX_ATTEMPTS ? true : false}
                 loading={loading}
               />
             </>

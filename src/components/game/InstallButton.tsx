@@ -13,7 +13,7 @@ import { useNotification } from "../../providers/NotificationProvider";
 import { getDownloadStatus, resetDownloadStatus } from "../../store/DownloadStatusSlice";
 
 import { openLink } from "../../lib/helper/TauriHelper";
-import { checkOnline, downloadAndInstallNewGame, getFullExecutablePathNewGame, getGameReleaseBrowser, isInstalled } from "../../lib/helper/DownloadHelper";
+import { /*checkOnline,*/ downloadAndInstallNewGame, getFullExecutablePathNewGame, getGameReleaseBrowser, isInstalled } from "../../lib/helper/DownloadHelper";
 
 import { CONST_GAME_DISTRICT53 } from "../../const/games/district53/District53";
 
@@ -65,11 +65,11 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
       }
       const id = game?.project_name;
       if (!id) return;
-      const online = await checkOnline();
-      if (!online) {
-        showNotification({ content: CONST_NOTIFICATION_CONTENTS.INTERNET_ERROR });
-        return;
-      }
+      // const online = await checkOnline();
+      // if (!online) {
+      //   showNotification({ content: CONST_NOTIFICATION_CONTENTS.INTERNET_ERROR });
+      //   return;
+      // }
       showNotification({ content: CONST_NOTIFICATION_CONTENTS.DOWNLOAD_START });
       await downloadAndInstallNewGame(game);
       showNotification({ content: CONST_NOTIFICATION_CONTENTS.DOWNLOAD_END });

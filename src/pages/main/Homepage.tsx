@@ -1,16 +1,18 @@
 import { useState } from "react";
 import ReactPlayer from "react-player";
-import { useConstVar } from "../../providers/ConstVarProvider";
 import { Grid, Stack } from "@mui/material";
+import { useConstVar } from "../../providers/ConstVarProvider";
 import Bottom from "../../components/home/Bottom";
 import UpdateModal from "../../components/home/UpdateModal";
 import AnimatedComponent from "../../components/home/AnimatedComponent";
 import TymtIntro from "../../components/home/TymtIntro";
 import GameSwiperComponent from "../../components/home/GameSwiperComponent";
+import BetaModal from "../../components/modal/BetaModal";
 
 const Homepage = () => {
   const { constTymtLinks } = useConstVar();
   const [updateModal, setUpdateModal] = useState<boolean>(false);
+  const [betaModal, setBetaModal] = useState<boolean>(true);
 
   return (
     <>
@@ -49,6 +51,7 @@ const Homepage = () => {
         </AnimatedComponent>
       </Grid>
       <UpdateModal open={updateModal} setOpen={setUpdateModal} />
+      <BetaModal open={betaModal} setOpen={setBetaModal} />
     </>
   );
 };

@@ -1,0 +1,46 @@
+import { useTranslation } from "react-i18next";
+import { Box, Stack, Modal, Fade } from "@mui/material";
+import closeIcon from "../../assets/setting/XIcon.svg";
+import logo from "../../assets/main/FoxHeadComingSoon.png";
+
+interface props {
+  open: boolean;
+  setOpen: (status: boolean) => void;
+}
+
+const BetaModal = ({ open, setOpen }: props) => {
+  const { t } = useTranslation();
+
+  const modalStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
+  return (
+    <Modal
+      open={open}
+      style={modalStyle}
+      onClose={() => setOpen(false)}
+      sx={{
+        backdropFilter: "blur(4px)",
+      }}
+    >
+      <Fade in={open}>
+        <Box className="modal-content oauth-modal">
+          <img src={closeIcon} alt="close icon" className="close-icon" onClick={() => setOpen(false)} />
+          <Stack direction={"column"} justifyContent={"center"} alignItems={"center"} textAlign={"center"} gap={"10px"}>
+            <Box className="center-align">
+              <img width={200} src={logo} />
+            </Box>
+            <Stack direction={"column"} justifyContent={"center"} alignItems={"center"} textAlign={"center"} gap={"10px"}>
+              <Box className="fs-h3 blue">{t("hom-31_beta-warning")}</Box>
+            </Stack>
+          </Stack>
+        </Box>
+      </Fade>
+    </Modal>
+  );
+};
+
+export default BetaModal;

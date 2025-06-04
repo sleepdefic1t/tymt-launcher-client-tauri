@@ -7,7 +7,7 @@ export const resetBalanceList = () => {
     const nativeTokens: IBalance[] = CONST_SUPPORT_CHAINS?.map((one) => {
       const item: IBalance = {
         symbol: one?.native?.symbol,
-        balance: 0.0,
+        balance: "0",
       };
       return item;
     });
@@ -16,7 +16,7 @@ export const resetBalanceList = () => {
       chain?.tokens?.map((token) => {
         const item: IBalance = {
           symbol: token?.symbol,
-          balance: 0.0,
+          balance: "0",
         };
         return item;
       })

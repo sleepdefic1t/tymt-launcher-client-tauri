@@ -20,6 +20,8 @@ import { getAuth } from "../store/AuthSlice";
 
 import { CryptoAPI } from "../lib/api/CryptoAPI";
 
+import { multiply, add } from "../lib/helper/balanceUtils";
+import BigNumber from "bignumber.js";
 import {
   getCurrentChainWalletAddress,
   getExplorerUrl,
@@ -29,7 +31,6 @@ import {
   getSupportNativeOrTokenBySymbol,
   getTokenBalanceBySymbol,
   getTokenPriceBySymbol,
-  getNativeDecimalsBySymbol,
 } from "../lib/helper/WalletHelper";
 import { decrypt } from "../lib/helper/EncryptHelper";
 
@@ -42,8 +43,8 @@ import { IWalletSetting } from "../types/SettingTypes";
 import { IRecipient } from "../types/TransactionTypes";
 
 interface WalletContextType {
-  sxpPrice: number;
-  sxpBalance: number;
+  sxpPrice: string;
+  sxpBalance: string;
   sxpAddress: string;
   sxpFee: number;
   currentSupportChain: ISupportChain;
@@ -52,9 +53,9 @@ interface WalletContextType {
   currentCurrencyReserve: number;
   currentCurrencySymbol: string;
   currentNativeOrToken: ISupportNative | ISupportToken;
-  currentChainNativePrice: number;
-  currentChainNativeBalance: number;
-  totalBalance: number;
+  currentChainNativePrice: string;
+  currentChainNativeBalance: string;
+  totalBalance: string;
 
   sxpVote: (_: IWalletAddresses, __: number, ___: IVotingData, ____: string) => Promise<{ success: boolean; error?: string }>;
   transferCoin: (recipients: IRecipient[], fee: string, passphrase: string) => Promise<{ success: boolean; message?: string; error?: string; data?: any }>;
@@ -111,20 +112,29 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const totalBalance = useMemo(() => {
-    let total = 0;
+    let total = "0";
     CONST_SUPPORT_CHAINS.forEach((supportChain) => {
-      const nativeDecimal = getNativeDecimalsBySymbol(supportChain.native.symbol);
-      const nativeBalance =
-        balanceListStore.list.find((one) => one.symbol === supportChain.native.symbol)?.balance / Math.pow(10, nativeDecimal as number) || 0;
-      const nativePrice = priceListStore.list.find((one) => one.symbol === supportChain.native.symbol)?.price || 0;
-      total += nativeBalance * nativePrice;
+      const nativeBalance = getTokenBalanceBySymbol(balanceListStore, supportChain.native.symbol);
+      const nativePrice = String(priceListStore.list.find((one) => one.symbol === supportChain.native.symbol)?.price || 0);
+      if (nativePrice !== "0") {
+        const nativeValue = multiply(nativeBalance, nativePrice);
+        total = add(total, nativeValue);
+      }
+
       supportChain.tokens.forEach((token) => {
-        const tokenBalance = balanceListStore.list.find((one) => one.symbol === token.symbol)?.balance || 0;
-        const tokenPrice = priceListStore.list.find((one) => one.symbol === token.symbol)?.price || 0;
-        total += tokenBalance * tokenPrice;
+        const tokenBalance = getTokenBalanceBySymbol(balanceListStore, token.symbol);
+        const tokenPrice = String(priceListStore.list.find((one) => one.symbol === token.symbol)?.price || 0);
+        if (tokenPrice !== "0" && tokenBalance !== "0") {
+          const tokenValue = multiply(tokenBalance, tokenPrice);
+          total = add(total, tokenValue);
+        }
       });
     });
-    return total * currentCurrencyReserve;
+
+    const finalTotal = multiply(total, String(currentCurrencyReserve || 1));
+    // Format to 2 decimal places without abbreviation for USD values
+    const bn = new BigNumber(finalTotal);
+    return bn.toFixed(2);
   }, [balanceListStore, priceListStore, currentCurrencyReserve]);
 
   const setSxpFeeAsInput = useCallback(

@@ -10,6 +10,7 @@ import { IBalance } from "../../types/WalletTypes";
 import { IRecipient } from "../../types/TransactionTypes";
 import { CONST_CHAIN_IDS } from "../../const/ChainConsts";
 import { CryptoAPI } from "../api/CryptoAPI";
+import { convertFromRaw } from "../helper/balanceUtils";
 
 export class Avalanche {
   static async getWalletFromMnemonic(mnemonic: string): Promise<any> {
@@ -28,12 +29,13 @@ export class Avalanche {
     return wallet.address;
   }
 
-  static async getBalance(addr: string): Promise<number> {
+  static async getBalance(addr: string): Promise<string> {
     try {
       const customProvider = new ethers.JsonRpcProvider(CONFIG_AVAX_RPC_URL);
-      return parseFloat(ethers.formatEther(await customProvider.getBalance(addr))) / 1e9 / 1e9;
+      const balanceWei = await customProvider.getBalance(addr);
+      return convertFromRaw(balanceWei.toString(), 18);
     } catch {
-      return 0;
+      return '0';
     }
   }
 
@@ -44,16 +46,17 @@ export class Avalanche {
         if (CONFIG_NETWORK_NAME === "testnet") {
           result.push({
             symbol: tokens[i].symbol,
-            balance: 0.0,
+            balance: "0",
           });
         } else {
           const tokenContractAddress = tokens[i].address;
           const tokenAbi = ["function balanceOf(address owner) view returns (uint256)"];
           const customProvider = new ethers.JsonRpcProvider(CONFIG_AVAX_RPC_URL);
           const tokenContract = new ethers.Contract(tokenContractAddress, tokenAbi, customProvider);
+          const tokenBalance = await tokenContract.balanceOf(addr);
           result.push({
             symbol: tokens[i].symbol,
-            balance: parseFloat(await tokenContract.balanceOf(addr)) / 10 ** (tokens[i].decimals as number),
+            balance: convertFromRaw(tokenBalance.toString(), tokens[i].decimals as number),
           });
         }
       }

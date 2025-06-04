@@ -10,8 +10,8 @@ import { getPriceList } from "../../store/PriceListSlice";
 import { getBalanceList } from "../../store/BalanceListSlice";
 import { getCurrentChain } from "../../store/CurrentChainSlice";
 
-import { formatBalance } from "../../lib/helper/NumberHelper";
 import { getCurrentChainWalletAddress, getTokenBalanceBySymbol, getTokenPriceBySymbol } from "../../lib/helper/WalletHelper";
+import { formatForDisplay, multiply } from "../../lib/helper/balanceUtils";
 
 import { IPriceList } from "../../types/PriceTypes";
 import { ICurrentChain, ISupportChain } from "../../types/ChainTypes";
@@ -32,8 +32,8 @@ const ChainBox = ({ supportChain, onClick }: IPropsChainBox) => {
   const priceListStore: IPriceList = useSelector(getPriceList);
 
   const isActive: boolean = useMemo(() => currentChainStore?.chain === supportChain?.native?.name, [currentChainStore]);
-  const balance = useMemo(() => getTokenBalanceBySymbol(balanceListStore, supportChain?.native?.symbol) ?? 0, [balanceListStore]);
-  const price = useMemo(() => getTokenPriceBySymbol(priceListStore, supportChain?.native?.symbol) ?? 0, [priceListStore]);
+  const balance = useMemo(() => getTokenBalanceBySymbol(balanceListStore, supportChain?.native?.symbol) || '0', [balanceListStore]);
+  const price = useMemo(() => getTokenPriceBySymbol(priceListStore, supportChain?.native?.symbol) || '0', [priceListStore]);
 
   return (
     <Button
@@ -55,8 +55,8 @@ const ChainBox = ({ supportChain, onClick }: IPropsChainBox) => {
           </Stack>
         </Stack>
         <Stack direction={"column"} alignItems={"flex-end"} gap={"5px"} justifyContent={"space-between"}>
-          <Box className="fs-18-light white">{formatBalance(balance, 4)}</Box>
-          <Box className="fs-12-light gray">{`${currentCurrencySymbol} ${formatBalance(Number(price) * Number(balance) * currentCurrencyReserve)}`}</Box>
+          <Box className="fs-18-light white">{formatForDisplay(balance, 4)}</Box>
+          <Box className="fs-12-light gray">{`${currentCurrencySymbol} ${formatForDisplay(multiply(multiply(balance, price), currentCurrencyReserve.toString()), 2)}`}</Box>
         </Stack>
       </Stack>
     </Button>

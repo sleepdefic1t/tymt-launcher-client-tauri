@@ -9,7 +9,7 @@ import axiosAuth from "../core/AxiosAuth";
 export const AuthAPI = {
   requestMessage: async (publicKey: string): Promise<string> => {
     try {
-      const res = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/auth/request-message`, { publicKey });
+      const res = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/api/auth/request-message`, { publicKey });
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to requestMessage: ", err.response?.data ?? err);
@@ -23,7 +23,7 @@ export const AuthAPI = {
       const publicKey = getPublicKey(passphrase);
       const message = await AuthAPI.requestMessage(publicKey);
       const signedMessage = await tymtCore.Blockchains.solar.wallet.signMessage(message, passphrase);
-      const res = await axios.post<{ data: IUser }>(`${CONFIG_TYMT_BACKEND_URL}/auth/signup`, { nickname, sxpAddress, publicKey, signedMessage });
+      const res = await axios.post<{ data: IUser }>(`${CONFIG_TYMT_BACKEND_URL}/api/auth/signup`, { nickname, sxpAddress, publicKey, signedMessage });
       return res?.data?.data;
     } catch (err) {
       throw new Error(err.response?.data?.error ?? "Failed to signup");
@@ -36,7 +36,7 @@ export const AuthAPI = {
       const publicKey = getPublicKey(passphrase);
       const message = await AuthAPI.requestMessage(publicKey);
       const signedMessage = await tymtCore.Blockchains.solar.wallet.signMessage(message, passphrase);
-      const res = await axios.post<{ data: ILoginResponse }>(`${CONFIG_TYMT_BACKEND_URL}/auth/login`, { sxpAddress, publicKey, signedMessage });
+      const res = await axios.post<{ data: ILoginResponse }>(`${CONFIG_TYMT_BACKEND_URL}/api/auth/login`, { sxpAddress, publicKey, signedMessage });
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to login: ", err.response?.data ?? err);
@@ -46,7 +46,7 @@ export const AuthAPI = {
 
   refreshToken: async (refreshToken: string) => {
     try {
-      const res = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/auth/refresh-token`, { refreshToken });
+      const res = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/api/auth/refresh-token`, { refreshToken });
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to refreshToken: ", err.response?.data ?? err);
@@ -56,7 +56,7 @@ export const AuthAPI = {
 
   getDrmToken: async (gameId: string) => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/auth/game/drm-token/${gameId}`);
+      const res = await axiosAuth.get(`/auth/game/drm-token/${gameId}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getDrmToken: ", err.response?.data ?? err);

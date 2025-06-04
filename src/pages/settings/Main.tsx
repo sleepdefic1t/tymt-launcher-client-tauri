@@ -2,9 +2,9 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import numeral from "numeral";
 
 import { Box, Button, Divider, Stack } from "@mui/material";
+import { multiply, formatForDisplay } from "../../lib/helper/balanceUtils";
 
 import { useWallet } from "../../providers/WalletProvider";
 
@@ -161,11 +161,11 @@ const Main = ({ view, setView }: IPropsMain) => {
                 <Box className="fs-14-light gray">{t("set-2_connected-wallet-address")}:</Box>
                 <Box className="fs-14-light blue">{currentChainWalletAddress ?? ""}</Box>
                 <Box className="fs-14-light gray">
-                  {`${t("set-4_balance")} ${numeral(currentChainNativeBalance ?? 0).format("0,0.0000")} ${currentSupportChain?.native?.symbol} (${numeral(
-                    (currentChainNativeBalance ?? 0) * (currentChainNativePrice ?? 0) * (currentCurrencyReserve ?? 0)
-                  ).format("0,0.00")} ${currentCurrencySymbol})`}
+                  {`${t("set-4_balance")} ${formatForDisplay(currentChainNativeBalance || '0', 4)} ${currentSupportChain?.native?.symbol} (${formatForDisplay(
+                    multiply(multiply(currentChainNativeBalance || '0', currentChainNativePrice || '0'), (currentCurrencyReserve || 0).toString()), 2
+                  )} ${currentCurrencySymbol})`}
                 </Box>
-                <Box className="fs-14-light gray">{`${t("set-88_total_balance")} ${numeral(totalBalance).format("0,0.00")} ${currentCurrencySymbol}`}</Box>
+                <Box className="fs-14-light gray">{`${t("set-88_total_balance")} ${formatForDisplay(totalBalance, 2)} ${currentCurrencySymbol}`}</Box>
               </Box>
             </Box>
             <Divider variant="middle" sx={{ backgroundColor: "#FFFFFF1A" }} />

@@ -3,7 +3,7 @@ import { Box, Skeleton, Stack } from "@mui/material";
 import { IPurchaseHistory } from "../../types/APITypes/PurchaseAPITypes";
 import { IMetaPurchasePagination } from "../../types/APITypes/BasicAPITypes";
 import { useWallet } from "../../providers/WalletProvider";
-import numeral from "numeral";
+import { multiply, formatForDisplay } from "../../lib/helper/balanceUtils";
 
 export interface IPropsPurchaseMetrics {
   loading: boolean;
@@ -33,7 +33,7 @@ const PurchaseMetrics = ({ loading, historyPagination }: IPropsPurchaseMetrics) 
       <Stack padding={"24px 40px"}>
         <Box className="fs-16-regular light t-center">{t("pur-4_total-spent-sxp")}</Box>
         <Box className="fs-34-bold white t-center">
-          {loading || !historyPagination?.meta?.total_sxp ? <Skeleton /> : `${numeral(historyPagination?.meta?.total_sxp).format("0,0.00")} SXP`}
+          {loading || !historyPagination?.meta?.total_sxp ? <Skeleton /> : `${formatForDisplay(historyPagination?.meta?.total_sxp.toString(), 2)} SXP`}
         </Box>
       </Stack>
       <Stack padding={"32px 24px"}>
@@ -51,7 +51,7 @@ const PurchaseMetrics = ({ loading, historyPagination }: IPropsPurchaseMetrics) 
           {loading || !historyPagination?.meta?.total_sxp ? (
             <Skeleton />
           ) : (
-            `${numeral(historyPagination?.meta?.total_sxp * sxpPrice * currentCurrencyReserve).format("0,0.00")} ${currentCurrencySymbol}`
+            `${formatForDisplay(multiply(multiply(historyPagination?.meta?.total_sxp.toString(), sxpPrice), currentCurrencyReserve.toString()), 2)} ${currentCurrencySymbol}`
           )}
         </Box>
       </Stack>

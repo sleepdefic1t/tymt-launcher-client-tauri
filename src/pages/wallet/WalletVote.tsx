@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import numeral from "numeral";
 
 import { CONFIG_SOLAR_SCAN } from "../../config/MainConfig";
+import { multiply, formatForDisplay } from "../../lib/helper/balanceUtils";
 
 import { Grid, Box, Divider, Stack, Button, Pagination, IconButton, Tooltip, CircularProgress } from "@mui/material";
 
@@ -186,9 +187,9 @@ const WalletVote = () => {
             </Stack>
             <Stack padding={"24px 40px"}>
               <Box className="fs-16-regular light t-center">{t("wal-18_total-voted")}</Box>
-              <Box className="fs-34-bold white t-center">{`${numeral(totalVoted).format("0,0")} SXP`}</Box>
-              <Box className="fs-18-regular light t-center">{`${currentCurrencySymbol} ${numeral(totalVoted * sxpPrice * currentCurrencyReserve).format(
-                "0,0"
+              <Box className="fs-34-bold white t-center">{`${formatForDisplay(totalVoted.toString(), 0)} SXP`}</Box>
+              <Box className="fs-18-regular light t-center">{`${currentCurrencySymbol} ${formatForDisplay(
+                multiply(multiply(totalVoted.toString(), sxpPrice), currentCurrencyReserve.toString()), 0
               )}`}</Box>
             </Stack>
             <Stack padding={"32px 24px"}>

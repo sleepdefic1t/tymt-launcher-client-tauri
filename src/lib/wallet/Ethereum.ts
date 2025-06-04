@@ -3,6 +3,7 @@ import * as ethereumjsWallet from "ethereumjs-wallet";
 import * as bip39 from "bip39";
 import { validate } from "multicoin-address-validator";
 import axios from "axios";
+import { convertFromRaw } from "../helper/balanceUtils";
 
 import { CONFIG_ETH_API_URL, CONFIG_ETH_API_KEY, CONFIG_NETWORK_NAME } from "../../config/MainConfig";
 
@@ -66,7 +67,7 @@ export class Ethereum {
     }
   }
 
-  static async getBalance(addr: string): Promise<number> {
+  static async getBalance(addr: string): Promise<string> {
     try {
       const response = await axios.get(`${CONFIG_ETH_API_URL}`, {
         params: {
@@ -78,10 +79,10 @@ export class Ethereum {
         },
       });
       const result = response.data.result;
-      return parseFloat(result) / 1e18; // Convert from Wei to ETH
+      return convertFromRaw(result, 18); // Convert from Wei to ETH using BigNumber
     } catch (err) {
       console.error("Failed Ethereum getBalance: ", err);
-      return 0;
+      return '0';
     }
   }
 
@@ -92,7 +93,7 @@ export class Ethereum {
         if (CONFIG_NETWORK_NAME === "testnet") {
           result.push({
             symbol: tokens[i].symbol,
-            balance: 0,
+            balance: '0',
           });
         } else {
           const response = await axios.get(`${CONFIG_ETH_API_URL}`, {
@@ -105,7 +106,7 @@ export class Ethereum {
               apikey: CONFIG_ETH_API_KEY,
             },
           });
-          const balance = parseFloat(response.data.result) / 10 ** (tokens[i].decimals as number);
+          const balance = convertFromRaw(response.data.result, tokens[i].decimals as number);
           result.push({
             symbol: tokens[i].symbol,
             balance: balance,

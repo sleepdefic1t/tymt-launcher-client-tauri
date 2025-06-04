@@ -43,7 +43,7 @@ axiosAuth.interceptors.response.use(
         }
         const { refreshToken } = JSON.parse(auth);
 
-        const response = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/auth/refresh-token`, { refreshToken });
+        const response = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/api/auth/refresh-token`, { refreshToken });
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data?.data;
 

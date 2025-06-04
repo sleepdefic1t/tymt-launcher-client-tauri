@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { add, compare, formatForDisplay } from "../../lib/helper/balanceUtils";
+import BigNumber from "bignumber.js";
 
 import { Grid, Box, Stack, IconButton, Button, CircularProgress } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -181,7 +183,8 @@ const WalletSend = () => {
 
   useEffect(() => {
     if (currentSupportChain?.native?.symbol === "SXP") {
-      if (currentChainNativeBalance < Number(amount) + Number(sxpFee)) {
+      const totalNeeded = add(amount || '0', sxpFee.toString());
+      if (compare(currentChainNativeBalance, totalNeeded) < 0) {
         setLowBalanceError(true);
       } else {
         setLowBalanceError(false);
@@ -220,14 +223,15 @@ const WalletSend = () => {
                   <Box className={"fs-18-regular light"}>{t("wal-9_you-send")}</Box>
                   <Stack direction={"row"} alignItems={"center"} spacing={"8px"}>
                     <Box component={"img"} src={walletIcon} width={"18px"} height={"18px"} />
-                    <Box className={"fs-12-light light"}>{formatBalance(currentChainNativeBalance ?? 0, 4)}</Box>
+                    <Box className={"fs-12-light light"}>{formatForDisplay(currentChainNativeBalance || '0', 4)}</Box>
                     <Box
                       className={"fs-14-bold blue"}
                       onClick={() => {
                         if (currentSupportChain?.native?.symbol === "SXP") {
-                          handleAmount((currentChainNativeBalance - sxpFee)?.toString());
+                          const maxAmount = new BigNumber(currentChainNativeBalance || '0').minus(sxpFee || '0').toFixed();
+                          handleAmount(maxAmount);
                         } else {
-                          handleAmount(currentChainNativeBalance?.toString());
+                          handleAmount(currentChainNativeBalance?.toString() || '0');
                         }
                       }}
                       sx={{

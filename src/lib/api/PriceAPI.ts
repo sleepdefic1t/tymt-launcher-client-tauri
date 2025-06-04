@@ -1,8 +1,8 @@
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { isArray } from "lodash";
 
 import tymtStorage from "../storage/tymtStorage";
-import { CONFIG_TYMT_BACKEND_URL } from "../../config/MainConfig";
+import axiosAuth from "../core/AxiosAuth";
 
 import { ISaltToken } from "../../types/AccountTypes";
 import { IPrice } from "../../types/PriceTypes";
@@ -11,7 +11,7 @@ import { IPriceAPIGetAllTokenPricesResponse } from "../../types/APITypes/PriceAP
 export class PriceAPI {
   static async getAllTokenPrices(): Promise<IPriceAPIGetAllTokenPricesResponse[]> {
     try {
-      const result = await axios.get(`${CONFIG_TYMT_BACKEND_URL}/token-prices/latest-token-prices-cmc`);
+      const result = await axiosAuth.get(`/token-prices/latest-token-prices-cmc`);
       if (!result?.data?.result?.data && !isArray(result?.data?.result?.data)) {
         // console.error("getAllTokenPrices: response undefined or not an array");
         return [] as IPriceAPIGetAllTokenPricesResponse[];
@@ -25,7 +25,7 @@ export class PriceAPI {
   static async getTokenPrices(): Promise<AxiosResponse<any, any>> {
     try {
       const saltTokenStore: ISaltToken = JSON.parse(tymtStorage.get(`saltToken`));
-      const result = await axios.get(`${CONFIG_TYMT_BACKEND_URL}/token-prices`, {
+      const result = await axiosAuth.get(`/token-prices`, {
         headers: {
           "x-token": saltTokenStore.token,
         },
@@ -39,7 +39,7 @@ export class PriceAPI {
   static async getTokenPrice(cmc: string): Promise<AxiosResponse<any, any>> {
     try {
       const saltTokenStore: ISaltToken = JSON.parse(tymtStorage.get(`saltToken`));
-      const result = await axios.get(`${CONFIG_TYMT_BACKEND_URL}/token-prices/latest-token-price-by-cmc/${cmc}`, {
+      const result = await axiosAuth.get(`/token-prices/latest-token-price-by-cmc/${cmc}`, {
         headers: {
           "x-token": saltTokenStore.token,
         },

@@ -249,7 +249,7 @@ export const CONST_SUPPORT_CHAINS: ISupportChain[] = [
   {
     native: {
       address: "",
-      symbol: CONST_CHAIN_SYMBOLS.ETHEREUM, // ARBETH is not correct for cmc symbol
+      symbol: CONST_CHAIN_SYMBOLS.ARBITRUM,
       name: CONST_CHAIN_NAMES.ARBITRUM,
       key: "arbitrum",
       decimals: 18,

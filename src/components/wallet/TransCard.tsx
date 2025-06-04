@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import numeral from "numeral";
 import { Stack, Box, Button, CircularProgress } from "@mui/material";
 import { useWallet } from "../../providers/WalletProvider";
+import { multiply, formatForDisplay } from "../../lib/helper/balanceUtils";
 import TooltipComponent from "../home/TooltipComponent";
 import { formatTx } from "../../lib/helper/WalletHelper";
 import { openLink } from "../../lib/helper/TauriHelper";
@@ -94,13 +94,13 @@ const TransCard = ({ loading, txList }: IPropsTransCard) => {
                     <Stack>
                       <Stack direction={"row"} spacing={"8px"} alignItems={"center"}>
                         <Box component={"img"} src={currentNativeOrToken.logo} width={"24px"} height={"24px"}></Box>
-                        <Box className={"fs-16-regular white center-align"}>{`${numeral(displayTxAmount).format("0,0.00[0000]")} ${
+                        <Box className={"fs-16-regular white center-align"}>{`${formatForDisplay(displayTxAmount, 4)} ${
                           currentNativeOrToken.symbol
                         }`}</Box>
                       </Stack>
-                      <Box className={"fs-12-light light t-right"}>{`${currentCurrencySymbol} ${numeral(
-                        displayTxAmount * currentChainNativePrice * currentCurrencyReserve
-                      ).format("0,0.[00]")}`}</Box>
+                      <Box className={"fs-12-light light t-right"}>{`${currentCurrencySymbol} ${formatForDisplay(
+                        multiply(multiply(displayTxAmount, currentChainNativePrice), currentCurrencyReserve.toString()), 2
+                      )}`}</Box>
                     </Stack>
                   </Stack>
                 </Button>

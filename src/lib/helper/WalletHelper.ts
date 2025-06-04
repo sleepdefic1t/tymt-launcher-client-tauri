@@ -1,6 +1,7 @@
 import * as bip39 from "bip39";
 
 import { CONST_CHAIN_NAMES, CONST_CHAIN_SYMBOLS, CONST_SUPPORT_CHAINS } from "../../const/ChainConsts";
+import { convertFromRaw, add } from "./balanceUtils";
 import {
   CONFIG_NETWORK_NAME,
   CONFIG_SOLAR_SCAN,
@@ -148,53 +149,55 @@ export const getSupportTokensByChainName = (chainName: string) => {
   }
 };
 
-export const getTokenPriceBySymbol = (priceListStore: IPriceList, symbol: string) => {
+export const getTokenPriceBySymbol = (priceListStore: IPriceList, symbol: string): string => {
   try {
-    const res = priceListStore?.list?.find((one) => one?.symbol === symbol)?.price;
-    return res;
+    const price = priceListStore?.list?.find((one) => one?.symbol === symbol)?.price || 0;
+    return price.toString();
   } catch (err) {
     console.error("Failed to getCurrentChainNativeTokenPrice: ", err);
+    return '0';
   }
 };
 
-export const getNativeDecimalsBySymbol = (symbol) => {
+export const getNativeDecimalsBySymbol = (symbol: string): number | null => {
   for (const chain of CONST_SUPPORT_CHAINS) {
     if (chain.native.symbol === symbol) {
-      return chain.native.decimals; // Return the decimal if the symbol matches
+      return Number(chain.native.decimals); // Return the decimal if the symbol matches
     }
   }
   return null; // Return null if the symbol is not found
 };
 
-export const getTokenBalanceBySymbol = (balanceListStore: IBalanceList, symbol: string) => {
+export const getTokenBalanceBySymbol = (balanceListStore: IBalanceList, symbol: string): string => {
   try {
-    const decimal = getNativeDecimalsBySymbol(symbol);
-    const res = balanceListStore?.list?.find((one) => one?.symbol === symbol)?.balance / Math.pow(10, decimal as number) || 0;
-    return res;
+    const balance = balanceListStore?.list?.find((one) => one?.symbol === symbol)?.balance || '0';
+    const decimal = getNativeDecimalsBySymbol(symbol) || 18;
+    return convertFromRaw(balance, decimal);
   } catch (err) {
     console.error("Failed to getTokenBalanceBySymbol: ", err);
+    return '0';
   }
 };
 
-export const getNativeTokenPriceByChainName = (priceListStore: IPriceList, chainName: string) => {
+export const getNativeTokenPriceByChainName = (priceListStore: IPriceList, chainName: string): string => {
   try {
     const supportChain = getSupportChainByName(chainName);
     const symbol = supportChain?.native?.symbol;
-    const res = getTokenPriceBySymbol(priceListStore, symbol);
-    return res;
+    return getTokenPriceBySymbol(priceListStore, symbol);
   } catch (err) {
     console.error("Failed to getNativeSymbolByChainName: ", err);
+    return '0';
   }
 };
 
-export const getNativeTokenBalanceByChainName = (balanceListStore: IBalanceList, chainName: string) => {
+export const getNativeTokenBalanceByChainName = (balanceListStore: IBalanceList, chainName: string): string => {
   try {
     const supportChain = getSupportChainByName(chainName);
     const symbol = supportChain?.native?.symbol;
-    const res = getTokenBalanceBySymbol(balanceListStore, symbol);
-    return res;
+    return getTokenBalanceBySymbol(balanceListStore, symbol);
   } catch (err) {
     console.error("Failed to getNativeSymbolByChainName: ", err);
+    return '0';
   }
 };
 
@@ -295,8 +298,9 @@ export const getTxScanLink = (txId: string, currentChainName: string) => {
 
 export const formatTx = (tx: ITransaction, currentChainWallet: string, currentChainName: string) => {
   const displayTxImage = tx.type === "vote" ? txIconMap.get("TX_VOTE") : tx.sender === currentChainWallet ? txIconMap.get("TX_OUT") : txIconMap.get("TX_IN");
-  const displayTxAmount = tx.amount + tx.fee;
-  const displayTxAddress = tx.type === "vote" ? tx.sender : tx.sender === currentChainWallet ? tx.asset[0].recipient : tx.sender;
+  // Use balanceUtils to add string amounts properly
+  const displayTxAmount = add(tx.amount, tx.fee);
+  const displayTxAddress = tx.type === "vote" ? tx.sender : tx.sender === currentChainWallet && tx.asset.length > 0 ? tx.asset[0].recipient : tx.sender;
   const displayTxTooltip = tx.type === "vote" ? "Vote" : tx.sender === currentChainWallet ? "Transfer Out" : "Transfer In";
   const displayTimestamp = formatUnixTime(tx.timestamp);
   const txScanLink = getTxScanLink(tx.txId, currentChainName);

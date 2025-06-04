@@ -56,7 +56,7 @@ export class BalanceAPI {
         case CONST_CHAIN_NAMES.BITCOIN:
           nativeBalance = {
             symbol: getNativeSymbolByChainName(chainName),
-            balance: await tymtCore.Blockchains.btc.wallet.getBalance(walletAddress),
+            balance: String(await tymtCore.Blockchains.btc.wallet.getBalance(walletAddress)),
           };
           break;
         case CONST_CHAIN_NAMES.ETHEREUM:
@@ -83,7 +83,7 @@ export class BalanceAPI {
         case CONST_CHAIN_NAMES.SOLANA:
           nativeBalance = {
             symbol: getNativeSymbolByChainName(chainName),
-            balance: await tymtCore.Blockchains.solana.wallet.getBalance(walletAddress),
+            balance: String(await tymtCore.Blockchains.solana.wallet.getBalance(walletAddress)),
           };
           break;
         case CONST_CHAIN_NAMES.SOLAR:

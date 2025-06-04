@@ -12,7 +12,7 @@ import { getBalanceList } from "../../store/BalanceListSlice";
 import { getPriceList } from "../../store/PriceListSlice";
 
 import { getTokenBalanceBySymbol, getTokenPriceBySymbol } from "../../lib/helper/WalletHelper";
-import { formatBalance } from "../../lib/helper/NumberHelper";
+import { formatForDisplay, multiply } from "../../lib/helper/balanceUtils";
 
 import { ISupportChain } from "../../types/ChainTypes";
 import { IBalanceList } from "../../types/WalletTypes";
@@ -125,9 +125,9 @@ const WalletCard = ({ supportChain, index, openQR }: IPropsWalletCard) => {
                   >
                     {supportChain?.native?.name}
                   </Box>
-                  <Box className={"fs-18-regular white"}>{`${formatBalance(balance, 4)} ${supportChain?.native?.symbol}`}</Box>
-                  <Box className={"fs-16-regular light t-left"}>{`${currentCurrencySymbol} ${formatBalance(
-                    Number(price ?? 0) * Number(balance ?? 0) * currentCurrencyReserve
+                  <Box className={"fs-18-regular white"}>{`${formatForDisplay(balance, 4)} ${supportChain?.native?.symbol}`}</Box>
+                  <Box className={"fs-16-regular light t-left"}>{`${currentCurrencySymbol} ${formatForDisplay(
+                    multiply(multiply(balance, price), currentCurrencyReserve.toString()), 2
                   )}`}</Box>
                 </Stack>
               </Stack>

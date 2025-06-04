@@ -9,6 +9,7 @@ import { IBalance } from "../../types/WalletTypes";
 import { IRecipient } from "../../types/TransactionTypes";
 import { CONST_CHAIN_IDS } from "../../const/ChainConsts";
 import { CryptoAPI } from "../api/CryptoAPI";
+import { convertFromRaw } from "../helper/balanceUtils";
 
 export class Optimism {
   static async getWalletFromMnemonic(mnemonic: string): Promise<any> {
@@ -27,14 +28,14 @@ export class Optimism {
     return wallet.address;
   }
 
-  static async getBalance(addr: string): Promise<number> {
+  static async getBalance(addr: string): Promise<string> {
     try {
-      if (CONFIG_NETWORK_NAME === "testnet") return 0;
+      if (CONFIG_NETWORK_NAME === "testnet") return '0';
       const result = (await (await fetch(`${CONFIG_OP_API_URL}?module=account&action=balance&address=${addr}&tag=latest&apikey=${CONFIG_OP_API_KEY}`)).json())
         .result;
-      return (result as number) / 1e9 / 1e9;
+      return convertFromRaw(result, 18);
     } catch {
-      return 0;
+      return '0';
     }
   }
 
@@ -45,20 +46,19 @@ export class Optimism {
         if (CONFIG_NETWORK_NAME === "testnet") {
           result.push({
             symbol: tokens[i].symbol,
-            balance: 0,
+            balance: '0',
           });
         } else {
+          const tokenResult = (
+            await (
+              await fetch(
+                `${CONFIG_OP_API_URL}?module=account&action=tokenbalance&contractAddress=${tokens[i].address}&address=${addr}&tag=latest&apikey=${CONFIG_OP_API_KEY}`
+              )
+            ).json()
+          ).result;
           result.push({
             symbol: tokens[i].symbol,
-            balance:
-              ((
-                await (
-                  await fetch(
-                    `${CONFIG_OP_API_URL}?module=account&action=tokenbalance&contractAddress=${tokens[i].address}&address=${addr}&tag=latest&apikey=${CONFIG_OP_API_KEY}`
-                  )
-                ).json()
-              ).result as number) /
-              10 ** (tokens[i].decimals as number),
+            balance: convertFromRaw(tokenResult, tokens[i].decimals as number),
           });
         }
       }

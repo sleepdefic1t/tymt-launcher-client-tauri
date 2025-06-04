@@ -12,7 +12,7 @@ export interface IWalletAddresses {
 
 export interface IBalance {
   symbol: string;
-  balance: number;
+  balance: string;
 }
 
 export interface IBalanceList {

@@ -2,6 +2,7 @@ import { Managers, Identities, Transactions, Crypto } from "@solar-network/crypt
 import { generateMnemonic } from "bip39";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import Big from "big.js";
+import { convertFromRaw } from "../helper/balanceUtils";
 
 import { CONFIG_NETWORK_NAME, CONFIG_SOLAR_API_URL } from "../../config/MainConfig";
 
@@ -117,12 +118,13 @@ export class Solar {
     return res;
   }
 
-  static async getBalance(addr: string): Promise<number> {
+  static async getBalance(addr: string): Promise<string> {
     try {
       const response = await axios.get(`${CONFIG_SOLAR_API_URL}/wallets/${addr}`);
-      return response.data.data.balance;
+      // Solar API returns balance as string (no decimal)
+      return convertFromRaw(response.data.data.balance, 8);
     } catch {
-      return 0;
+      return '0';
     }
   }
 
@@ -205,6 +207,9 @@ export class Solar {
     }
   }
 
+  // TODO: Remove this method - it duplicates CryptoAPI.getSxpTransactions() which is the one actually used
+  // This method is unused dead code that should be deleted once we clean up the duplication
+  // The transaction parsing issues (typeGroup checking, precision loss) were fixed in CryptoAPI.ts
   static async getTransactions(addr: string, page: number, pageSize: number): Promise<ITransactionPagination> {
     try {
       const response = await axios.get(`${CONFIG_SOLAR_API_URL}/wallets/${addr}/transactions`, {

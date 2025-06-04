@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import numeral from "numeral";
+import { formatForDisplay, isPositive } from "../../lib/helper/balanceUtils";
 
 import { Grid, Stack, Box, IconButton, Button, Pagination } from "@mui/material";
 
@@ -150,7 +150,7 @@ const Wallet = () => {
                       </Stack>
                       <Stack direction={"row"} justifyContent={"flex-start"} gap={2}>
                         <Box className="fs-h4 white">{currentCurrencySymbol}</Box>
-                        <Box className="fs-h2 white">{numeral(totalBalance).format("0,0.00")}</Box>
+                        <Box className="fs-h2 white">{formatForDisplay(totalBalance, 2)}</Box>
                       </Stack>
                     </Stack>
                     <Stack direction={"row"} spacing={"32px"}>
@@ -206,7 +206,7 @@ const Wallet = () => {
                   <Grid container spacing={"32px"}>
                     {CONST_SUPPORT_CHAINS?.map((supportChain, index) => {
                       if (walletSettingStore?.hideZeroBalance) {
-                        if (getNativeTokenBalanceByChainName(balanceListStore, supportChain?.native?.name) > 0) {
+                        if (isPositive(getNativeTokenBalanceByChainName(balanceListStore, supportChain?.native?.name))) {
                           return (
                             <Grid item xs={6} key={`wallet-card-non-zero-${index}`}>
                               <WalletCard

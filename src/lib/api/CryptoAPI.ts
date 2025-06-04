@@ -1,6 +1,7 @@
 import axios from "axios";
 import axiosAuth from "../core/AxiosAuth";
-import { CONFIG_SOLAR_API_URL, CONFIG_TYMT_BACKEND_URL } from "../../config/MainConfig";
+import { CONFIG_SOLAR_API_URL } from "../../config/MainConfig";
+import { convertFromRaw } from "../helper/balanceUtils";
 import { CONST_CHAIN_SYMBOLS } from "../../const/ChainConsts";
 import { ITransactionPagination, ITransaction } from "../../types/TransactionTypes";
 import { formatEvmResponseToTxPagination } from "../helper/WalletHelper";
@@ -10,7 +11,7 @@ export const CryptoAPI = {
   getAllCurrencyRates: async (): Promise<any> => {
     try {
       const currencies = Object.values(CONST_CURRENCY_NAMES).join(",");
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/currency-rates`, { params: { currencies } });
+      const res = await axiosAuth.get(`/crypto/currency-rates`, { params: { currencies } });
       const data = res?.data?.data?.map((one) => ({ currency: one?.currency, reserve: parseFloat(one?.rate) }));
       return data;
     } catch (err) {
@@ -22,7 +23,7 @@ export const CryptoAPI = {
   getAllPrices: async (): Promise<any> => {
     try {
       const symbols = Object.values(CONST_CHAIN_SYMBOLS).join(",");
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/price`, { params: { symbols } });
+      const res = await axiosAuth.get(`/crypto/price`, { params: { symbols } });
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getAllPrices: ", err.response?.data ?? err);
@@ -32,7 +33,7 @@ export const CryptoAPI = {
 
   getAllBalance: async (body: { evmAddress: string; solAddress: string; btcAddress: string }): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance`, body);
+      const res = await axiosAuth.post(`/crypto/balance`, body);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getAllBalance: ", err.response?.data ?? err);
@@ -57,12 +58,12 @@ export const CryptoAPI = {
   //  S:::::::::::::::SS X:::::X       X:::::XP::::::::P
   //   SSSSSSSSSSSSSSS   XXXXXXX       XXXXXXXPPPPPPPPPP
 
-  getSxpBalance: async (address: string): Promise<any> => {
+  getSxpBalance: async (address: string): Promise<string> => {
     try {
       const response = await axios.get(`${CONFIG_SOLAR_API_URL}/wallets/${address}`);
-      return response.data.data.balance / 1e8;
+      // Solar API returns balance as string (no decimal)
+      return convertFromRaw(response.data.data.balance, 8);
     } catch (err) {
-      // return 0;
       console.error("Failed to getSxpBalance: ", err.response?.data ?? err);
       throw new Error(err.response?.data?.error ?? "Failed to getSxpBalance");
     }
@@ -76,15 +77,45 @@ export const CryptoAPI = {
           limit: pageSize,
         },
       });
-      const txList: ITransaction[] = response.data.data.map((one) => ({
-        txId: one?.id,
-        type: one?.type === 6 ? "transfer" : one?.type === 2 ? "vote" : "",
-        asset: one?.type === 6 ? one?.asset?.transfers?.map((three) => ({ amount: three?.amount / 1e8, recipient: three?.recipientId })) : [],
-        amount: one?.type === 6 ? one?.asset?.transfers?.reduce((sum, two) => sum + two?.amount / 1e8, 0) : 0,
-        sender: one?.sender,
-        fee: one?.fee / 1e8,
-        timestamp: one?.timestamp?.unix,
-      }));
+      // TODO: Import and use actual enums from @solar-network/crypto instead of hardcoding values
+      // import { TransactionTypeGroup, TransactionType } from "@solar-network/crypto";
+      // Current hardcoded values match Solar Core but should use the library's enums:
+      // - TransactionTypeGroup.Core = 1
+      // - TransactionTypeGroup.Solar = 2 
+      // - TransactionType.Core.Transfer = 6
+      // - TransactionType.Solar.Vote = 2
+      // Reference: https://github.com/Solar-network/core/blob/main/packages/crypto/src/enums.ts
+
+      const txList: ITransaction[] = response.data.data.map((transaction) => {
+        // Determine transaction type based on BOTH typeGroup AND type
+        let transactionType = "";
+        if (transaction.typeGroup === 1 && transaction.type === 6) {
+          transactionType = "transfer";
+        } else if (transaction.typeGroup === 2 && transaction.type === 2) {
+          transactionType = "vote";
+        }
+
+        // Use the API-provided total amount (already calculated by Solar Core)
+        const amount = transaction.amount ? convertFromRaw(transaction.amount, 8) : "0";
+
+        // Map transfers if present (for display purposes)
+        const asset = (transaction.typeGroup === 1 && transaction.type === 6 && transaction.asset?.transfers)
+          ? transaction.asset.transfers.map(transfer => ({
+              amount: convertFromRaw(String(transfer.amount), 8),
+              recipient: transfer.recipientId
+            }))
+          : [];
+
+        return {
+          txId: transaction.id,
+          type: transactionType,
+          asset: asset,
+          amount: amount,
+          sender: transaction.sender,
+          fee: convertFromRaw(String(transaction.fee), 8),
+          timestamp: transaction.timestamp.unix,
+        };
+      });
       const result: ITransactionPagination = {
         meta: {
           totalCount: response.data.meta.totalCount,
@@ -137,7 +168,7 @@ export const CryptoAPI = {
 
   getEthBalance: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance/eth/${address}`);
+      const res = await axiosAuth.get(`/crypto/balance/eth/${address}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getEthBalance: ", err.response?.data ?? err);
@@ -147,7 +178,7 @@ export const CryptoAPI = {
 
   getEthTransactions: async (address: string, page: number, pageSize: number): Promise<ITransactionPagination> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/eth/${address}`, {
+      const res = await axiosAuth.get(`/crypto/transactions/eth/${address}`, {
         params: {
           page,
           pageSize,
@@ -163,7 +194,7 @@ export const CryptoAPI = {
 
   sendEthRawTransaction: async (rawTransactions: string[]): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/eth`, {
+      const res = await axiosAuth.post(`/crypto/send-raw-transaction/eth`, {
         rawTransactions: rawTransactions,
       });
       console.log(res.data);
@@ -187,7 +218,7 @@ export const CryptoAPI = {
 
   getEthTransactionCount: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/eth`, { address });
+      const res = await axiosAuth.post(`/crypto/get-transaction-count/eth`, { address });
       console.log(res.data);
       return parseInt(res?.data?.data?.count, 16);
     } catch (err) {
@@ -198,7 +229,7 @@ export const CryptoAPI = {
 
   getEthGasPrice: async (): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/eth`);
+      const res = await axiosAuth.get(`/crypto/gas-price/eth`);
       console.log(res.data);
       return parseInt(res?.data?.data?.gasPrice, 16);
     } catch (err) {
@@ -226,7 +257,7 @@ export const CryptoAPI = {
 
   getBscBalance: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance/bsc/${address}`);
+      const res = await axiosAuth.get(`/crypto/balance/bsc/${address}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getBscBalance: ", err.response?.data ?? err);
@@ -236,7 +267,7 @@ export const CryptoAPI = {
 
   getBscTransactions: async (address: string, page: number, pageSize: number): Promise<ITransactionPagination> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/bsc/${address}`, {
+      const res = await axiosAuth.get(`/crypto/transactions/bsc/${address}`, {
         params: {
           page,
           pageSize,
@@ -252,7 +283,7 @@ export const CryptoAPI = {
 
   sendBscRawTransaction: async (rawTransactions: string[]): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/bsc`, {
+      const res = await axiosAuth.post(`/crypto/send-raw-transaction/bsc`, {
         rawTransactions: rawTransactions,
       });
       console.log(res.data);
@@ -276,7 +307,7 @@ export const CryptoAPI = {
 
   getBscTransactionCount: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/bsc`, { address });
+      const res = await axiosAuth.post(`/crypto/get-transaction-count/bsc`, { address });
       console.log(res.data);
       return parseInt(res?.data?.data?.count, 16);
     } catch (err) {
@@ -287,7 +318,7 @@ export const CryptoAPI = {
 
   getBscGasPrice: async (): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/bsc`);
+      const res = await axiosAuth.get(`/crypto/gas-price/bsc`);
       console.log(res.data);
       return parseInt(res?.data?.data?.gasPrice, 16);
     } catch (err) {
@@ -315,7 +346,7 @@ export const CryptoAPI = {
 
   getPolBalance: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance/pol/${address}`);
+      const res = await axiosAuth.get(`/crypto/balance/pol/${address}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getPolBalance: ", err.response?.data ?? err);
@@ -325,7 +356,7 @@ export const CryptoAPI = {
 
   getPolTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/pol/${address}`, {
+      const res = await axiosAuth.get(`/crypto/transactions/pol/${address}`, {
         params: {
           page,
           pageSize,
@@ -341,7 +372,7 @@ export const CryptoAPI = {
 
   sendPolRawTransaction: async (rawTransactions: string[]): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/pol`, {
+      const res = await axiosAuth.post(`/crypto/send-raw-transaction/pol`, {
         rawTransactions: rawTransactions,
       });
       console.log(res.data);
@@ -365,7 +396,7 @@ export const CryptoAPI = {
 
   getPolTransactionCount: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/pol`, { address });
+      const res = await axiosAuth.post(`/crypto/get-transaction-count/pol`, { address });
       console.log(res.data);
       return parseInt(res?.data?.data?.count, 16);
     } catch (err) {
@@ -376,7 +407,7 @@ export const CryptoAPI = {
 
   getPolGasPrice: async (): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/pol`);
+      const res = await axiosAuth.get(`/crypto/gas-price/pol`);
       console.log(res.data);
       return parseInt(res?.data?.data?.gasPrice, 16);
     } catch (err) {
@@ -404,7 +435,7 @@ export const CryptoAPI = {
 
   getAvaxBalance: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance/avax/${address}`);
+      const res = await axiosAuth.get(`/crypto/balance/avax/${address}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getAvaxBalance: ", err.response?.data ?? err);
@@ -414,7 +445,7 @@ export const CryptoAPI = {
 
   getAvaxTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/avax/${address}`, {
+      const res = await axiosAuth.get(`/crypto/transactions/avax/${address}`, {
         params: {
           page,
           pageSize,
@@ -430,7 +461,7 @@ export const CryptoAPI = {
 
   sendAvaxRawTransaction: async (rawTransactions: string[]): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/avax`, {
+      const res = await axiosAuth.post(`/crypto/send-raw-transaction/avax`, {
         rawTransactions: rawTransactions,
       });
       console.log(res.data);
@@ -454,7 +485,7 @@ export const CryptoAPI = {
 
   getAvaxTransactionCount: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/avax`, { address });
+      const res = await axiosAuth.post(`/crypto/get-transaction-count/avax`, { address });
       console.log(res.data);
       return parseInt(res?.data?.data?.count, 16);
     } catch (err) {
@@ -465,7 +496,7 @@ export const CryptoAPI = {
 
   getAvaxGasPrice: async (): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/avax`);
+      const res = await axiosAuth.get(`/crypto/gas-price/avax`);
       console.log(res.data);
       return parseInt(res?.data?.data?.gasPrice, 16);
     } catch (err) {
@@ -493,7 +524,7 @@ export const CryptoAPI = {
 
   getArbBalance: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance/arb/${address}`);
+      const res = await axiosAuth.get(`/crypto/balance/arb/${address}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getArbBalance: ", err.response?.data ?? err);
@@ -503,7 +534,7 @@ export const CryptoAPI = {
 
   getArbTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/arb/${address}`, {
+      const res = await axiosAuth.get(`/crypto/transactions/arb/${address}`, {
         params: {
           page,
           pageSize,
@@ -519,7 +550,7 @@ export const CryptoAPI = {
 
   sendArbRawTransaction: async (rawTransactions: string[]): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/arb`, {
+      const res = await axiosAuth.post(`/crypto/send-raw-transaction/arb`, {
         rawTransactions: rawTransactions,
       });
       console.log(res.data);
@@ -543,7 +574,7 @@ export const CryptoAPI = {
 
   getArbTransactionCount: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/arb`, { address });
+      const res = await axiosAuth.post(`/crypto/get-transaction-count/arb`, { address });
       console.log(res.data);
       return parseInt(res?.data?.data?.count, 16);
     } catch (err) {
@@ -554,7 +585,7 @@ export const CryptoAPI = {
 
   getArbGasPrice: async (): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/arb`);
+      const res = await axiosAuth.get(`/crypto/gas-price/arb`);
       console.log(res.data);
       return parseInt(res?.data?.data?.gasPrice, 16);
     } catch (err) {
@@ -582,7 +613,7 @@ export const CryptoAPI = {
 
   getOpBalance: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance/op/${address}`);
+      const res = await axiosAuth.get(`/crypto/balance/op/${address}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getOpBalance: ", err.response?.data ?? err);
@@ -592,7 +623,7 @@ export const CryptoAPI = {
 
   getOpTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/op/${address}`, {
+      const res = await axiosAuth.get(`/crypto/transactions/op/${address}`, {
         params: {
           page,
           pageSize,
@@ -608,7 +639,7 @@ export const CryptoAPI = {
 
   sendOpRawTransaction: async (rawTransactions: string[]): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/send-raw-transaction/op`, {
+      const res = await axiosAuth.post(`/crypto/send-raw-transaction/op`, {
         rawTransactions: rawTransactions,
       });
       console.log(res.data);
@@ -632,7 +663,7 @@ export const CryptoAPI = {
 
   getOpTransactionCount: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.post(`${CONFIG_TYMT_BACKEND_URL}/crypto/get-transaction-count/op`, { address });
+      const res = await axiosAuth.post(`/crypto/get-transaction-count/op`, { address });
       console.log(res.data);
       return parseInt(res?.data?.data?.count, 16);
     } catch (err) {
@@ -643,7 +674,7 @@ export const CryptoAPI = {
 
   getOpGasPrice: async (): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/gas-price/op`);
+      const res = await axiosAuth.get(`/crypto/gas-price/op`);
       console.log(res.data);
       return parseInt(res?.data?.data?.gasPrice, 16);
     } catch (err) {
@@ -671,7 +702,7 @@ export const CryptoAPI = {
 
   getSolBalance: async (address: string): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/balance/sol/${address}`);
+      const res = await axiosAuth.get(`/crypto/balance/sol/${address}`);
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to getSolBalance: ", err.response?.data ?? err);
@@ -681,7 +712,7 @@ export const CryptoAPI = {
 
   getSolTransactions: async (address: string, page: number, pageSize: number): Promise<any> => {
     try {
-      const res = await axiosAuth.get(`${CONFIG_TYMT_BACKEND_URL}/crypto/transactions/sol/${address}`, {
+      const res = await axiosAuth.get(`/crypto/transactions/sol/${address}`, {
         params: {
           page,
           pageSize,

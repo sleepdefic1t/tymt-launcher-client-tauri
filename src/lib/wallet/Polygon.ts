@@ -9,6 +9,7 @@ import { IBalance } from "../../types/WalletTypes";
 import { IRecipient } from "../../types/TransactionTypes";
 import { CryptoAPI } from "../api/CryptoAPI";
 import { CONST_CHAIN_IDS } from "../../const/ChainConsts";
+import { convertFromRaw } from "../helper/balanceUtils";
 
 export class Polygon {
   static async getWalletFromMnemonic(mnemonic: string): Promise<any> {
@@ -27,13 +28,13 @@ export class Polygon {
     return wallet.address;
   }
 
-  static async getBalance(addr: string): Promise<number> {
+  static async getBalance(addr: string): Promise<string> {
     try {
-      if (CONFIG_NETWORK_NAME === "testnet") return 0;
+      if (CONFIG_NETWORK_NAME === "testnet") return '0';
       const result = (await (await fetch(`${CONFIG_POL_API_URL}?module=account&action=balance&address=${addr}&apikey=${CONFIG_POL_API_KEY}`)).json()).result;
-      return (result as number) / 1e9 / 1e9;
+      return convertFromRaw(result, 18);
     } catch {
-      return 0;
+      return '0';
     }
   }
 
@@ -44,20 +45,19 @@ export class Polygon {
         if (CONFIG_NETWORK_NAME === "testnet") {
           result.push({
             symbol: tokens[i].symbol,
-            balance: 0,
+            balance: '0',
           });
         } else {
+          const tokenResult = (
+            await (
+              await fetch(
+                `${CONFIG_POL_API_URL}?module=account&action=tokenbalance&contractAddress=${tokens[i].address}&address=${addr}&apikey=${CONFIG_POL_API_KEY}`
+              )
+            ).json()
+          ).result;
           result.push({
             symbol: tokens[i].symbol,
-            balance:
-              ((
-                await (
-                  await fetch(
-                    `${CONFIG_POL_API_URL}?module=account&action=tokenbalance&contractAddress=${tokens[i].address}&address=${addr}&apikey=${CONFIG_POL_API_KEY}`
-                  )
-                ).json()
-              ).result as number) /
-              10 ** (tokens[i].decimals as number),
+            balance: convertFromRaw(tokenResult, tokens[i].decimals as number),
           });
         }
       }

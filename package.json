@@ -23,7 +23,8 @@
     "build": "tsc && vite build",
     "postinstall": "patch-package",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "test": "vitest"
   },
   "dependencies": {
     "@alessiodf/wsapi-client": "^0.0.1",
@@ -136,6 +137,9 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.5.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "@types/bs58": "^4.0.4",
     "@types/express": "^4.17.21",
     "@types/lodash": "^4.17.0",
@@ -147,6 +151,8 @@
     "@types/react-scroll": "^1.8.10",
     "@types/redux-state-sync": "^3.1.10",
     "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/ui": "^3.2.1",
+    "happy-dom": "^17.6.3",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "sass": "^1.71.1",
@@ -155,6 +161,7 @@
     "typescript": "*",
     "vite": "^5.0.0",
     "vite-plugin-top-level-await": "^1.4.1",
-    "vite-plugin-wasm": "^3.3.0"
+    "vite-plugin-wasm": "^3.3.0",
+    "vitest": "^3.2.1"
   }
 }

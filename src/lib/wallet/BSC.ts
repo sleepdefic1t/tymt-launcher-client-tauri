@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import * as ethereumjsWallet from "ethereumjs-wallet";
 import * as bip39 from "bip39";
 import axios from "axios";
-
+import { convertFromRaw } from "../helper/balanceUtils";
 import { CONFIG_BSC_API_KEY, CONFIG_BSC_API_URL, CONFIG_NETWORK_NAME } from "../../config/MainConfig";
 
 import { ISupportToken } from "../../types/ChainTypes";
@@ -28,7 +28,7 @@ export class BSC {
     return wallet.address;
   }
 
-  static async getBalance(addr: string): Promise<number> {
+  static async getBalance(addr: string): Promise<string> {
     try {
       const response = await axios.get(`${CONFIG_BSC_API_URL}`, {
         params: {
@@ -39,10 +39,10 @@ export class BSC {
         },
       });
       const result = response.data.result;
-      return parseFloat(result) / 1e18; // Convert from Wei to BNB
+      return convertFromRaw(result, 18); // Convert from Wei to BNB
     } catch (err) {
       console.error("Failed to BSC getBalance: ", err);
-      return 0;
+      return '0';
     }
   }
 
@@ -53,7 +53,7 @@ export class BSC {
         if (CONFIG_NETWORK_NAME === "testnet") {
           result.push({
             symbol: tokens[i].symbol,
-            balance: 0.0,
+            balance: "0",
           });
         } else {
           const response = await axios.get(`${CONFIG_BSC_API_URL}`, {
@@ -65,7 +65,7 @@ export class BSC {
               apikey: CONFIG_BSC_API_KEY,
             },
           });
-          const balance = parseFloat(response.data.result) / 10 ** (tokens[i].decimals as number);
+          const balance = convertFromRaw(response.data.result, tokens[i].decimals as number);
           result.push({
             symbol: tokens[i].symbol,
             balance: balance,

@@ -5,6 +5,8 @@ import numeral from "numeral";
 import { Box, Button, Skeleton, Stack } from "@mui/material";
 import { CONST_CHAIN_ICONS } from "../../../const/ChainConsts";
 import { useWallet } from "../../../providers/WalletProvider";
+import { add, compare, multiply, formatForDisplay } from "../../../lib/helper/balanceUtils";
+import BigNumber from 'bignumber.js';
 import { IGame } from "../../../types/GameTypes";
 import ChevronRightDouble from "../../../assets/arrow/ChevronRightDouble.png";
 
@@ -20,7 +22,10 @@ const BuyGameContent = ({ game, purchaseGame, loadingPrice, gamePriceInSXP }: IP
   const navigate = useNavigate();
   const { sxpBalance, sxpPrice, sxpFee } = useWallet();
 
-  const isInsufficient: boolean = useMemo(() => sxpBalance < +gamePriceInSXP + +sxpFee, [sxpBalance, gamePriceInSXP, sxpFee]);
+  const isInsufficient: boolean = useMemo(() => {
+    const totalNeeded = add(gamePriceInSXP.toString(), sxpFee.toString());
+    return compare(sxpBalance, totalNeeded) < 0;
+  }, [sxpBalance, gamePriceInSXP, sxpFee]);
 
   const handleClick = () => {
     if (isInsufficient) {
@@ -53,8 +58,8 @@ const BuyGameContent = ({ game, purchaseGame, loadingPrice, gamePriceInSXP }: IP
             <Stack direction={"column"} gap={"8px"}>
               <Box className="fs-16-regular light">{`${t("pur-9_your-current-balance")}:`}</Box>
               <Stack direction={"column"} gap={"4px"}>
-                <Box className="fs-16-regular white">{numeral(sxpBalance).format("0,0.00")} SXP</Box>
-                <Box className="fs-16-regular light">$ {numeral(sxpBalance * sxpPrice).format("0,0.00")}</Box>
+                <Box className="fs-16-regular white">{formatForDisplay(sxpBalance, 2)} SXP</Box>
+                <Box className="fs-16-regular light">$ {formatForDisplay(multiply(sxpBalance, sxpPrice), 2)}</Box>
               </Stack>
             </Stack>
           </Stack>
@@ -63,8 +68,8 @@ const BuyGameContent = ({ game, purchaseGame, loadingPrice, gamePriceInSXP }: IP
             <Stack direction={"column"} gap={"8px"}>
               <Box className="fs-16-regular light">{`${t("pur-9_your-current-balance")}:`}</Box>
               <Stack direction={"column"} gap={"4px"}>
-                <Box className="fs-16-regular white">{numeral(sxpBalance).format("0,0.00")} SXP</Box>
-                <Box className="fs-16-regular light">$ {numeral(sxpBalance * sxpPrice).format("0,0.00")}</Box>
+                <Box className="fs-16-regular white">{formatForDisplay(sxpBalance, 2)} SXP</Box>
+                <Box className="fs-16-regular light">$ {formatForDisplay(multiply(sxpBalance, sxpPrice), 2)}</Box>
               </Stack>
             </Stack>
             <Box component={"img"} src={ChevronRightDouble} alt="chevron" sx={{ width: "24px", height: "24px" }} />
@@ -72,10 +77,10 @@ const BuyGameContent = ({ game, purchaseGame, loadingPrice, gamePriceInSXP }: IP
               <Box className="fs-16-regular light">{`${t("pur-10_balance-after-purchase")}:`}</Box>
               <Stack direction={"column"} gap={"4px"}>
                 <Box className="fs-16-regular white">
-                  {loadingPrice ? <Skeleton /> : `${numeral(sxpBalance - gamePriceInSXP - sxpFee).format("0,0.00")} SXP`}
+                  {loadingPrice ? <Skeleton /> : `${formatForDisplay(new BigNumber(sxpBalance).minus(gamePriceInSXP).minus(sxpFee).toFixed(), 2)} SXP`}
                 </Box>
                 <Box className="fs-16-regular light">
-                  {loadingPrice ? <Skeleton /> : `$ ${numeral((sxpBalance - gamePriceInSXP - sxpFee) * sxpPrice).format("0,0.00")}`}
+                  {loadingPrice ? <Skeleton /> : `$ ${formatForDisplay(multiply(new BigNumber(sxpBalance).minus(gamePriceInSXP).minus(sxpFee).toFixed(), sxpPrice), 2)}`}
                 </Box>
               </Stack>
             </Stack>

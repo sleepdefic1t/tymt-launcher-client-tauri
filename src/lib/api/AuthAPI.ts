@@ -1,5 +1,3 @@
-import axios from "axios";
-import { CONFIG_TYMT_BACKEND_URL } from "../../config/MainConfig";
 import tymtCore from "../core/tymtCore";
 import { getPublicKey } from "../helper/WalletHelper";
 import { IUser } from "../../types/APITypes/UserAPITypes";
@@ -9,7 +7,7 @@ import axiosAuth from "../core/AxiosAuth";
 export const AuthAPI = {
   requestMessage: async (publicKey: string): Promise<string> => {
     try {
-      const res = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/api/auth/request-message`, { publicKey });
+      const res = await axiosAuth.post(`/auth/request-message`, { publicKey });
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to requestMessage: ", err.response?.data ?? err);
@@ -23,7 +21,7 @@ export const AuthAPI = {
       const publicKey = getPublicKey(passphrase);
       const message = await AuthAPI.requestMessage(publicKey);
       const signedMessage = await tymtCore.Blockchains.solar.wallet.signMessage(message, passphrase);
-      const res = await axios.post<{ data: IUser }>(`${CONFIG_TYMT_BACKEND_URL}/api/auth/signup`, { nickname, sxpAddress, publicKey, signedMessage });
+      const res = await axiosAuth.post<{ data: IUser }>(`/auth/signup`, { nickname, sxpAddress, publicKey, signedMessage });
       return res?.data?.data;
     } catch (err) {
       throw new Error(err.response?.data?.error ?? "Failed to signup");
@@ -36,7 +34,7 @@ export const AuthAPI = {
       const publicKey = getPublicKey(passphrase);
       const message = await AuthAPI.requestMessage(publicKey);
       const signedMessage = await tymtCore.Blockchains.solar.wallet.signMessage(message, passphrase);
-      const res = await axios.post<{ data: ILoginResponse }>(`${CONFIG_TYMT_BACKEND_URL}/api/auth/login`, { sxpAddress, publicKey, signedMessage });
+      const res = await axiosAuth.post<{ data: ILoginResponse }>(`/auth/login`, { sxpAddress, publicKey, signedMessage });
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to login: ", err.response?.data ?? err);
@@ -46,7 +44,7 @@ export const AuthAPI = {
 
   refreshToken: async (refreshToken: string) => {
     try {
-      const res = await axios.post(`${CONFIG_TYMT_BACKEND_URL}/api/auth/refresh-token`, { refreshToken });
+      const res = await axiosAuth.post(`/auth/refresh-token`, { refreshToken });
       return res?.data?.data;
     } catch (err) {
       console.error("Failed to refreshToken: ", err.response?.data ?? err);

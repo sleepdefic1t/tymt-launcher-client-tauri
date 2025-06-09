@@ -4,7 +4,7 @@ import { CONFIG_TYMT_BACKEND_URL } from "../../config/MainConfig";
 import tymtStorage from "../storage/tymtStorage";
 
 const axiosAuth = axios.create({
-  baseURL: CONFIG_TYMT_BACKEND_URL,
+  baseURL: `${CONFIG_TYMT_BACKEND_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },

@@ -224,13 +224,14 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const fetchBalanceList = useCallback(async () => {
     if (!walletStore || !walletStore?.solar) return;
     const sxpBalance = await tymtCore.Blockchains.solar.wallet.getBalance(walletStore?.solar);
-    const balanceList: Array<{ symbol: string; balance: number }> = await CryptoAPI.getAllBalance({
-      evmAddress: walletStore?.ethereum,
-      solAddress: walletStore?.solana,
-      btcAddress: walletStore?.bitcoin,
-    });
+    // Comment out backend balance call for non-SXP chains
+    // const balanceList: Array<{ symbol: string; balance: number }> = await CryptoAPI.getAllBalance({
+    //   evmAddress: walletStore?.ethereum,
+    //   solAddress: walletStore?.solana,
+    //   btcAddress: walletStore?.bitcoin,
+    // });
     const data = [
-      ...balanceList,
+      // ...balanceList,
       {
         symbol: CONST_CHAIN_SYMBOLS.SOLAR,
         balance: sxpBalance,

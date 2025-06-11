@@ -56,24 +56,24 @@ export const getMnemonic = (_length: number) => {
 export const getWalletAddressesFromPassphrase = async (_passphrase: string) => {
   try {
     const solarAddr = await tymtCore.Blockchains.solar.wallet.getAddress(_passphrase);
-    const bscAddr = await tymtCore.Blockchains.bsc.wallet.getAddress(_passphrase);
-    const ethereumAddr = await tymtCore.Blockchains.eth.wallet.getAddress(_passphrase);
-    const bitcoinAddr = await tymtCore.Blockchains.btc.wallet.getAddress(_passphrase);
-    const solanaAddr = await tymtCore.Blockchains.solana.wallet.getAddress(_passphrase);
-    const polygonAddr = await tymtCore.Blockchains.polygon.wallet.getAddress(_passphrase);
-    const avalancheAddr = await tymtCore.Blockchains.avalanche.wallet.getAddress(_passphrase);
-    const arbitrumAddr = await tymtCore.Blockchains.arbitrum.wallet.getAddress(_passphrase);
-    const optimismAddr = await tymtCore.Blockchains.op.wallet.getAddress(_passphrase);
+    // const bscAddr = await tymtCore.Blockchains.bsc.wallet.getAddress(_passphrase);
+    // const ethereumAddr = await tymtCore.Blockchains.eth.wallet.getAddress(_passphrase);
+    // const bitcoinAddr = await tymtCore.Blockchains.btc.wallet.getAddress(_passphrase);
+    // const solanaAddr = await tymtCore.Blockchains.solana.wallet.getAddress(_passphrase);
+    // const polygonAddr = await tymtCore.Blockchains.polygon.wallet.getAddress(_passphrase);
+    // const avalancheAddr = await tymtCore.Blockchains.avalanche.wallet.getAddress(_passphrase);
+    // const arbitrumAddr = await tymtCore.Blockchains.arbitrum.wallet.getAddress(_passphrase);
+    // const optimismAddr = await tymtCore.Blockchains.op.wallet.getAddress(_passphrase);
 
     const res: IWalletAddresses = {
-      arbitrum: arbitrumAddr,
-      avalanche: avalancheAddr,
-      bitcoin: bitcoinAddr,
-      binance: bscAddr,
-      ethereum: ethereumAddr,
-      optimism: optimismAddr,
-      polygon: polygonAddr,
-      solana: solanaAddr,
+      arbitrum: null, // arbitrumAddr,
+      avalanche: null, // avalancheAddr,
+      bitcoin: null, // bitcoinAddr,
+      binance: null, // bscAddr,
+      ethereum: null, // ethereumAddr,
+      optimism: null, // optimismAddr,
+      polygon: null, // polygonAddr,
+      solana: null, // solanaAddr,
       solar: solarAddr,
     };
 

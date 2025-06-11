@@ -10,6 +10,13 @@ export const CONST_NOTIFICATION_DURATION = {
 };
 
 export const CONST_NOTIFICATION_CONTENTS = {
+  LAUNCH_SUCCESS: {
+    title: "set-85_success",
+    text: "hom-7_launching-game",
+    status: CONST_NOTIFICATION_STATUS.SUCCESS,
+    duration: CONST_NOTIFICATION_DURATION.DEFAULT,
+    link: "",
+  },
   SIGNUP_SUCCESS: {
     title: "set-85_success",
     text: "ncca-68_sign-up-success",

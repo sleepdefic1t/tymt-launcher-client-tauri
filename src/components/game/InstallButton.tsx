@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { ThreeDots } from "react-loader-spinner";
@@ -12,7 +12,7 @@ import { useNotification } from "../../providers/NotificationProvider";
 
 import { getDownloadStatus, resetDownloadStatus } from "../../store/DownloadStatusSlice";
 
-import { openLink } from "../../lib/helper/TauriHelper";
+import { confirm } from '@tauri-apps/plugin-dialog';
 import { /*checkOnline,*/ downloadAndInstallNewGame, getFullExecutablePathNewGame, getGameReleaseBrowser, isInstalled } from "../../lib/helper/DownloadHelper";
 
 import { CONST_GAME_DISTRICT53 } from "../../const/games/district53/District53";
@@ -22,6 +22,8 @@ import { IDownloadStatus } from "../../types/HomeTypes";
 import { CONST_NOTIFICATION_CONTENTS } from "../../const/NotificationConsts";
 import { listen } from "@tauri-apps/api/event";
 import { CONST_EVENT_NAMES } from "../../const/EventConsts";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 export interface IPropsInstallButton {
   game: IGame;
@@ -42,6 +44,42 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
   const [isSupporting, setIsSupporting] = useState<boolean>(false);
   const [installed, setInstalled] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const [clicked, setClicked] = useState(false);
+  const lastClickTimeRef = useRef(0);
+
+  const now = Date.now();
+
+  // async function openExternalWebview(externalUrl, label) {
+
+  //   // Open the webview without returning it
+  //   const webview = new WebviewWindow(label, {
+  //     url: externalUrl
+  //   });
+
+  //   // Optional: listen for events or handle close
+  //   webview.once('tauri://created', () => {
+  //     console.log('Webview created');
+  //   });
+
+  //   webview.once('tauri://error', (e) => {
+  //     console.error('Failed to create webview', e);
+  //   });
+
+  //   webview.once('tauri://destroyed', () => {
+  //     webview.close()
+  //     webview.destroy()
+  //     console.log('Webview was closed');
+  //   });
+
+  //   const unlisten = await WebviewWindow.getCurrent().listen<string>('state-changed', async () => {
+  //     webview.close()
+  //     webview.destroy()
+  //     console.log('User requested to close the webview');
+  //     console.log('Webview was closed');
+  //   });
+
+  //   unlisten();
+  // }
 
   const handleClick = useCallback(async () => {
     try {
@@ -49,7 +87,66 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
       if (game?.projectMeta?.type === "browser") {
         const externalUrl = getGameReleaseBrowser(game)?.external_url;
         if (!externalUrl) return;
-        openLink(externalUrl);
+        // const webview = new WebviewWindow('my-label', {
+        //   url: externalUrl
+        // });
+        setClicked(true);
+        showNotification({ content: CONST_NOTIFICATION_CONTENTS.LAUNCH_SUCCESS });
+        // setTimeout(() => setClicked(false), 4000);
+        // if (now - lastClickTimeRef.current > 4000) {
+        //   openExternalWebview(externalUrl);
+        //   lastClickTimeRef.current = now;
+        //   setClicked(true);
+        //   setTimeout(() => setClicked(false), 4000); // optional UI feedback
+        // } else {
+        //   console.log("Too soon, wait 4 seconds");
+        // }
+        let label = "tymt"
+        // openExternalWebview(externalUrl, label);
+
+
+        // Open the webview without returning it
+        const webview = new WebviewWindow(label, {
+          url: externalUrl
+        });
+
+        const existingWindow = WebviewWindow.getByLabel(label);
+
+        if (!existingWindow) {
+
+          // Open the webview without returning it
+          const webview = new WebviewWindow(label, {
+            url: externalUrl
+          });
+          // Optional: listen for events or handle close
+          webview.once('tauri://created', () => {
+            console.log('Webview created');
+          });
+
+          webview.once('tauri://error', (e) => {
+            console.error('Failed to create webview', e);
+          });
+
+          webview.once('tauri://destroyed', () => {
+            webview.close()
+            webview.destroy()
+            console.log('Webview was closed');
+          });
+
+          const unlisten = await WebviewWindow.getCurrent().listen<string>('state-changed', async () => {
+            webview.close()
+            webview.destroy()
+            console.log('User requested to close the webview');
+            console.log('Webview was closed');
+          });
+
+          unlisten();
+        } else {
+          webview.close()
+          webview.destroy()
+        }
+
+        setTimeout(() => setClicked(false), 4000);
         return;
       }
 
@@ -119,7 +216,7 @@ const InstallButton = ({ game, purchased, setOpenBuyGameModal, purchaseLoading }
       <Button
         fullWidth
         onClick={handleClick}
-        disabled={!isSupporting || !!downloadStatusStore?.game_id || purchaseLoading || installing}
+        disabled={!isSupporting || !!downloadStatusStore?.game_id || purchaseLoading || installing || clicked}
         sx={{
           height: "46px",
           width: "226px",

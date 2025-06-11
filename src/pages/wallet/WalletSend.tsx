@@ -94,12 +94,13 @@ const WalletSend = () => {
     let recipientAddrIsValid = false;
     if (currentSupportChain?.native?.name === CONST_CHAIN_NAMES.SOLAR) {
       recipientAddrIsValid = tymtCore.Blockchains.solar.wallet.validateAddress(newItem.address);
-    } else if (currentSupportChain?.native?.name === CONST_CHAIN_NAMES.BITCOIN) {
-      recipientAddrIsValid = tymtCore.Blockchains.btc.wallet.validateAddress(newItem.address);
-    } else if (currentSupportChain?.native?.name === CONST_CHAIN_NAMES.SOLANA) {
-      recipientAddrIsValid = tymtCore.Blockchains.solana.wallet.validateAddress(newItem.address);
-    } else {
-      recipientAddrIsValid = tymtCore.Blockchains.eth.wallet.validateAddress(newItem.address);
+    // Comment out non-SXP chain validation
+    // } else if (currentSupportChain?.native?.name === CONST_CHAIN_NAMES.BITCOIN) {
+    //   recipientAddrIsValid = tymtCore.Blockchains.btc.wallet.validateAddress(newItem.address);
+    // } else if (currentSupportChain?.native?.name === CONST_CHAIN_NAMES.SOLANA) {
+    //   recipientAddrIsValid = tymtCore.Blockchains.solana.wallet.validateAddress(newItem.address);
+    // } else {
+    //   recipientAddrIsValid = tymtCore.Blockchains.eth.wallet.validateAddress(newItem.address);
     }
     if (!recipientAddrIsValid) {
       return;

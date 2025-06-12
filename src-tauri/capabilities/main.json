@@ -5,9 +5,12 @@
   "windows": [
     "tymtLauncher",
     "tymt_d53_transaction",
-    "game_window"
+    "game_window",
+    "tymt"
   ],
   "permissions": [
+    "core:window:allow-close",
+    "core:window:allow-destroy",
     "core:default",
     "core:path:default",
     "core:event:default",

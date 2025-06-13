@@ -135,3 +135,11 @@ export interface IFeedback {
   userAvatar: string;
   userOnlineStatus: boolean;
 }
+
+export interface IFeedbackDev {
+  _id: string;
+  thumbIs: boolean;
+  text: string;
+  createdAt: Date;
+  userNickname: string;
+}

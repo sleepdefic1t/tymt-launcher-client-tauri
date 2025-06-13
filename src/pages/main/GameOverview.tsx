@@ -26,6 +26,7 @@ import GameAPI from "../../lib/api/GameAPI";
 import { IGame } from "../../types/GameTypes";
 
 import gradient1 from "../../assets/main/GradientGameOverview.svg";
+import GameFeedback from "../../components/game/GameFeedback";
 
 export interface IPropsGameOverview {
   game: IGame;
@@ -134,6 +135,7 @@ const GameOverview = ({ game }: IPropsGameOverview) => {
               <GameOverViewInstallSize game={game} />
               <GameOverViewSystemRequirement game={game} />
               <GameOverViewFollow game={game} />
+              <GameFeedback game={game} />
             </Grid>
           </Grid>
         </AnimatedComponent>

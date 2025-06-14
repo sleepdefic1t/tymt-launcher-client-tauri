@@ -4,17 +4,7 @@ This document explains how Chrome DevTools are configured in the tymtLauncher ap
 
 ## Configuration
 
-### 1. Tauri Configuration (tauri.conf.json)
-The `devtools` property is set to `true` in the app configuration, which enables the DevTools API:
-
-```json
-"app": {
-  "devtools": true,
-  ...
-}
-```
-
-### 2. Runtime DevTools Opening
+### 1. Runtime DevTools Opening
 
 DevTools are automatically opened in the following scenarios:
 

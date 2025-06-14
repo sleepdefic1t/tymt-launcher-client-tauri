@@ -30,7 +30,6 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "devtools": true,
     "windows": [
       {
         "label": "tymtLauncher",

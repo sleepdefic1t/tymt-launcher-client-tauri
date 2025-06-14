@@ -190,10 +190,19 @@ pub fn main() -> std::io::Result<()> {
                 ])
                 .build()?;
 
-            #[cfg(debug_assertions)] // only include this code on debug builds
+            // Enable DevTools in debug mode or when ENABLE_DEVTOOLS env var is set
+            #[cfg(debug_assertions)]
             {
                 let window = app.get_webview_window("tymtLauncher").unwrap();
                 window.open_devtools();
+            }
+
+            #[cfg(not(debug_assertions))]
+            {
+                if std::env::var("ENABLE_DEVTOOLS").unwrap_or_default() == "true" {
+                    let window = app.get_webview_window("tymtLauncher").unwrap();
+                    window.open_devtools();
+                }
             }
 
             let _ = TrayIconBuilder::new()

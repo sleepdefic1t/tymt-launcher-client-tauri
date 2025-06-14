@@ -185,6 +185,9 @@ jobs:
  
           # Misc. API Keys
           VITE_APP_ALCHEMY_KEY: ${{ secrets.VITE_APP_ALCHEMY_KEY }}
+
+          # Enable DevTools for staging builds
+          ENABLE_DEVTOOLS: ${{ github.ref_name == 'staging' && 'true' || 'false' }}
         with:
           tagName: v__VERSION__
           releaseName: "tymt™ v__VERSION__"
